@@ -26,7 +26,7 @@ Serve up the instance of the app locally, using [Vite](https://vitejs.dev/).
 
 ![](public/static/vite-output.png)
 
-Vite expects the local HockeyPickup.Api to be listening on port `5273`. See [vite.config.mjs](vite.config.mjs).
+Vite expects the local HockeyPickup.Api to be listening on port `7042`. See [vite.config.mjs](vite.config.mjs).
 
 ## 🎛️ Updating data models from the Api
 
