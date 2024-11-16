@@ -32,6 +32,67 @@ export interface LoginResponse {
    * @minLength 1
    */
   Expiration: string;
+  /** UserBasicResponse Record */
+  UserBasicResponse: UserBasicResponse;
+}
+
+export interface UserBasicResponse {
+  /**
+   * Unique identifier for the user
+   * @minLength 1
+   * @maxLength 128
+   */
+  Id: string;
+  /**
+   * Username of the user
+   * @minLength 1
+   * @maxLength 256
+   */
+  UserName: string;
+  /**
+   * Email address of the user
+   * @format email
+   * @maxLength 256
+   */
+  Email?: string | null;
+  /**
+   * First name of the user
+   * @maxLength 256
+   */
+  FirstName?: string | null;
+  /**
+   * Last name of the user
+   * @maxLength 256
+   */
+  LastName?: string | null;
+  /** Indicates if the user has preferred status */
+  IsPreferred: boolean;
+  /** Indicates if the user has preferred plus status */
+  IsPreferredPlus: boolean;
+  /** Current team assignment */
+  TeamAssignment?: TeamAssignment | null;
+  /** User's preferred position */
+  PositionPreference?: PositionPreference | null;
+  /** User's notification preferences */
+  NotificationPreference?: NotificationPreference | null;
+}
+
+export enum TeamAssignment {
+  Unassigned = 0,
+  Light = 1,
+  Dark = 2,
+}
+
+export enum PositionPreference {
+  None = 0,
+  Forward = 1,
+  Defense = 2,
+}
+
+export enum NotificationPreference {
+  None = 0,
+  All = 1,
+  OnlyMyBuySell = 2,
 }
 
 export interface LoginRequest {
@@ -258,12 +319,6 @@ export interface SaveUserRequest {
   LockerRoom13?: boolean | null;
 }
 
-export enum NotificationPreference {
-  None = 0,
-  All = 1,
-  OnlyMyBuySell = 2,
-}
-
 export type UserDetailedResponse = UserBasicResponse & {
   /**
    * User's rating
@@ -273,59 +328,6 @@ export type UserDetailedResponse = UserBasicResponse & {
    */
   Rating: number;
 };
-
-export interface UserBasicResponse {
-  /**
-   * Unique identifier for the user
-   * @minLength 1
-   * @maxLength 128
-   */
-  Id: string;
-  /**
-   * Username of the user
-   * @minLength 1
-   * @maxLength 256
-   */
-  UserName: string;
-  /**
-   * Email address of the user
-   * @format email
-   * @maxLength 256
-   */
-  Email?: string | null;
-  /**
-   * First name of the user
-   * @maxLength 256
-   */
-  FirstName?: string | null;
-  /**
-   * Last name of the user
-   * @maxLength 256
-   */
-  LastName?: string | null;
-  /** Indicates if the user has preferred status */
-  IsPreferred: boolean;
-  /** Indicates if the user has preferred plus status */
-  IsPreferredPlus: boolean;
-  /** Current team assignment */
-  TeamAssignment?: TeamAssignment | null;
-  /** User's preferred position */
-  PositionPreference?: PositionPreference | null;
-  /** User's notification preferences */
-  NotificationPreference?: NotificationPreference | null;
-}
-
-export enum TeamAssignment {
-  Unassigned = 0,
-  Light = 1,
-  Dark = 2,
-}
-
-export enum PositionPreference {
-  None = 0,
-  Forward = 1,
-  Defense = 2,
-}
 
 export interface ServiceBusCommsMessage {
   /** Required message metadata (Type, etc) */
@@ -356,6 +358,16 @@ export interface User {
    * @maxLength 256
    */
   Username?: string | null;
+  /**
+   * First name of the user
+   * @maxLength 256
+   */
+  FirstName?: string | null;
+  /**
+   * Last name of the user
+   * @maxLength 256
+   */
+  LastName?: string | null;
   /** Indicates if email has been confirmed */
   EmailConfirmed: boolean;
   /**
@@ -393,21 +405,19 @@ export interface User {
    */
   AccessFailedCount: number;
   /**
-   * User's display name
-   * @minLength 1
-   * @maxLength 256
+   * User's preferred position
+   * @format int32
+   * @min 0
+   * @max 2147483647
    */
-  UserName: string;
+  PositionPreference?: number;
   /**
-   * User's first name
-   * @maxLength 256
+   * Current team assignment
+   * @format int32
+   * @min 0
+   * @max 2147483647
    */
-  FirstName?: string | null;
-  /**
-   * User's last name
-   * @maxLength 256
-   */
-  LastName?: string | null;
+  TeamAssignment?: number;
   /**
    * User's notification preferences
    * @format int32

@@ -27,7 +27,7 @@ export const LoginPage = () => {
     try {
       const response = await authService.login(values);
       if (response.Token) {
-        setUser({ /* user data */ } as any);
+        setUser(response.UserBasicResponse);
         navigate('/');
       }
     } catch (error) {

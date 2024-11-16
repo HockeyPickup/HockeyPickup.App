@@ -1,9 +1,10 @@
-import { Anchor, AppShell, Burger, Button, Group, Title, Stack } from '@mantine/core';
+import { Anchor, AppShell, Burger, Group, Title, Stack, Avatar } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { authService } from '../services/auth';
 import '@mantine/core/styles/Burger.css';
+import { getGravatarUrl } from '../services/gravatar';
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const [opened, { toggle, close }] = useDisclosure();
@@ -58,13 +59,32 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <Title order={3}><Link to={'/'}>Hockey Pickup</Link></Title>
           </Group>
           <Group visibleFrom="sm">
-            {isAuthenticated && <span>Welcome, {user?.FirstName || user?.UserName}</span>}
+            {isAuthenticated && (
+              <Group>
+                <Avatar 
+                  src={getGravatarUrl(user?.Email || '')} 
+                  alt={user?.FirstName || user?.UserName} 
+                  radius="xl"
+                />
+                <span>Welcome, {user?.FirstName || user?.UserName}</span>
+              </Group>
+            )}
             <NavItems />
           </Group>
         </Group>
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
+        {isAuthenticated && (
+          <Group mb="md">
+            <Avatar 
+              src={getGravatarUrl(user?.Email || '')} 
+              alt={user?.FirstName || user?.UserName} 
+              radius="xl"
+            />
+            <span>Welcome, {user?.FirstName || user?.UserName}</span>
+          </Group>
+        )}
         <NavItems />
       </AppShell.Navbar>
 

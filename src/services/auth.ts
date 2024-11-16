@@ -27,17 +27,9 @@ export const authService = {
   },
 
   async logout(): Promise<void> {
-    try {
-      await api.post('/Auth/logout');
-      localStorage.removeItem('auth_token');
-      // Add this line to clear user data from memory
-      window.location.reload(); // This will force a clean reload of the app
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Still remove token and reload even if the API call fails
-      localStorage.removeItem('auth_token');
-      window.location.reload();
-    }
+    const response = await api.post('/Auth/logout');
+    console.info('Logout response:', response);
+    localStorage.removeItem('auth_token');
   },
 };
 
