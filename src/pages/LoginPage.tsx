@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { LoginRequest } from '../HockeyPickup.Api';
 import { authService } from '../services/auth';
 import { useAuth } from '../lib/auth';
+import { useState } from 'react';
 
-export function LoginPage() {
+export const LoginPage = () => {
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginRequest>({
     initialValues: {
@@ -21,15 +23,18 @@ export function LoginPage() {
   });
 
   const handleSubmit = async (values: LoginRequest) => {
+    setIsLoading(true);
     try {
       const response = await authService.login(values);
-      console.info(response);
-      // TODO: Fetch user profile and set it
-      setUser({ /* user data */ } as any); // We'll fix this when we add the user profile fetch
-      navigate('/');
+      if (response.Token) {
+        setUser({ /* user data */ } as any);
+        navigate('/');
+      }
     } catch (error) {
-      // TODO: Add error handling
       console.error('Login failed:', error);
+      form.setErrors({ Username: 'Invalid credentials' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,6 +49,7 @@ export function LoginPage() {
               label="Email"
               placeholder="your@email.com"
               required
+              autoComplete="username email"
               {...form.getInputProps('Username')}
             />
 
@@ -51,15 +57,16 @@ export function LoginPage() {
               label="Password"
               placeholder="Your password"
               required
+              autoComplete="current-password"
               {...form.getInputProps('Password')}
             />
 
-            <Button type="submit" fullWidth mt="xl">
-              Sign in
+            <Button type="submit" fullWidth mt="xl" loading={isLoading}>
+                Sign in
             </Button>
           </Stack>
         </form>
       </Paper>
     </Container>
   );
-}
+};
