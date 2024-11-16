@@ -326,3 +326,138 @@ export enum PositionPreference {
   Forward = 1,
   Defense = 2,
 }
+
+export interface ServiceBusCommsMessage {
+  /** Required message metadata (Type, etc) */
+  Metadata: Record<string, string>;
+  /** Communication method and destination (Email, SMS, etc) */
+  CommunicationMethod: Record<string, string>;
+  /** Related entity IDs (Email, SessionId, etc) */
+  RelatedEntities: Record<string, string>;
+  /** Type-specific message payload data */
+  MessageData?: Record<string, string>;
+}
+
+export interface User {
+  /**
+   * Unique identifier for the user
+   * @minLength 1
+   * @maxLength 128
+   */
+  Id: string;
+  /**
+   * User's email address
+   * @format email
+   * @maxLength 256
+   */
+  Email?: string | null;
+  /**
+   * User's username
+   * @maxLength 256
+   */
+  Username?: string | null;
+  /** Indicates if email has been confirmed */
+  EmailConfirmed: boolean;
+  /**
+   * Hashed password
+   * @maxLength 1024
+   */
+  PasswordHash?: string | null;
+  /**
+   * Security stamp for user
+   * @maxLength 1024
+   */
+  SecurityStamp?: string | null;
+  /**
+   * User's phone number
+   * @format phone
+   * @maxLength 20
+   */
+  PhoneNumber?: string | null;
+  /** Indicates if phone number has been confirmed */
+  PhoneNumberConfirmed: boolean;
+  /** Indicates if two-factor authentication is enabled */
+  TwoFactorEnabled: boolean;
+  /**
+   * Date and time when lockout ends
+   * @format date-time
+   */
+  LockoutEndDateUtc?: string | null;
+  /** Indicates if lockout is enabled */
+  LockoutEnabled: boolean;
+  /**
+   * Number of failed access attempts
+   * @format int32
+   * @min 0
+   * @max 2147483647
+   */
+  AccessFailedCount: number;
+  /**
+   * User's display name
+   * @minLength 1
+   * @maxLength 256
+   */
+  UserName: string;
+  /**
+   * User's first name
+   * @maxLength 256
+   */
+  FirstName?: string | null;
+  /**
+   * User's last name
+   * @maxLength 256
+   */
+  LastName?: string | null;
+  /**
+   * User's notification preferences
+   * @format int32
+   * @min 0
+   * @max 2147483647
+   */
+  NotificationPreference: number;
+  /**
+   * User's PayPal email address
+   * @format email
+   * @minLength 1
+   * @maxLength 256
+   */
+  PayPalEmail: string;
+  /** Indicates if user account is active */
+  Active: boolean;
+  /** Indicates if user has preferred status */
+  Preferred: boolean;
+  /**
+   * User's Venmo account
+   * @maxLength 255
+   * @pattern ^[^\\\./:\@\*\?\"<>\|]{1}[^\\/:\@\*\?\"<>\|]{0,254}$
+   */
+  VenmoAccount?: string | null;
+  /**
+   * Last 4 digits of mobile number
+   * @maxLength 4
+   * @pattern ^(\d{4})$
+   */
+  MobileLast4?: string | null;
+  /**
+   * User's rating
+   * @format decimal
+   * @min 0
+   * @max 5
+   */
+  Rating: number;
+  /** Indicates if user has preferred plus status */
+  PreferredPlus: boolean;
+  /**
+   * Emergency contact name
+   * @maxLength 256
+   */
+  EmergencyName?: string | null;
+  /**
+   * Emergency contact phone number
+   * @format phone
+   * @maxLength 20
+   */
+  EmergencyPhone?: string | null;
+  /** Indicates if user has locker room 13 access */
+  LockerRoom13: boolean;
+}
