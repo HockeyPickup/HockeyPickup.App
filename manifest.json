@@ -1,0 +1,16 @@
+{
+  "name": "HockeyPickup App",
+  "short_name": "HockeyPickup",
+  "description": "It's time we play pickup hockey!",
+  "icons": [
+    {
+      "src": "/static/JB_Puck_Logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#6E3CBC",
+  "theme_color": "#61DAFB"
+}
