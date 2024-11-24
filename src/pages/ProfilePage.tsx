@@ -17,6 +17,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
   ChangePasswordRequest,
@@ -64,21 +65,21 @@ const HeaderSection = (): JSX.Element => {
       <br />
       <Group>
         <Text size='sm'>
-          Member Since:{' '}
+          Player Since:{' '}
           <Text span fw={500}>
-            01/01/2014
+            {moment.utc(user.DateCreated).local().format('MM/DD/yyyy')}
           </Text>
         </Text>
         <Text size='sm'>
           Number of Sessions Played:{' '}
           <Text span fw={500}>
-            68
+            999
           </Text>
         </Text>
         <Text size='sm'>
           Last Session Played:{' '}
           <Text span fw={500}>
-            11/20/2024
+            01/01/2030
           </Text>
         </Text>
       </Group>

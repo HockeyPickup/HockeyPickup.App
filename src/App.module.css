@@ -85,12 +85,22 @@
 }
 
 :global(.mantine-AppShell-main) {
-  touch-action: auto !important;
-  -ms-touch-action: auto !important;
-  padding-top: 60px !important;
-  min-height: calc(100vh - 60px);
-  width: 100%;
-  transform-origin: top;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+:global(.mantine-Container-root) {
+  max-width: 100% !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+
+/* If you're using any Table components, you might also need: */
+:global(.mantine-Table-root) {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 :global(.mantine-AppShell-header) {

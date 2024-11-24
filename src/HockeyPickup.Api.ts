@@ -101,6 +101,11 @@ export interface UserBasicResponse {
   EmergencyPhone?: string | null;
   /** Indicates if user has Locker Room 13 access */
   LockerRoom13: boolean;
+  /**
+   * Date and time when lockout ends
+   * @format date-time
+   */
+  DateCreated?: string | null;
 }
 
 export enum NotificationPreference {
@@ -651,6 +656,11 @@ export interface User {
   EmergencyPhone?: string | null;
   /** Indicates if user has Locker Room 13 access */
   LockerRoom13: boolean;
+  /**
+   * Date and time when lockout ends
+   * @format date-time
+   */
+  DateCreated?: string | null;
 }
 
 /** Generic API response wrapper with typed data payload */

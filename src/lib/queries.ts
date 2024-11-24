@@ -18,6 +18,7 @@ export const GET_USERS = gql`
       EmergencyName
       EmergencyPhone
       LockerRoom13
+      DateCreated
     }
   }
 `;
