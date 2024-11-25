@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+.burger {
+  color: var(--mantine-color-gray-0);
+  transform: scale(1) !important;
+}
+
+.burger:hover {
+  background-color: var(--mantine-color-dark-6);
+}
+
 .fixedHeader {
   position: fixed !important;
   top: 0;

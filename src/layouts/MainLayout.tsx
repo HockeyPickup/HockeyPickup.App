@@ -1,6 +1,6 @@
 import styles from '@/App.module.css';
 import { useZoom } from '@/hooks/useZoom';
-import { AppShell, Avatar, Group, Menu, Text } from '@mantine/core';
+import { AppShell, Avatar, Burger, Group, Menu, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { FC, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -10,7 +10,6 @@ import { useTitle } from './TitleContext';
 
 export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const defaultAvatarImage = '/static/Hanson.jpg';
-  const [, { close }] = useDisclosure();
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const [avatarSrc, setAvatarSrc] = useState(() => {
@@ -28,6 +27,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
     setAvatarSrc(email ? getGravatarUrl(email) : defaultAvatarImage);
   }, [user?.Email]);
   useZoom(false);
+  const [opened, { toggle, close }] = useDisclosure();
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -62,9 +62,6 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Menu.Item component={Link} to='/calendar'>
             📅 Calendar
           </Menu.Item>
-          <Menu.Item component={Link} to='/profile'>
-            ⚙️ Profile
-          </Menu.Item>
           <Menu.Item onClick={handleLogout}>↪️ Logout</Menu.Item>
         </>
       ) : (
@@ -86,26 +83,38 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
                 <img src='/static/JB_Puck_Logo.png' alt='Hockey Pickup' height={40} />
               </Link>
             </Group>
-
             <Text className={`${styles.pageTitle} ${styles.noZoom}`}>{title}</Text>
-
-            {/* Right section with avatar menu */}
-            <Menu position='bottom-end' offset={14} shadow='md' width={200}>
-              <Menu.Target>
+            {/* Right section with avatar and burger menu */}
+            <Group gap='xs' className={styles.noZoom}>
+              <Link to='/profile'>
                 <Avatar
                   src={user ? avatarSrc : null}
-                  alt={user?.FirstName ?? 'Menu'}
+                  alt={user?.FirstName ?? 'Profile'}
                   radius='xl'
                   size='md'
                   className={`${styles.avatar} ${styles.noZoom}`}
                   onError={() => setAvatarSrc(defaultAvatarImage)}
                 />
-              </Menu.Target>
-              <Menu.Dropdown>
-                <MenuItems />
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
+              </Link>
+
+              <Menu
+                position='bottom-end'
+                offset={14}
+                shadow='md'
+                width={200}
+                opened={opened}
+                onChange={toggle}
+                onClose={close}
+              >
+                <Menu.Target>
+                  <Burger opened={opened} onClick={toggle} className={styles.noZoom} />
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <MenuItems />
+                </Menu.Dropdown>
+              </Menu>
+            </Group>{' '}
+          </Group>{' '}
         </div>
       </AppShell.Header>
       <AppShell.Main className={styles.main}>{children}</AppShell.Main>

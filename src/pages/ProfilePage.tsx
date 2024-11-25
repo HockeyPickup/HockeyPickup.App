@@ -71,13 +71,13 @@ const HeaderSection = (): JSX.Element => {
           </Text>
         </Text>
         <Text size='sm'>
-          Number of Sessions Played:{' '}
+          Sessions Played:{' '}
           <Text span fw={500}>
             999
           </Text>
         </Text>
         <Text size='sm'>
-          Last Session Played:{' '}
+          Last Session:{' '}
           <Text span fw={500}>
             01/01/2030
           </Text>
