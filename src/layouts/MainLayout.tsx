@@ -5,29 +5,37 @@ import { useDisclosure } from '@mantine/hooks';
 import { FC, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService, useAuth } from '../lib/auth';
-import { getGravatarUrl } from '../services/gravatar';
+import { AvatarService } from '../services/avatar';
 import { useTitle } from './TitleContext';
 
 export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
-  const defaultAvatarImage = '/static/Hanson.jpg';
+  const [opened, { toggle, close }] = useDisclosure();
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
-  const [avatarSrc, setAvatarSrc] = useState(() => {
-    // Initialize with fallback in case email is empty
-    const email = user?.Email ?? '';
-    return email ? getGravatarUrl(email) : defaultAvatarImage;
-  });
+  const [avatarSrc, setAvatarSrc] = useState('');
   const { title } = useTitle();
+  useZoom(false);
+
   useEffect(() => {
     // Update the document title whenever the title changes
     document.title = title && title !== 'Home' ? `Hockey Pickup - ${title}` : 'Hockey Pickup';
   }, [title]);
+
   useEffect(() => {
-    const email = user?.Email ?? '';
-    setAvatarSrc(email ? getGravatarUrl(email) : defaultAvatarImage);
-  }, [user?.Email]);
-  useZoom(false);
-  const [opened, { toggle, close }] = useDisclosure();
+    const updateAvatar = async (): Promise<void> => {
+      const avatarUrl = await AvatarService.getAvatarUrl(
+        user?.Email ?? '',
+        user ? `${user.FirstName} ${user.LastName}` : '',
+        {
+          size: 40,
+          fallbackType: 'initials',
+        },
+      );
+      setAvatarSrc(avatarUrl);
+    };
+
+    updateAvatar();
+  }, [user]);
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -93,7 +101,6 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
                   radius='xl'
                   size='md'
                   className={`${styles.avatar} ${styles.noZoom}`}
-                  onError={() => setAvatarSrc(defaultAvatarImage)}
                 />
               </Link>
 
