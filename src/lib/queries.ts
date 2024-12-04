@@ -114,6 +114,35 @@ export const GET_SESSION = gql`
           }
         }
       }
+      CurrentRosters {
+        SessionRosterId
+        UserId
+        FirstName
+        LastName
+        TeamAssignment
+        IsPlaying
+        IsRegular
+        PlayerStatus
+        Preferred
+        PreferredPlus
+        LastBuySellId
+        Position
+        CurrentPosition
+        JoinedDateTime
+      }
+      BuyingQueues {
+        BuySellId
+        SessionId
+        BuyerName
+        SellerName
+        TeamAssignment
+        TransactionStatus
+        QueueStatus
+        PaymentSent
+        PaymentReceived
+        BuyerNote
+        SellerNote
+      }
     }
   }
 `;

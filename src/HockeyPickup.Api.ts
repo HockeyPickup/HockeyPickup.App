@@ -264,6 +264,8 @@ export interface Session {
   RegularSet?: RegularSet | null;
   BuySells?: BuySell[];
   ActivityLogs?: ActivityLog[];
+  CurrentRosters?: RosterPlayer[];
+  BuyingQueues?: BuyingQueue[];
 }
 
 export interface RegularSet {
@@ -301,6 +303,49 @@ export interface ActivityLog {
   Activity?: string | null;
   Session?: Session | null;
   User?: AspNetUser | null;
+}
+
+export interface RosterPlayer {
+  /** @format int32 */
+  SessionRosterId?: number;
+  UserId?: string;
+  FirstName?: string;
+  LastName?: string;
+  /** @format int32 */
+  SessionId?: number;
+  /** @format int32 */
+  TeamAssignment?: number;
+  IsPlaying?: boolean;
+  IsRegular?: boolean;
+  PlayerStatus?: string;
+  /** @format decimal */
+  Rating?: number;
+  Preferred?: boolean;
+  PreferredPlus?: boolean;
+  /** @format int32 */
+  LastBuySellId?: number | null;
+  /** @format date-time */
+  JoinedDateTime?: string;
+  /** @format int32 */
+  Position?: number;
+  CurrentPosition?: string;
+}
+
+export interface BuyingQueue {
+  /** @format int32 */
+  BuySellId?: number;
+  /** @format int32 */
+  SessionId?: number;
+  BuyerName?: string | null;
+  SellerName?: string | null;
+  /** @format int32 */
+  TeamAssignment?: number;
+  TransactionStatus?: string;
+  QueueStatus?: string;
+  PaymentSent?: boolean;
+  PaymentReceived?: boolean;
+  BuyerNote?: string | null;
+  SellerNote?: string | null;
 }
 
 /** Represents a user in the identity system */

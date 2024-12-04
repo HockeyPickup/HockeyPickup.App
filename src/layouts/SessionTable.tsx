@@ -20,6 +20,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
   const session = data?.Session as Session;
+  console.info(session);
 
   return (
     <Stack gap='md'>
@@ -73,6 +74,131 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
         </Table>
       </Paper>
 
+      {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
+        <Paper shadow='sm' p='md'>
+          <Title order={3} mb='md'>
+            Roster
+          </Title>
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>
+                  {' '}
+                  Light Team (
+                  {
+                    session.CurrentRosters.filter((p) => p.TeamAssignment === 1 && p.IsPlaying)
+                      .length
+                  }
+                  )
+                </Table.Th>
+                <Table.Th>
+                  {' '}
+                  Dark Team (
+                  {
+                    session.CurrentRosters.filter((p) => p.TeamAssignment === 2 && p.IsPlaying)
+                      .length
+                  }
+                  )
+                </Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {Array.from({
+                length: Math.max(
+                  session.CurrentRosters.filter((p) => p.TeamAssignment === 1).length,
+                  session.CurrentRosters.filter((p) => p.TeamAssignment === 2).length,
+                ),
+              }).map((_, index) => {
+                const lightPlayer = session.CurrentRosters?.filter((p) => p.TeamAssignment === 1)[
+                  index
+                ];
+                const darkPlayer = session.CurrentRosters?.filter((p) => p.TeamAssignment === 2)[
+                  index
+                ];
+
+                return (
+                  <Table.Tr key={index}>
+                    <Table.Td>
+                      {lightPlayer && (
+                        <Text
+                          style={{
+                            textDecoration: !lightPlayer.IsPlaying ? 'line-through' : 'none',
+                          }}
+                        >
+                          {lightPlayer.FirstName} {lightPlayer.LastName}
+                          {`, `}
+                          {lightPlayer.CurrentPosition}
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      {darkPlayer && (
+                        <Text
+                          style={{
+                            textDecoration: !darkPlayer.IsPlaying ? 'line-through' : 'none',
+                          }}
+                        >
+                          {darkPlayer.FirstName} {darkPlayer.LastName}
+                          {`, `}
+                          {darkPlayer.CurrentPosition}
+                        </Text>
+                      )}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
+        </Paper>
+      )}
+
+      {session.BuyingQueues && session.BuyingQueues.length > 0 && (
+        <Paper shadow='sm' p='md'>
+          <Title order={3} mb='md'>
+            Buying Queue
+          </Title>
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Status</Table.Th>
+                <Table.Th>Seller</Table.Th>
+                <Table.Th>Buyer</Table.Th>
+                <Table.Th>Team</Table.Th>
+                <Table.Th>Queue Position</Table.Th>
+                <Table.Th>Payment</Table.Th>
+                <Table.Th>Notes</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {session.BuyingQueues.map((queue) => (
+                <Table.Tr key={queue.BuySellId}>
+                  <Table.Td>{queue.TransactionStatus}</Table.Td>
+                  <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
+                  <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
+                  <Table.Td>
+                    {queue.TeamAssignment === 1
+                      ? 'Light'
+                      : queue.TeamAssignment === 2
+                        ? 'Dark'
+                        : '-'}
+                  </Table.Td>
+                  <Table.Td>{queue.QueueStatus}</Table.Td>
+                  <Table.Td>
+                    {queue.TransactionStatus === 'Looking to Buy'
+                      ? '-'
+                      : `${queue.PaymentSent ? 'Sent' : 'Pending'} / ${queue.PaymentReceived ? 'Received' : 'Pending'}`}{' '}
+                  </Table.Td>
+                  <Table.Td>
+                    {queue.SellerNote && <Text size='sm'>Seller: {queue.SellerNote}</Text>}
+                    {queue.BuyerNote && <Text size='sm'>Buyer: {queue.BuyerNote}</Text>}
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Paper>
+      )}
+
       {session.BuySells && session.BuySells.length > 0 && (
         <Paper shadow='sm' p='md'>
           <Title order={3} mb='md'>
@@ -81,8 +207,8 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Buyer</Table.Th>
                 <Table.Th>Seller</Table.Th>
+                <Table.Th>Buyer</Table.Th>
                 <Table.Th>Team</Table.Th>
                 <Table.Th>Payment Status</Table.Th>
                 <Table.Th>Created</Table.Th>
@@ -92,13 +218,13 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
               {session.BuySells.map((buySell: BuySell) => (
                 <Table.Tr key={buySell.BuySellId}>
                   <Table.Td>
-                    {buySell.BuyerUserId !== null
-                      ? buySell.Buyer?.FirstName + ' ' + buySell.Buyer?.LastName
+                    {buySell.SellerUserId !== null
+                      ? buySell.Seller?.FirstName + ' ' + buySell.Seller?.LastName
                       : '-'}
                   </Table.Td>
                   <Table.Td>
-                    {buySell.SellerUserId !== null
-                      ? buySell.Seller?.FirstName + ' ' + buySell.Seller?.LastName
+                    {buySell.BuyerUserId !== null
+                      ? buySell.Buyer?.FirstName + ' ' + buySell.Buyer?.LastName
                       : '-'}
                   </Table.Td>
                   <Table.Td>
