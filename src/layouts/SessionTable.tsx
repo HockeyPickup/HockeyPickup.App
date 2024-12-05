@@ -4,17 +4,21 @@ import { useAuth } from '@/lib/auth';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
 import {
+  ActionIcon,
   Collapse,
   Group,
   Image,
   Paper,
+  Popover,
+  Radio,
   Stack,
   Table,
   Text,
   Title,
   UnstyledButton,
 } from '@mantine/core';
-import { IconChevronRight } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { IconChevronRight, IconPencil } from '@tabler/icons-react';
 import moment from 'moment';
 import { useState } from 'react';
 
@@ -28,12 +32,47 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   });
   const { user } = useAuth();
   const [showLegacyBuySells, setShowLegacyBuySells] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<{
+    userId: string;
+    currentPosition: string;
+  } | null>(null);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
   const session = data?.Session as Session;
   console.info(session);
+
+  // Modify the existing handler
+  const handlePositionChange = async (userId: string, newPosition: string): Promise<void> => {
+    try {
+      console.info('Updating position:', { sessionId, userId, position: newPosition });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const player = session.CurrentRosters?.find((p) => p.UserId === userId);
+      const oldPosition = player?.CurrentPosition ?? 'TBD';
+
+      setEditingPlayer(null);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Position Updated',
+        message: `${player?.FirstName} ${player?.LastName} changed from ${oldPosition} to ${newPosition}`,
+        color: 'green',
+      });
+    } catch (error) {
+      console.error('Failed to update position:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to update player position. Please try again.',
+        color: 'red',
+      });
+    }
+  };
 
   return (
     <Stack gap='md'>
@@ -134,28 +173,102 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
                   <Table.Tr key={index}>
                     <Table.Td>
                       {lightPlayer && (
-                        <Text
-                          style={{
-                            textDecoration: !lightPlayer.IsPlaying ? 'line-through' : 'none',
-                          }}
-                        >
-                          {lightPlayer.FirstName} {lightPlayer.LastName}
-                          {`, `}
-                          {lightPlayer.CurrentPosition}
-                        </Text>
+                        <Group>
+                          <Text
+                            style={{
+                              textDecoration: !lightPlayer.IsPlaying ? 'line-through' : 'none',
+                            }}
+                          >
+                            {lightPlayer.FirstName} {lightPlayer.LastName},{' '}
+                            {lightPlayer.CurrentPosition}
+                          </Text>
+                          <Popover
+                            position='top'
+                            withArrow
+                            shadow='md'
+                            opened={editingPlayer?.userId === lightPlayer.UserId}
+                            onClose={() => setEditingPlayer(null)}
+                          >
+                            <Popover.Target>
+                              <ActionIcon
+                                size='sm'
+                                variant='subtle'
+                                onClick={() =>
+                                  setEditingPlayer({
+                                    userId: lightPlayer.UserId ?? '',
+                                    currentPosition: lightPlayer.CurrentPosition ?? 'TBD',
+                                  })
+                                }
+                              >
+                                <IconPencil size={16} />
+                              </ActionIcon>
+                            </Popover.Target>
+                            <Popover.Dropdown>
+                              <Radio.Group
+                                value={editingPlayer?.currentPosition}
+                                onChange={(value) =>
+                                  handlePositionChange(editingPlayer?.userId ?? '', value)
+                                }
+                              >
+                                <Stack>
+                                  <Radio value='Defense' label='Defense' />
+                                  <Radio value='Forward' label='Forward' />
+                                  <Radio value='TBD' label='TBD' />
+                                </Stack>
+                              </Radio.Group>
+                            </Popover.Dropdown>
+                          </Popover>
+                        </Group>
                       )}
                     </Table.Td>
                     <Table.Td>
                       {darkPlayer && (
-                        <Text
-                          style={{
-                            textDecoration: !darkPlayer.IsPlaying ? 'line-through' : 'none',
-                          }}
-                        >
-                          {darkPlayer.FirstName} {darkPlayer.LastName}
-                          {`, `}
-                          {darkPlayer.CurrentPosition}
-                        </Text>
+                        <Group>
+                          <Text
+                            style={{
+                              textDecoration: !darkPlayer.IsPlaying ? 'line-through' : 'none',
+                            }}
+                          >
+                            {darkPlayer.FirstName} {darkPlayer.LastName},{' '}
+                            {darkPlayer.CurrentPosition}
+                          </Text>
+                          <Popover
+                            position='top'
+                            withArrow
+                            shadow='md'
+                            opened={editingPlayer?.userId === darkPlayer.UserId}
+                            onClose={() => setEditingPlayer(null)}
+                          >
+                            <Popover.Target>
+                              <ActionIcon
+                                size='sm'
+                                variant='subtle'
+                                onClick={() =>
+                                  setEditingPlayer({
+                                    userId: darkPlayer.UserId ?? '',
+                                    currentPosition: darkPlayer.CurrentPosition ?? 'TBD',
+                                  })
+                                }
+                              >
+                                <IconPencil size={16} />
+                              </ActionIcon>
+                            </Popover.Target>
+                            <Popover.Dropdown>
+                              <Radio.Group
+                                value={editingPlayer?.currentPosition}
+                                onChange={(value) =>
+                                  handlePositionChange(editingPlayer?.userId ?? '', value)
+                                }
+                              >
+                                <Stack>
+                                  <Radio value='Defense' label='Defense' />
+                                  <Radio value='Forward' label='Forward' />
+                                  <Radio value='TBD' label='TBD' />
+                                </Stack>
+                              </Radio.Group>
+                            </Popover.Dropdown>
+                          </Popover>{' '}
+                        </Group>
                       )}
                     </Table.Td>
                   </Table.Tr>
