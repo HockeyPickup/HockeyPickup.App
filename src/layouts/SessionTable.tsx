@@ -3,8 +3,10 @@ import { ActivityLog, BuySell, Session } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { Paper, Stack, Table, Text, Title } from '@mantine/core';
+import { Collapse, Group, Paper, Stack, Table, Text, Title, UnstyledButton } from '@mantine/core';
+import { IconChevronRight } from '@tabler/icons-react';
 import moment from 'moment';
+import { useState } from 'react';
 
 interface SessionTableProps {
   sessionId: number;
@@ -15,6 +17,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
     variables: { SessionId: sessionId },
   });
   const { user } = useAuth();
+  const [showLegacyBuySells, setShowLegacyBuySells] = useState(false);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <Text c='red'>Error: {error.message}</Text>;
@@ -150,7 +153,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
                     Players
                   </Text>
                 </Table.Td>
-              </Table.Tr>{' '}
+              </Table.Tr>
             </Table.Tbody>
           </Table>
         </Paper>
@@ -203,55 +206,6 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
         </Paper>
       )}
 
-      {session.BuySells && session.BuySells.length > 0 && (
-        <Paper shadow='sm' p='md'>
-          <Title order={3} mb='md'>
-            Buy/Sells
-          </Title>
-          <Table striped highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Seller</Table.Th>
-                <Table.Th>Buyer</Table.Th>
-                <Table.Th>Team</Table.Th>
-                <Table.Th>Payment Status</Table.Th>
-                <Table.Th>Created</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {session.BuySells.map((buySell: BuySell) => (
-                <Table.Tr key={buySell.BuySellId}>
-                  <Table.Td>
-                    {buySell.SellerUserId !== null
-                      ? buySell.Seller?.FirstName + ' ' + buySell.Seller?.LastName
-                      : '-'}
-                  </Table.Td>
-                  <Table.Td>
-                    {buySell.BuyerUserId !== null
-                      ? buySell.Buyer?.FirstName + ' ' + buySell.Buyer?.LastName
-                      : '-'}
-                  </Table.Td>
-                  <Table.Td>
-                    {buySell.TeamAssignment === 1
-                      ? 'Light'
-                      : buySell.TeamAssignment === 2
-                        ? 'Dark'
-                        : '-'}
-                  </Table.Td>
-                  <Table.Td>
-                    {buySell.PaymentSent ? 'Sent' : 'Pending'} /
-                    {buySell.PaymentReceived ? ' Received' : ' Pending'}
-                  </Table.Td>
-                  <Table.Td>
-                    {moment.utc(buySell.CreateDateTime).local().format('MM/DD/yyyy, HH:mm')}
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Paper>
-      )}
-
       {session.ActivityLogs && session.ActivityLogs.length > 0 && (
         <Paper shadow='sm' p='md'>
           <Title order={3} mb='md'>
@@ -277,6 +231,65 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
               ))}
             </Table.Tbody>
           </Table>
+        </Paper>
+      )}
+
+      {session.BuySells && session.BuySells.length > 0 && (
+        <Paper shadow='sm' p='md' mb='xl'>
+          <UnstyledButton onClick={() => setShowLegacyBuySells(!showLegacyBuySells)}>
+            <Group justify='space-between'>
+              <Title order={3}>Legacy Buy/Sells Records</Title>
+              <IconChevronRight
+                style={{
+                  transform: showLegacyBuySells ? 'rotate(90deg)' : 'none',
+                  transition: 'transform 200ms ease',
+                }}
+              />
+            </Group>
+          </UnstyledButton>
+          <Collapse in={showLegacyBuySells}>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Seller</Table.Th>
+                  <Table.Th>Buyer</Table.Th>
+                  <Table.Th>Team</Table.Th>
+                  <Table.Th>Payment Status</Table.Th>
+                  <Table.Th>Created</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {session.BuySells.map((buySell: BuySell) => (
+                  <Table.Tr key={buySell.BuySellId}>
+                    <Table.Td>
+                      {buySell.SellerUserId !== null
+                        ? buySell.Seller?.FirstName + ' ' + buySell.Seller?.LastName
+                        : '-'}
+                    </Table.Td>
+                    <Table.Td>
+                      {buySell.BuyerUserId !== null
+                        ? buySell.Buyer?.FirstName + ' ' + buySell.Buyer?.LastName
+                        : '-'}
+                    </Table.Td>
+                    <Table.Td>
+                      {buySell.TeamAssignment === 1
+                        ? 'Light'
+                        : buySell.TeamAssignment === 2
+                          ? 'Dark'
+                          : '-'}
+                    </Table.Td>
+                    <Table.Td>
+                      {buySell.PaymentSent ? 'Sent' : 'Pending'} /
+                      {buySell.PaymentReceived ? ' Received' : ' Pending'}
+                    </Table.Td>
+                    <Table.Td>
+                      {moment.utc(buySell.CreateDateTime).local().format('MM/DD/yyyy, HH:mm')}
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Collapse>
         </Paper>
       )}
     </Stack>
