@@ -40,10 +40,12 @@ const PlayerCell = ({
   if (!player) return null;
 
   return (
-    <Group>
+    <Group wrap='nowrap' gap={4} style={{ marginLeft: -4 }}>
       <Text
+        size='xs'
         style={{
           textDecoration: !player.IsPlaying ? 'line-through' : 'none',
+          whiteSpace: 'nowrap',
         }}
       >
         {player.FirstName} {player.LastName}, {player.CurrentPosition}
@@ -57,7 +59,7 @@ const PlayerCell = ({
       >
         <Popover.Target>
           <ActionIcon
-            size='sm'
+            size='xs'
             variant='subtle'
             onClick={() => {
               if (editingPlayer?.userId === player.UserId) {

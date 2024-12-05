@@ -1,3 +1,4 @@
+import styles from '@/App.module.css';
 import { ActivityLog, Session } from '@/HockeyPickup.Api';
 import { Paper, Table, Title } from '@mantine/core';
 import moment from 'moment';
@@ -12,7 +13,7 @@ export const SessionActivityLog = ({ session }: SessionActivityLogProps): JSX.El
       <Title order={3} mb='md'>
         Activity Log
       </Title>
-      <Table striped highlightOnHover>
+      <Table striped highlightOnHover className={styles.table}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Date</Table.Th>

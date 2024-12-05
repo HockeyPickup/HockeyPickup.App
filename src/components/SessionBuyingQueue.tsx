@@ -1,3 +1,4 @@
+import styles from '@/App.module.css';
 import { Session } from '@/HockeyPickup.Api';
 import { Paper, Table, Text, Title } from '@mantine/core';
 
@@ -11,10 +12,9 @@ export const SessionBuyingQueue = ({ session }: SessionBuyingQueueProps): JSX.El
       <Title order={3} mb='md'>
         Buying Queue
       </Title>
-      <Table striped highlightOnHover>
+      <Table striped highlightOnHover className={styles.table}>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Status</Table.Th>
             <Table.Th>Seller</Table.Th>
             <Table.Th>Buyer</Table.Th>
             <Table.Th>Team</Table.Th>
@@ -26,7 +26,6 @@ export const SessionBuyingQueue = ({ session }: SessionBuyingQueueProps): JSX.El
         <Table.Tbody>
           {session.BuyingQueues?.map((queue) => (
             <Table.Tr key={queue.BuySellId}>
-              <Table.Td>{queue.TransactionStatus}</Table.Td>
               <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
               <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
               <Table.Td>
@@ -41,8 +40,8 @@ export const SessionBuyingQueue = ({ session }: SessionBuyingQueueProps): JSX.El
                     }`}
               </Table.Td>
               <Table.Td>
-                {queue.SellerNote && <Text size='sm'>Seller: {queue.SellerNote}</Text>}
-                {queue.BuyerNote && <Text size='sm'>Buyer: {queue.BuyerNote}</Text>}
+                {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
+                {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}
               </Table.Td>
             </Table.Tr>
           ))}

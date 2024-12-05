@@ -1,3 +1,4 @@
+import styles from '@/App.module.css';
 import { BuySell, Session } from '@/HockeyPickup.Api';
 import { Collapse, Group, Paper, Table, Title, UnstyledButton } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
@@ -25,7 +26,7 @@ export const SessionBuySells = ({ session }: SessionBuySellsProps): JSX.Element 
         </Group>
       </UnstyledButton>
       <Collapse in={showLegacyBuySells}>
-        <Table striped highlightOnHover>
+        <Table striped highlightOnHover className={styles.table}>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Seller</Table.Th>
