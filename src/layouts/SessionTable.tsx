@@ -3,7 +3,17 @@ import { ActivityLog, BuySell, Session } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { Collapse, Group, Paper, Stack, Table, Text, Title, UnstyledButton } from '@mantine/core';
+import {
+  Collapse,
+  Group,
+  Image,
+  Paper,
+  Stack,
+  Table,
+  Text,
+  Title,
+  UnstyledButton,
+} from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import moment from 'moment';
 import { useState } from 'react';
@@ -29,64 +39,81 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
     <Stack gap='md'>
       <Paper shadow='sm' p='md'>
         <Title order={3} mb='md'>
-          Session Details
+          {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
         </Title>
-        <Table striped highlightOnHover>
-          <Table.Tbody>
-            <Table.Tr>
-              <Table.Th>Session Date</Table.Th>
-              <Table.Td>
-                {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
-              </Table.Td>
-            </Table.Tr>
-            <Table.Tr>
-              <Table.Th>Note</Table.Th>
-              <Table.Td>{session.Note ?? '-'}</Table.Td>
-            </Table.Tr>
-            <Table.Tr>
-              <Table.Th>Buy Window</Table.Th>
-              <Table.Td>
-                {moment
-                  .utc(session.SessionDate)
-                  .subtract(
-                    user?.PreferredPlus
+        <Stack gap='md'>
+          <Group>
+            <Text>{session.Note ?? '-'}</Text>
+          </Group>
+          <Group>
+            <Text size='sm' fw={700} w={100} ta='right'>
+              Buy Window:
+            </Text>
+            <Text>
+              {moment
+                .utc(session.SessionDate)
+                .subtract(
+                  user?.PreferredPlus
+                    ? session.BuyDayMinimum
+                    : user?.Preferred
                       ? session.BuyDayMinimum
-                      : user?.Preferred
-                        ? session.BuyDayMinimum
-                        : (session.BuyDayMinimum ?? 6) - 1,
-                    'days',
-                  )
-                  .subtract(22, 'hours')
-                  .subtract(user?.PreferredPlus ? (session.BuyDayMinimum ?? 6) - 1 : 0, 'minutes')
-                  .format('dddd, MM/DD/yyyy, HH:mm')}
-              </Table.Td>
-            </Table.Tr>
-            <Table.Tr>
-              <Table.Th>Created</Table.Th>
-              <Table.Td>
-                {moment.utc(session.CreateDateTime).local().format('MM/DD/yyyy, HH:mm')}
-              </Table.Td>
-            </Table.Tr>
-            <Table.Tr>
-              <Table.Th>Updated</Table.Th>
-              <Table.Td>
-                {moment.utc(session.UpdateDateTime).local().format('MM/DD/yyyy, HH:mm')}
-              </Table.Td>
-            </Table.Tr>
-          </Table.Tbody>
-        </Table>
+                      : (session.BuyDayMinimum ?? 6) - 1,
+                  'days',
+                )
+                .subtract(22, 'hours')
+                .subtract(user?.PreferredPlus ? (session.BuyDayMinimum ?? 6) - 1 : 0, 'minutes')
+                .format('dddd, MM/DD/yyyy, HH:mm')}
+            </Text>
+          </Group>
+          <Group>
+            <Text size='sm' fw={700} w={100} ta='right'>
+              Created:
+            </Text>
+            <Text>{moment.utc(session.CreateDateTime).local().format('MM/DD/yyyy, HH:mm')}</Text>
+          </Group>
+          <Group>
+            <Text size='sm' fw={700} w={100} ta='right'>
+              Updated:
+            </Text>
+            <Text>{moment.utc(session.UpdateDateTime).local().format('MM/DD/yyyy, HH:mm')}</Text>
+          </Group>
+        </Stack>
       </Paper>
 
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <Paper shadow='sm' p='md'>
           <Title order={3} mb='md'>
-            Roster
+            Roster - {session.RegularSet?.Description}
           </Title>
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Rockets (Light)</Table.Th>
-                <Table.Th>Beauties (Dark)</Table.Th>
+                <Table.Th>
+                  <Stack align='center' gap='xs'>
+                    <Image
+                      src='/static/Rockets_Logo.jpg'
+                      alt='Rockets Logo'
+                      w={125}
+                      h={125}
+                      fit='contain'
+                      radius='md'
+                    />
+                    <Text>Rockets (Light)</Text>
+                  </Stack>
+                </Table.Th>
+                <Table.Th>
+                  <Stack align='center' gap='xs'>
+                    <Image
+                      src='/static/Beauties_Logo.jpg'
+                      alt='Beauties Logo'
+                      w={125}
+                      h={125}
+                      fit='contain'
+                      radius='md'
+                    />
+                    <Text>Beauties (Dark)</Text>
+                  </Stack>
+                </Table.Th>{' '}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>

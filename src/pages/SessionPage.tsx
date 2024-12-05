@@ -9,7 +9,7 @@ export const SessionPage = (): JSX.Element => {
   const { setTitle } = useTitle();
 
   useEffect(() => {
-    setTitle('Session Details');
+    setTitle('Session Detail');
   }, [setTitle]);
 
   return (
