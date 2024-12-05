@@ -82,24 +82,8 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>
-                  {' '}
-                  Light Team (
-                  {
-                    session.CurrentRosters.filter((p) => p.TeamAssignment === 1 && p.IsPlaying)
-                      .length
-                  }
-                  )
-                </Table.Th>
-                <Table.Th>
-                  {' '}
-                  Dark Team (
-                  {
-                    session.CurrentRosters.filter((p) => p.TeamAssignment === 2 && p.IsPlaying)
-                      .length
-                  }
-                  )
-                </Table.Th>
+                <Table.Th>Rockets (Light)</Table.Th>
+                <Table.Th>Beauties (Dark)</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -147,6 +131,26 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
                   </Table.Tr>
                 );
               })}
+              <Table.Tr>
+                <Table.Td>
+                  <Text fw={700}>
+                    {
+                      session.CurrentRosters.filter((p) => p.TeamAssignment === 1 && p.IsPlaying)
+                        .length
+                    }{' '}
+                    Players
+                  </Text>
+                </Table.Td>
+                <Table.Td>
+                  <Text fw={700}>
+                    {
+                      session.CurrentRosters.filter((p) => p.TeamAssignment === 2 && p.IsPlaying)
+                        .length
+                    }{' '}
+                    Players
+                  </Text>
+                </Table.Td>
+              </Table.Tr>{' '}
             </Table.Tbody>
           </Table>
         </Paper>
