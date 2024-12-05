@@ -9,8 +9,9 @@ import '@mantine/notifications/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import { TitleProvider } from './layouts/TitleContext';
-import { AuthProvider } from './lib/auth';
+import { AuthProvider, useAuth } from './lib/auth';
 import { theme } from './lib/theme';
 import { apolloClient } from './services/graphql';
 
@@ -24,6 +25,16 @@ const queryClient = new QueryClient({
   },
 });
 
+const AuthWrapper = ({ children }: { children: React.ReactNode }): JSX.Element => {
+  const { isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return <>{children}</>;
+};
+
 const App = (): JSX.Element => {
   return (
     <ApolloProvider client={apolloClient}>
@@ -33,7 +44,9 @@ const App = (): JSX.Element => {
           <BrowserRouter>
             <TitleProvider>
               <AuthProvider>
-                <AppRoutes />
+                <AuthWrapper>
+                  <AppRoutes />
+                </AuthWrapper>
               </AuthProvider>
             </TitleProvider>
           </BrowserRouter>

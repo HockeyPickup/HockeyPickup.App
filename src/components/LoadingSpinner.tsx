@@ -15,6 +15,7 @@ export const LoadingSpinner: React.FC<LoaderProps> = ({ visible = true }): React
         right: 0,
         bottom: 0,
         zIndex: 1000,
+        backgroundColor: '#1A1B1E',
       }}
     >
       <LoadingOverlay
