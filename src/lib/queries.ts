@@ -19,6 +19,7 @@ export const GET_USERS = gql`
       EmergencyPhone
       LockerRoom13
       DateCreated
+      Roles
     }
   }
 `;

@@ -16,6 +16,18 @@ import {
 import api from '../services/api';
 import { userService } from '../services/user';
 
+const userHelpers = {
+  isAdmin: (user: UserBasicResponse | null): boolean => {
+    return user?.Roles?.includes('Admin') ?? false;
+  },
+  isSubAdmin: (user: UserBasicResponse | null): boolean => {
+    return user?.Roles?.includes('SubAdmin') ?? false;
+  },
+  isInRole: (user: UserBasicResponse | null, role: string): boolean => {
+    return user?.Roles?.includes(role) ?? false;
+  },
+};
+
 // Auth Service Functions
 const authService = {
   async login(data: LoginRequest): Promise<ApiDataResponseOfLoginResponse> {
@@ -79,6 +91,9 @@ interface AuthContextType {
   user: UserBasicResponse | null;
   setUser: (_user: UserBasicResponse | null) => void;
   isLoading: boolean;
+  isAdmin: () => boolean;
+  isSubAdmin: () => boolean;
+  isInRole: (_role: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -106,7 +121,18 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }): JSX.Ele
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, isLoading }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        isLoading,
+        isAdmin: () => userHelpers.isAdmin(user),
+        isSubAdmin: () => userHelpers.isSubAdmin(user),
+        isInRole: (role) => userHelpers.isInRole(user, role),
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
 };
 

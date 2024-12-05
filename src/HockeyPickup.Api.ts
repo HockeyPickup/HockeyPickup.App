@@ -106,6 +106,11 @@ export interface UserBasicResponse {
    * @format date-time
    */
   DateCreated?: string | null;
+  /**
+   * Roles of user
+   * @maxItems 256
+   */
+  Roles?: string[];
 }
 
 export enum NotificationPreference {

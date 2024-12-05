@@ -1,4 +1,5 @@
 import { RosterPlayer, Session } from '@/HockeyPickup.Api';
+import { useAuth } from '@/lib/auth';
 import {
   ActionIcon,
   Divider,
@@ -37,6 +38,8 @@ const PlayerCell = ({
   onTeamChange,
   onClose,
 }: PlayerCellProps): JSX.Element | null => {
+  const { isAdmin } = useAuth();
+
   if (!player) return null;
 
   return (
@@ -50,61 +53,63 @@ const PlayerCell = ({
       >
         {player.FirstName} {player.LastName}, {player.CurrentPosition}
       </Text>
-      <Popover
-        position='top'
-        withArrow
-        shadow='md'
-        opened={editingPlayer?.userId === player.UserId}
-        onClose={onClose}
-      >
-        <Popover.Target>
-          <ActionIcon
-            size='xs'
-            variant='subtle'
-            onClick={() => {
-              if (editingPlayer?.userId === player.UserId) {
-                onClose(); // If already open, close it
-              } else {
-                onEditClick(player.UserId ?? '', player.CurrentPosition ?? 'TBD'); // If closed, open it
-              }
-            }}
-          >
-            <IconPencil size={16} />
-          </ActionIcon>
-        </Popover.Target>
-        <Popover.Dropdown>
-          <Stack>
-            <Text size='sm' fw={500}>
-              Position
-            </Text>
-            <Radio.Group
-              value={editingPlayer?.currentPosition}
-              onChange={(value) => onPositionChange(editingPlayer?.userId ?? '', value)}
+      {isAdmin() && (
+        <Popover
+          position='top'
+          withArrow
+          shadow='md'
+          opened={editingPlayer?.userId === player.UserId}
+          onClose={onClose}
+        >
+          <Popover.Target>
+            <ActionIcon
+              size='xs'
+              variant='subtle'
+              onClick={() => {
+                if (editingPlayer?.userId === player.UserId) {
+                  onClose(); // If already open, close it
+                } else {
+                  onEditClick(player.UserId ?? '', player.CurrentPosition ?? 'TBD'); // If closed, open it
+                }
+              }}
             >
-              <Stack>
-                <Radio value='Defense' label='Defense' />
-                <Radio value='Forward' label='Forward' />
-                <Radio value='TBD' label='TBD' />
-              </Stack>
-            </Radio.Group>
+              <IconPencil size={16} />
+            </ActionIcon>
+          </Popover.Target>
+          <Popover.Dropdown>
+            <Stack>
+              <Text size='sm' fw={500}>
+                Position
+              </Text>
+              <Radio.Group
+                value={editingPlayer?.currentPosition}
+                onChange={(value) => onPositionChange(editingPlayer?.userId ?? '', value)}
+              >
+                <Stack>
+                  <Radio value='Defense' label='Defense' />
+                  <Radio value='Forward' label='Forward' />
+                  <Radio value='TBD' label='TBD' />
+                </Stack>
+              </Radio.Group>
 
-            <Divider my='xs' />
+              <Divider my='xs' />
 
-            <Text size='sm' fw={500}>
-              Team
-            </Text>
-            <Radio.Group
-              value={player.TeamAssignment?.toString()}
-              onChange={(value) => onTeamChange(player.UserId ?? '', parseInt(value) as 1 | 2)}
-            >
-              <Stack>
-                <Radio value='1' label='Rockets (Light)' />
-                <Radio value='2' label='Beauties (Dark)' />
-              </Stack>
-            </Radio.Group>
-          </Stack>
-        </Popover.Dropdown>
-      </Popover>
+              <Text size='sm' fw={500}>
+                Team
+              </Text>
+              <Radio.Group
+                value={player.TeamAssignment?.toString()}
+                onChange={(value) => onTeamChange(player.UserId ?? '', parseInt(value) as 1 | 2)}
+              >
+                <Stack>
+                  <Radio value='1' label='Rockets (Light)' />
+                  <Radio value='2' label='Beauties (Dark)' />
+                </Stack>
+              </Radio.Group>
+            </Stack>
+          </Popover.Dropdown>
+        </Popover>
+      )}
     </Group>
   );
 };
