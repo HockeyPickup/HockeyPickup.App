@@ -1,6 +1,7 @@
-import { Session } from '@/HockeyPickup.Api';
+import { RosterPlayer, Session } from '@/HockeyPickup.Api';
 import {
   ActionIcon,
+  Divider,
   Group,
   Image,
   Paper,
@@ -18,6 +19,93 @@ import { useState } from 'react';
 interface SessionRosterProps {
   session: Session;
 }
+
+interface PlayerCellProps {
+  player: RosterPlayer | undefined;
+  editingPlayer: { userId: string; currentPosition: string } | null;
+  onEditClick: (_userId: string, _currentPosition: string) => void;
+  onPositionChange: (_userId: string, _newPosition: string) => Promise<void>;
+  onTeamChange: (_userId: string, _newTeam: 1 | 2) => Promise<void>;
+  onClose: () => void;
+}
+
+const PlayerCell = ({
+  player,
+  editingPlayer,
+  onEditClick,
+  onPositionChange,
+  onTeamChange,
+  onClose,
+}: PlayerCellProps): JSX.Element | null => {
+  if (!player) return null;
+
+  return (
+    <Group>
+      <Text
+        style={{
+          textDecoration: !player.IsPlaying ? 'line-through' : 'none',
+        }}
+      >
+        {player.FirstName} {player.LastName}, {player.CurrentPosition}
+      </Text>
+      <Popover
+        position='top'
+        withArrow
+        shadow='md'
+        opened={editingPlayer?.userId === player.UserId}
+        onClose={onClose}
+      >
+        <Popover.Target>
+          <ActionIcon
+            size='sm'
+            variant='subtle'
+            onClick={() => {
+              if (editingPlayer?.userId === player.UserId) {
+                onClose(); // If already open, close it
+              } else {
+                onEditClick(player.UserId ?? '', player.CurrentPosition ?? 'TBD'); // If closed, open it
+              }
+            }}
+          >
+            <IconPencil size={16} />
+          </ActionIcon>
+        </Popover.Target>
+        <Popover.Dropdown>
+          <Stack>
+            <Text size='sm' fw={500}>
+              Position
+            </Text>
+            <Radio.Group
+              value={editingPlayer?.currentPosition}
+              onChange={(value) => onPositionChange(editingPlayer?.userId ?? '', value)}
+            >
+              <Stack>
+                <Radio value='Defense' label='Defense' />
+                <Radio value='Forward' label='Forward' />
+                <Radio value='TBD' label='TBD' />
+              </Stack>
+            </Radio.Group>
+
+            <Divider my='xs' />
+
+            <Text size='sm' fw={500}>
+              Team
+            </Text>
+            <Radio.Group
+              value={player.TeamAssignment?.toString()}
+              onChange={(value) => onTeamChange(player.UserId ?? '', parseInt(value) as 1 | 2)}
+            >
+              <Stack>
+                <Radio value='1' label='Rockets (Light)' />
+                <Radio value='2' label='Beauties (Dark)' />
+              </Stack>
+            </Radio.Group>
+          </Stack>
+        </Popover.Dropdown>
+      </Popover>
+    </Group>
+  );
+};
 
 export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
   const [editingPlayer, setEditingPlayer] = useState<{
@@ -54,6 +142,41 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
         style: { marginTop: '60px' },
         title: 'Error',
         message: 'Failed to update player position. Please try again.',
+        color: 'red',
+      });
+    }
+  };
+
+  const handleTeamChange = async (userId: string, newTeam: 1 | 2): Promise<void> => {
+    try {
+      console.info('Updating team:', {
+        sessionId: session.SessionId,
+        userId,
+        team: newTeam,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const player = session.CurrentRosters?.find((p) => p.UserId === userId);
+      const oldTeam = player?.TeamAssignment === 1 ? 'Rockets (Light)' : 'Beauties (Dark)';
+      const newTeamName = newTeam === 1 ? 'Rockets (Light)' : 'Beauties (Dark)';
+
+      setEditingPlayer(null);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Team Updated',
+        message: `${player?.FirstName} ${player?.LastName} moved from ${oldTeam} to ${newTeamName}`,
+        color: 'green',
+      });
+    } catch (error) {
+      console.error('Failed to update team:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to update player team. Please try again.',
         color: 'red',
       });
     }
@@ -110,103 +233,28 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
             return (
               <Table.Tr key={index}>
                 <Table.Td>
-                  {lightPlayer && (
-                    <Group>
-                      <Text
-                        style={{
-                          textDecoration: !lightPlayer.IsPlaying ? 'line-through' : 'none',
-                        }}
-                      >
-                        {lightPlayer.FirstName} {lightPlayer.LastName},{' '}
-                        {lightPlayer.CurrentPosition}
-                      </Text>
-                      <Popover
-                        position='top'
-                        withArrow
-                        shadow='md'
-                        opened={editingPlayer?.userId === lightPlayer.UserId}
-                        onClose={() => setEditingPlayer(null)}
-                      >
-                        <Popover.Target>
-                          <ActionIcon
-                            size='sm'
-                            variant='subtle'
-                            onClick={() =>
-                              setEditingPlayer({
-                                userId: lightPlayer.UserId ?? '',
-                                currentPosition: lightPlayer.CurrentPosition ?? 'TBD',
-                              })
-                            }
-                          >
-                            <IconPencil size={16} />
-                          </ActionIcon>
-                        </Popover.Target>
-                        <Popover.Dropdown>
-                          <Radio.Group
-                            value={editingPlayer?.currentPosition}
-                            onChange={(value) =>
-                              handlePositionChange(editingPlayer?.userId ?? '', value)
-                            }
-                          >
-                            <Stack>
-                              <Radio value='Defense' label='Defense' />
-                              <Radio value='Forward' label='Forward' />
-                              <Radio value='TBD' label='TBD' />
-                            </Stack>
-                          </Radio.Group>
-                        </Popover.Dropdown>
-                      </Popover>
-                    </Group>
-                  )}
+                  <PlayerCell
+                    player={lightPlayer}
+                    editingPlayer={editingPlayer}
+                    onEditClick={(userId, currentPosition) =>
+                      setEditingPlayer({ userId, currentPosition })
+                    }
+                    onPositionChange={handlePositionChange}
+                    onTeamChange={handleTeamChange}
+                    onClose={() => setEditingPlayer(null)}
+                  />
                 </Table.Td>
                 <Table.Td>
-                  {darkPlayer && (
-                    <Group>
-                      <Text
-                        style={{
-                          textDecoration: !darkPlayer.IsPlaying ? 'line-through' : 'none',
-                        }}
-                      >
-                        {darkPlayer.FirstName} {darkPlayer.LastName}, {darkPlayer.CurrentPosition}
-                      </Text>
-                      <Popover
-                        position='top'
-                        withArrow
-                        shadow='md'
-                        opened={editingPlayer?.userId === darkPlayer.UserId}
-                        onClose={() => setEditingPlayer(null)}
-                      >
-                        <Popover.Target>
-                          <ActionIcon
-                            size='sm'
-                            variant='subtle'
-                            onClick={() =>
-                              setEditingPlayer({
-                                userId: darkPlayer.UserId ?? '',
-                                currentPosition: darkPlayer.CurrentPosition ?? 'TBD',
-                              })
-                            }
-                          >
-                            <IconPencil size={16} />
-                          </ActionIcon>
-                        </Popover.Target>
-                        <Popover.Dropdown>
-                          <Radio.Group
-                            value={editingPlayer?.currentPosition}
-                            onChange={(value) =>
-                              handlePositionChange(editingPlayer?.userId ?? '', value)
-                            }
-                          >
-                            <Stack>
-                              <Radio value='Defense' label='Defense' />
-                              <Radio value='Forward' label='Forward' />
-                              <Radio value='TBD' label='TBD' />
-                            </Stack>
-                          </Radio.Group>
-                        </Popover.Dropdown>
-                      </Popover>
-                    </Group>
-                  )}
+                  <PlayerCell
+                    player={darkPlayer}
+                    editingPlayer={editingPlayer}
+                    onEditClick={(userId, currentPosition) =>
+                      setEditingPlayer({ userId, currentPosition })
+                    }
+                    onPositionChange={handlePositionChange}
+                    onTeamChange={handleTeamChange}
+                    onClose={() => setEditingPlayer(null)}
+                  />
                 </Table.Td>
               </Table.Tr>
             );
