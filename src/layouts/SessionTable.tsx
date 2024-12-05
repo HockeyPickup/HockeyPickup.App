@@ -113,7 +113,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
                     />
                     <Text>Beauties (Dark)</Text>
                   </Stack>
-                </Table.Th>{' '}
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -220,7 +220,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
                   <Table.Td>
                     {queue.TransactionStatus === 'Looking to Buy'
                       ? '-'
-                      : `${queue.PaymentSent ? 'Sent' : 'Pending'} / ${queue.PaymentReceived ? 'Received' : 'Pending'}`}{' '}
+                      : `${queue.PaymentSent ? 'Sent' : 'Pending'} / ${queue.PaymentReceived ? 'Received' : 'Pending'}`}
                   </Table.Td>
                   <Table.Td>
                     {queue.SellerNote && <Text size='sm'>Seller: {queue.SellerNote}</Text>}
