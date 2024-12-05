@@ -112,7 +112,7 @@
 
 /* Update existing rule to be more specific */
 :global(.mantine-AppShell-main) {
-  padding: 60px 0 40px 0 !important;
+  padding: 60px 1px 40px 1px !important;
   margin: 0 !important;
   width: 100vw !important;
   max-width: 100vw !important;

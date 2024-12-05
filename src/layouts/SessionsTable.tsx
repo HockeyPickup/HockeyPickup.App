@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import styles from '@/App.module.css';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Session } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
@@ -42,7 +43,7 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
 
   return (
     <Paper shadow='sm' p='md'>
-      <Table striped highlightOnHover>
+      <Table striped highlightOnHover className={styles.table}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Session Date</Table.Th>
