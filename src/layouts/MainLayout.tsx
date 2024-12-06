@@ -1,4 +1,5 @@
 import styles from '@/App.module.css';
+import { RatingsToggle } from '@/components/RatingsToggle';
 import { useZoom } from '@/hooks/useZoom';
 import { AppShell, Avatar, Burger, Group, Menu, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -14,6 +15,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const [avatarSrc, setAvatarSrc] = useState('');
   const { title } = useTitle();
+  const { isAdmin, isSubAdmin } = useAuth();
   useZoom(false);
 
   useEffect(() => {
@@ -136,6 +138,8 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link to='/about' className={styles.footerLink}>
             About
           </Link>
+          <Text size='xs'>•</Text>
+          <RatingsToggle isAdmin={isAdmin()} isSubAdmin={isSubAdmin()} />
         </Group>
       </AppShell.Footer>
     </AppShell>
