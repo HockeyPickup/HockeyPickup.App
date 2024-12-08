@@ -39,7 +39,7 @@ const PlayerCell = ({
   onTeamChange,
   onClose,
 }: PlayerCellProps): JSX.Element | null => {
-  const { isAdmin, isSubAdmin } = useAuth();
+  const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
 
   if (!player) return null;
@@ -54,7 +54,7 @@ const PlayerCell = ({
         }}
       >
         {player.FirstName} {player.LastName}, {player.CurrentPosition}
-        {(isAdmin() || isSubAdmin()) &&
+        {canViewRatings() &&
           showRatings &&
           player.Rating !== undefined &&
           player.Rating !== null &&
@@ -126,7 +126,7 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
     userId: string;
     currentPosition: string;
   } | null>(null);
-  const { isAdmin, isSubAdmin } = useAuth();
+  const { canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
 
   const handlePositionChange = async (userId: string, newPosition: string): Promise<void> => {
@@ -295,12 +295,12 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
               </Text>
             </Table.Td>
           </Table.Tr>
-          {(isAdmin() || isSubAdmin()) && showRatings && (
+          {canViewRatings() && showRatings && (
             <Table.Tr>
               <Table.Td>
                 {((): JSX.Element => {
                   const lightTeam = session.CurrentRosters?.filter(
-                    (p) => p.TeamAssignment === 1 && p.Rating,
+                    (p) => p.TeamAssignment === 1 && p.Rating && p.IsPlaying,
                   );
                   const total = lightTeam?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
                   const avg = lightTeam?.length ? total / lightTeam.length : 0;
@@ -314,7 +314,7 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
               <Table.Td>
                 {((): JSX.Element => {
                   const darkTeam = session.CurrentRosters?.filter(
-                    (p) => p.TeamAssignment === 2 && p.Rating,
+                    (p) => p.TeamAssignment === 2 && p.Rating && p.IsPlaying,
                   );
                   const total = darkTeam?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
                   const avg = darkTeam?.length ? total / darkTeam.length : 0;

@@ -2,10 +2,7 @@ import { ActionIcon, Text } from '@mantine/core';
 import { IconLock, IconLockOpen } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
-export const RatingsToggle: React.FC<{ isAdmin?: boolean; isSubAdmin?: boolean }> = ({
-  isAdmin,
-  isSubAdmin,
-}) => {
+export const RatingsToggle: React.FC<{ canViewRatings?: boolean }> = ({ canViewRatings }) => {
   const [showRatings, setShowRatings] = useState(false);
 
   useEffect(() => {
@@ -29,7 +26,7 @@ export const RatingsToggle: React.FC<{ isAdmin?: boolean; isSubAdmin?: boolean }
     setShowRatings(!showRatings);
   };
 
-  return isAdmin || isSubAdmin ? (
+  return canViewRatings ? (
     <>
       <Text size='xs'>•</Text>
       <ActionIcon

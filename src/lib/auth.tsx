@@ -23,6 +23,9 @@ const userHelpers = {
   isSubAdmin: (user: UserDetailedResponse | null): boolean => {
     return user?.Roles?.includes('SubAdmin') ?? false;
   },
+  canViewRatings: (user: UserDetailedResponse | null): boolean => {
+    return (user?.Roles?.includes('Admin') || user?.Roles?.includes('SubAdmin')) ?? false;
+  },
   isInRole: (user: UserDetailedResponse | null, role: string): boolean => {
     return user?.Roles?.includes(role) ?? false;
   },
@@ -93,6 +96,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAdmin: () => boolean;
   isSubAdmin: () => boolean;
+  canViewRatings: () => boolean;
   isInRole: (_role: string) => boolean;
 }
 
@@ -128,6 +132,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }): JSX.Ele
         isLoading,
         isAdmin: () => userHelpers.isAdmin(user),
         isSubAdmin: () => userHelpers.isSubAdmin(user),
+        canViewRatings: () => userHelpers.canViewRatings(user),
         isInRole: (role) => userHelpers.isInRole(user, role),
       }}
     >

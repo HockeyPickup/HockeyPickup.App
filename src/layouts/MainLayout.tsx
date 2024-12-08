@@ -15,7 +15,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const [avatarSrc, setAvatarSrc] = useState('');
   const { title } = useTitle();
-  const { isAdmin, isSubAdmin } = useAuth();
+  const { canViewRatings } = useAuth();
   useZoom(false);
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link to='/about' className={styles.footerLink}>
             About
           </Link>
-          <RatingsToggle isAdmin={isAdmin()} isSubAdmin={isSubAdmin()} />
+          <RatingsToggle canViewRatings={canViewRatings()} />
         </Group>
       </AppShell.Footer>
     </AppShell>
