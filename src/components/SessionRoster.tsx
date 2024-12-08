@@ -16,6 +16,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconPencil } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionRosterProps {
   session: Session;
@@ -38,7 +39,8 @@ const PlayerCell = ({
   onTeamChange,
   onClose,
 }: PlayerCellProps): JSX.Element | null => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isSubAdmin } = useAuth();
+  const { showRatings } = useRatingsVisibility();
 
   if (!player) return null;
 
@@ -52,6 +54,11 @@ const PlayerCell = ({
         }}
       >
         {player.FirstName} {player.LastName}, {player.CurrentPosition}
+        {(isAdmin() || isSubAdmin()) &&
+          showRatings &&
+          player.Rating !== undefined &&
+          player.Rating !== null &&
+          `, ${player.Rating.toFixed(1)}`}
       </Text>
       {isAdmin() && (
         <Popover
@@ -119,6 +126,8 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
     userId: string;
     currentPosition: string;
   } | null>(null);
+  const { isAdmin, isSubAdmin } = useAuth();
+  const { showRatings } = useRatingsVisibility();
 
   const handlePositionChange = async (userId: string, newPosition: string): Promise<void> => {
     try {
@@ -268,7 +277,7 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
           })}
           <Table.Tr>
             <Table.Td>
-              <Text fw={700}>
+              <Text size='sm' fw={700}>
                 {
                   session.CurrentRosters?.filter((p) => p.TeamAssignment === 1 && p.IsPlaying)
                     .length
@@ -277,7 +286,7 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
               </Text>
             </Table.Td>
             <Table.Td>
-              <Text fw={700}>
+              <Text size='sm' fw={700}>
                 {
                   session.CurrentRosters?.filter((p) => p.TeamAssignment === 2 && p.IsPlaying)
                     .length
@@ -286,6 +295,38 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
               </Text>
             </Table.Td>
           </Table.Tr>
+          {(isAdmin() || isSubAdmin()) && showRatings && (
+            <Table.Tr>
+              <Table.Td>
+                {((): JSX.Element => {
+                  const lightTeam = session.CurrentRosters?.filter(
+                    (p) => p.TeamAssignment === 1 && p.Rating,
+                  );
+                  const total = lightTeam?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
+                  const avg = lightTeam?.length ? total / lightTeam.length : 0;
+                  return (
+                    <Text size='sm' fw={500}>
+                      Total: {total.toFixed(1)}, Average: {avg.toFixed(2)}
+                    </Text>
+                  );
+                })()}
+              </Table.Td>
+              <Table.Td>
+                {((): JSX.Element => {
+                  const darkTeam = session.CurrentRosters?.filter(
+                    (p) => p.TeamAssignment === 2 && p.Rating,
+                  );
+                  const total = darkTeam?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
+                  const avg = darkTeam?.length ? total / darkTeam.length : 0;
+                  return (
+                    <Text size='sm' fw={500}>
+                      Total: {total.toFixed(1)}, Average: {avg.toFixed(2)}
+                    </Text>
+                  );
+                })()}
+              </Table.Td>
+            </Table.Tr>
+          )}
         </Table.Tbody>
       </Table>
     </Paper>

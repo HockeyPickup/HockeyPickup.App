@@ -20,6 +20,7 @@ export const GET_USERS = gql`
       LockerRoom13
       DateCreated
       Roles
+      Rating
     }
   }
 `;
@@ -64,6 +65,7 @@ export const GET_SESSION = gql`
           Email
           FirstName
           LastName
+          Rating
         }
         Seller {
           Id
@@ -71,6 +73,7 @@ export const GET_SESSION = gql`
           Email
           FirstName
           LastName
+          Rating
         }
       }
       ActivityLogs {
@@ -112,6 +115,7 @@ export const GET_SESSION = gql`
             EmergencyName
             EmergencyPhone
             LockerRoom13
+            Rating
           }
         }
       }
@@ -130,6 +134,7 @@ export const GET_SESSION = gql`
         Position
         CurrentPosition
         JoinedDateTime
+        Rating
       }
       BuyingQueues {
         BuySellId

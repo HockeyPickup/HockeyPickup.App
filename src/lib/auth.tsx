@@ -11,19 +11,19 @@ import {
   RegisterRequest,
   ResetPasswordRequest,
   SaveUserRequest,
-  UserBasicResponse,
+  UserDetailedResponse,
 } from '../HockeyPickup.Api';
 import api from '../services/api';
 import { userService } from '../services/user';
 
 const userHelpers = {
-  isAdmin: (user: UserBasicResponse | null): boolean => {
+  isAdmin: (user: UserDetailedResponse | null): boolean => {
     return user?.Roles?.includes('Admin') ?? false;
   },
-  isSubAdmin: (user: UserBasicResponse | null): boolean => {
+  isSubAdmin: (user: UserDetailedResponse | null): boolean => {
     return user?.Roles?.includes('SubAdmin') ?? false;
   },
-  isInRole: (user: UserBasicResponse | null, role: string): boolean => {
+  isInRole: (user: UserDetailedResponse | null, role: string): boolean => {
     return user?.Roles?.includes(role) ?? false;
   },
 };
@@ -88,8 +88,8 @@ const authService = {
 
 // Auth Context and Provider
 interface AuthContextType {
-  user: UserBasicResponse | null;
-  setUser: (_user: UserBasicResponse | null) => void;
+  user: UserDetailedResponse | null;
+  setUser: (_user: UserDetailedResponse | null) => void;
   isLoading: boolean;
   isAdmin: () => boolean;
   isSubAdmin: () => boolean;
@@ -99,7 +99,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: FC<{ children: ReactNode }> = ({ children }): JSX.Element => {
-  const [user, setUser] = useState<UserBasicResponse | null>(null);
+  const [user, setUser] = useState<UserDetailedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

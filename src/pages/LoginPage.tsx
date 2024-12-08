@@ -42,7 +42,7 @@ export const LoginPage = (): JSX.Element => {
     try {
       const response = await authService.login(values);
       if (response.Success && response.Data) {
-        setUser(response.Data.UserBasicResponse);
+        setUser(response.Data.UserDetailedResponse);
         navigate('/');
       }
     } catch (error) {

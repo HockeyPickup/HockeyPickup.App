@@ -138,7 +138,6 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link to='/about' className={styles.footerLink}>
             About
           </Link>
-          <Text size='xs'>•</Text>
           <RatingsToggle isAdmin={isAdmin()} isSubAdmin={isSubAdmin()} />
         </Group>
       </AppShell.Footer>

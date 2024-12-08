@@ -28,11 +28,11 @@ export interface LoginResponse {
    * @minLength 1
    */
   Expiration: string;
-  /** UserBasicResponse Record */
-  UserBasicResponse: UserBasicResponse;
+  /** UserDetailedResponse Record */
+  UserDetailedResponse: UserDetailedResponse;
 }
 
-export interface UserBasicResponse {
+export interface UserDetailedResponse {
   /**
    * Unique identifier for the user
    * @minLength 1
@@ -111,6 +111,13 @@ export interface UserBasicResponse {
    * @maxItems 256
    */
   Roles?: string[];
+  /**
+   * User's rating
+   * @format decimal
+   * @min 0
+   * @max 5
+   */
+  Rating: number;
 }
 
 export enum NotificationPreference {
@@ -568,16 +575,6 @@ export interface SaveUserRequest {
   /** User's notification preference setting */
   NotificationPreference?: NotificationPreference | null;
 }
-
-export type UserDetailedResponse = UserBasicResponse & {
-  /**
-   * User's rating
-   * @format decimal
-   * @min 0
-   * @max 5
-   */
-  Rating: number;
-};
 
 export interface ServiceBusCommsMessage {
   /** Required message metadata (Type, etc) */
