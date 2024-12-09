@@ -1,3 +1,4 @@
+import styles from '@/App.module.css';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { User } from '@/HockeyPickup.Api';
 import { GET_USERS } from '@/lib/queries';
@@ -25,7 +26,7 @@ export const UsersTable = (): JSX.Element => {
 
   return (
     <Paper shadow='sm' p='md'>
-      <Table striped highlightOnHover>
+      <Table striped highlightOnHover className={styles.table}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Name</Table.Th>
@@ -37,7 +38,7 @@ export const UsersTable = (): JSX.Element => {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {data?.Users.map((user: User) => (
+          {data?.UsersEx.map((user: User) => (
             <Table.Tr key={user.Id}>
               <Table.Td>{`${user.FirstName} ${user.LastName}`}</Table.Td>
               <Table.Td>{user.Email}</Table.Td>
