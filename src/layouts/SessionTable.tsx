@@ -8,7 +8,7 @@ import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
 import { Stack, Text } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 
 interface SessionTableProps {
   sessionId: number;

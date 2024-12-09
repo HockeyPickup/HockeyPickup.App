@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Container, Stack, Text, Title } from '@mantine/core';
-import { useEffect } from 'react';
+import { JSX, useEffect } from 'react';
 import { useTitle } from '../layouts/TitleContext';
 
 export const AboutPage = (): JSX.Element => {

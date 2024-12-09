@@ -1,7 +1,7 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useTitle } from '@/layouts/TitleContext';
 import { Box, Container } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 
 interface FlickrPhoto {
   id: string;

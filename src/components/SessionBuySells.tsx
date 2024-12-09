@@ -3,7 +3,7 @@ import { BuySellResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { Collapse, Group, Paper, Table, Title, UnstyledButton } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import moment from 'moment';
-import { useState } from 'react';
+import { JSX, useState } from 'react';
 
 interface SessionBuySellsProps {
   session: SessionDetailedResponse;

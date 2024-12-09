@@ -18,7 +18,7 @@ import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import {
   ChangePasswordRequest,
   ErrorDetail,

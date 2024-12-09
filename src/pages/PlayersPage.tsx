@@ -1,7 +1,7 @@
 import { useTitle } from '@/layouts/TitleContext';
 import { UsersTable } from '@/layouts/UsersTable';
 import { Container } from '@mantine/core';
-import { useEffect } from 'react';
+import { JSX, useEffect } from 'react';
 
 export const PlayersPage = (): JSX.Element => {
   const { setTitle } = useTitle();

@@ -3,7 +3,7 @@ import { SessionDisplay, SessionsTable } from '@/layouts/SessionsTable';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
 import { Button, Container, Image, Stack, Text } from '@mantine/core';
-import { useEffect } from 'react';
+import { JSX, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export const HomePage = (): JSX.Element => {

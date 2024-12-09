@@ -22,7 +22,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconPencil } from '@tabler/icons-react';
-import { useState } from 'react';
+import { JSX, useState } from 'react';
 import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionRosterProps {

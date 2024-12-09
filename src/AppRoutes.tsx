@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
 import { useAuth } from './lib/auth';

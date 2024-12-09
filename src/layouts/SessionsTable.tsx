@@ -7,6 +7,7 @@ import { GET_SESSIONS } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
 import { Paper, Table, Text } from '@mantine/core';
 import moment from 'moment';
+import { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export enum SessionDisplay {

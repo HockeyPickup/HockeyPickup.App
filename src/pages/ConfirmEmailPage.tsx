@@ -1,7 +1,7 @@
 import { useTitle } from '@/layouts/TitleContext';
 import { Button, Container, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { ErrorDetail } from '../HockeyPickup.Api';
 import { authService } from '../lib/auth';

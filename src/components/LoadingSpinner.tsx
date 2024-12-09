@@ -1,5 +1,5 @@
 import { LoadingOverlay, MantineLoaderComponent } from '@mantine/core';
-import { forwardRef } from 'react';
+import { forwardRef, JSX } from 'react';
 
 interface LoaderProps {
   visible?: boolean;

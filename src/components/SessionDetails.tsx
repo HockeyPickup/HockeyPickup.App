@@ -2,6 +2,7 @@ import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { Group, Paper, Stack, Text, Title } from '@mantine/core';
 import moment from 'moment';
+import { JSX } from 'react';
 
 interface SessionDetailsProps {
   session: SessionDetailedResponse;

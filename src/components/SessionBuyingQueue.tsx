@@ -1,6 +1,7 @@
 import styles from '@/App.module.css';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { Paper, Table, Text, Title } from '@mantine/core';
+import { JSX } from 'react';
 
 interface SessionBuyingQueueProps {
   session: SessionDetailedResponse;

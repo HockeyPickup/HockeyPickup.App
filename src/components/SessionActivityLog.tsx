@@ -2,6 +2,7 @@ import styles from '@/App.module.css';
 import { ActivityLogResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { Paper, Table, Title } from '@mantine/core';
 import moment from 'moment';
+import { JSX } from 'react';
 
 interface SessionActivityLogProps {
   session: SessionDetailedResponse;

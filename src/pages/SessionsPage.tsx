@@ -2,7 +2,7 @@ import { useZoom } from '@/hooks/useZoom';
 import { SessionDisplay, SessionsTable } from '@/layouts/SessionsTable';
 import { useTitle } from '@/layouts/TitleContext';
 import { Container, Title } from '@mantine/core';
-import { useEffect } from 'react';
+import { JSX, useEffect } from 'react';
 
 export const SessionsPage = (): JSX.Element => {
   const { setTitle } = useTitle();

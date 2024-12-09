@@ -4,6 +4,7 @@ import { User } from '@/HockeyPickup.Api';
 import { GET_USERS } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
 import { Paper, Table, Text } from '@mantine/core';
+import { JSX } from 'react';
 
 const formatNotificationPreference = (pref: string): string => {
   switch (pref) {

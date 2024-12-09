@@ -11,7 +11,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ErrorDetail, ResetPasswordRequest } from '../HockeyPickup.Api';
 import { authService } from '../lib/auth';
