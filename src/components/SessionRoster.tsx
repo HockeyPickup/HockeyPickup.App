@@ -1,5 +1,11 @@
-import { RosterPlayer, Session } from '@/HockeyPickup.Api';
+import {
+  RosterPlayer2,
+  SessionDetailedResponse,
+  UpdateRosterPositionRequest,
+} from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
+import { positionMap, PositionString } from '@/lib/position';
+import { sessionService } from '@/lib/session';
 import {
   ActionIcon,
   Divider,
@@ -19,14 +25,15 @@ import { useState } from 'react';
 import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionRosterProps {
-  session: Session;
+  session: SessionDetailedResponse;
+  onSessionUpdate: (_session: SessionDetailedResponse) => void;
 }
 
 interface PlayerCellProps {
-  player: RosterPlayer | undefined;
+  player: RosterPlayer2 | undefined;
   editingPlayer: { userId: string; currentPosition: string } | null;
   onEditClick: (_userId: string, _currentPosition: string) => void;
-  onPositionChange: (_userId: string, _newPosition: string) => Promise<void>;
+  onPositionChange: (_userId: string, _newPosition: PositionString) => Promise<void>;
   onTeamChange: (_userId: string, _newTeam: 1 | 2) => Promise<void>;
   onClose: () => void;
 }
@@ -41,6 +48,10 @@ const PlayerCell = ({
 }: PlayerCellProps): JSX.Element | null => {
   const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
+  const [checkedPosition, setCheckedPosition] = useState<PositionString>(
+    (editingPlayer?.currentPosition as PositionString) ?? 'TBD',
+  );
+  const [checkedTeam, setCheckedTeam] = useState<1 | 2>((player?.TeamAssignment as 1 | 2) ?? 1);
 
   if (!player) return null;
 
@@ -77,6 +88,8 @@ const PlayerCell = ({
                   onClose(); // If already open, close it
                 } else {
                   onEditClick(player.UserId ?? '', player.CurrentPosition ?? 'TBD'); // If closed, open it
+                  setCheckedPosition((player.CurrentPosition ?? 'TBD') as PositionString);
+                  setCheckedTeam((player.TeamAssignment as 1 | 2) ?? 1);
                 }
               }}
             >
@@ -89,28 +102,40 @@ const PlayerCell = ({
                 Position
               </Text>
               <Radio.Group
-                value={editingPlayer?.currentPosition}
-                onChange={(value) => onPositionChange(editingPlayer?.userId ?? '', value)}
+                value={checkedPosition}
+                onChange={(value: string) => {
+                  const newPosition = value as PositionString;
+                  setCheckedPosition(newPosition);
+                  // Delay the API call slightly to allow the UI to update
+                  setTimeout(() => {
+                    onPositionChange(editingPlayer?.userId ?? '', newPosition);
+                  }, 100);
+                }}
               >
                 <Stack>
-                  <Radio value='Defense' label='Defense' />
-                  <Radio value='Forward' label='Forward' />
-                  <Radio value='TBD' label='TBD' />
+                  <Radio value='Defense' label='Defense' checked={checkedPosition === 'Defense'} />
+                  <Radio value='Forward' label='Forward' checked={checkedPosition === 'Forward'} />
+                  <Radio value='TBD' label='TBD' checked={checkedPosition === 'TBD'} />
                 </Stack>
               </Radio.Group>
-
               <Divider my='xs' />
 
               <Text size='sm' fw={500}>
                 Team
               </Text>
               <Radio.Group
-                value={player.TeamAssignment?.toString()}
-                onChange={(value) => onTeamChange(player.UserId ?? '', parseInt(value) as 1 | 2)}
+                value={checkedTeam.toString()}
+                onChange={(value: string) => {
+                  const newTeam = parseInt(value) as 1 | 2;
+                  setCheckedTeam(newTeam);
+                  setTimeout(() => {
+                    onTeamChange(editingPlayer?.userId ?? '', newTeam);
+                  }, 100);
+                }}
               >
                 <Stack>
-                  <Radio value='1' label='Rockets (Light)' />
-                  <Radio value='2' label='Beauties (Dark)' />
+                  <Radio value='1' label='Rockets (Light)' checked={checkedTeam === 1} />
+                  <Radio value='2' label='Beauties (Dark)' checked={checkedTeam === 2} />
                 </Stack>
               </Radio.Group>
             </Stack>
@@ -121,7 +146,7 @@ const PlayerCell = ({
   );
 };
 
-export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
+export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps): JSX.Element => {
   const [editingPlayer, setEditingPlayer] = useState<{
     userId: string;
     currentPosition: string;
@@ -129,25 +154,40 @@ export const SessionRoster = ({ session }: SessionRosterProps): JSX.Element => {
   const { canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
 
-  const handlePositionChange = async (userId: string, newPosition: string): Promise<void> => {
+  const handlePositionChange = async (
+    userId: string,
+    newPosition: PositionString,
+  ): Promise<void> => {
     try {
       console.info('Updating position:', {
         sessionId: session.SessionId,
         userId,
         position: newPosition,
       });
-      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const player = session.CurrentRosters?.find((p) => p.UserId === userId);
-      const oldPosition = player?.CurrentPosition ?? 'TBD';
+      const currentPosition = (player?.CurrentPosition ?? 'TBD') as PositionString;
+
+      const request: UpdateRosterPositionRequest = {
+        SessionId: session.SessionId ?? 0,
+        UserId: userId,
+        NewPosition: positionMap[newPosition],
+      };
+
+      var result = await sessionService.updateRosterPosition(request);
+      if (result.Data !== null && result.Data !== undefined) {
+        // Update the parent's session state
+        onSessionUpdate(result.Data);
+      }
 
       setEditingPlayer(null);
+
       notifications.show({
         position: 'top-center',
         autoClose: 5000,
         style: { marginTop: '60px' },
         title: 'Position Updated',
-        message: `${player?.FirstName} ${player?.LastName} changed from ${oldPosition} to ${newPosition}`,
+        message: `${player?.FirstName} ${player?.LastName} changed position from ${currentPosition} to ${newPosition}`,
         color: 'green',
       });
     } catch (error) {

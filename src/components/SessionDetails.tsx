@@ -1,10 +1,10 @@
-import { Session } from '@/HockeyPickup.Api';
+import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { Group, Paper, Stack, Text, Title } from '@mantine/core';
 import moment from 'moment';
 
 interface SessionDetailsProps {
-  session: Session;
+  session: SessionDetailedResponse;
 }
 
 export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element => {

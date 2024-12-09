@@ -1,12 +1,12 @@
 import styles from '@/App.module.css';
-import { BuySell, Session } from '@/HockeyPickup.Api';
+import { BuySellResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { Collapse, Group, Paper, Table, Title, UnstyledButton } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import moment from 'moment';
 import { useState } from 'react';
 
 interface SessionBuySellsProps {
-  session: Session;
+  session: SessionDetailedResponse;
 }
 
 export const SessionBuySells = ({ session }: SessionBuySellsProps): JSX.Element => {
@@ -37,7 +37,7 @@ export const SessionBuySells = ({ session }: SessionBuySellsProps): JSX.Element 
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {session.BuySells?.map((buySell: BuySell) => (
+            {session.BuySells?.map((buySell: BuySellResponse) => (
               <Table.Tr key={buySell.BuySellId}>
                 <Table.Td>
                   {buySell.SellerUserId !== null

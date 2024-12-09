@@ -1,9 +1,9 @@
 import styles from '@/App.module.css';
-import { Session } from '@/HockeyPickup.Api';
+import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { Paper, Table, Text, Title } from '@mantine/core';
 
 interface SessionBuyingQueueProps {
-  session: Session;
+  session: SessionDetailedResponse;
 }
 
 export const SessionBuyingQueue = ({ session }: SessionBuyingQueueProps): JSX.Element => {

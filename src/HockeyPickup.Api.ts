@@ -576,6 +576,335 @@ export interface SaveUserRequest {
   NotificationPreference?: NotificationPreference | null;
 }
 
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfSessionDetailedResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: SessionDetailedResponse | null;
+};
+
+export type SessionDetailedResponse = SessionBasicResponse & {
+  /** Buy/sell transactions associated with the session */
+  BuySells?: BuySellResponse[] | null;
+  /** Activity logs associated with the session */
+  ActivityLogs?: ActivityLogResponse[] | null;
+  /** Regular set details for the session */
+  RegularSet?: RegularSetResponse | null;
+  /** Current roster state for the session */
+  CurrentRosters?: RosterPlayer2[] | null;
+  /** Buying queue for the session */
+  BuyingQueues?: BuyingQueueItem[] | null;
+};
+
+export interface BuySellResponse {
+  /**
+   * Unique identifier for the buy/sell transaction
+   * @format int32
+   */
+  BuySellId?: number | null;
+  /**
+   * User ID of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User ID of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
+  /** Note from the seller */
+  SellerNote?: string | null;
+  /** Note from the buyer */
+  BuyerNote?: string | null;
+  /** Indicates if payment has been sent */
+  PaymentSent: boolean;
+  /** Indicates if payment has been received */
+  PaymentReceived: boolean;
+  /**
+   * Date and time of transaction creation
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /**
+   * Team assignment for the transaction
+   * @format int32
+   * @min 0
+   * @max 2147483647
+   */
+  TeamAssignment: number;
+  /** Buyer details */
+  Buyer?: UserDetailedResponse | null;
+  /** Seller details */
+  Seller?: UserDetailedResponse | null;
+}
+
+export interface ActivityLogResponse {
+  /**
+   * Unique identifier for the activity log
+   * @format int32
+   */
+  ActivityLogId: number;
+  /**
+   * User ID associated with the activity
+   * @maxLength 128
+   */
+  UserId?: string | null;
+  /**
+   * Date and time of the activity
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /** Description of the activity */
+  Activity?: string | null;
+  /** User details */
+  User?: UserDetailedResponse | null;
+}
+
+export interface RegularSetResponse {
+  /**
+   * Unique identifier for the regular set
+   * @format int32
+   */
+  RegularSetId: number;
+  /** Description of the regular set */
+  Description?: string | null;
+  /**
+   * Day of the week
+   * @format int32
+   * @min 0
+   * @max 6
+   */
+  DayOfWeek: number;
+  /**
+   * Date and time of creation
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /** Regular players in the set */
+  Regulars?: RegularResponse[] | null;
+}
+
+export interface RegularResponse {
+  /**
+   * Regular set identifier
+   * @format int32
+   */
+  RegularSetId: number;
+  /**
+   * User ID of the regular player
+   * @maxLength 128
+   */
+  UserId?: string | null;
+  /**
+   * Team assignment for the regular player
+   * @format int32
+   * @min 0
+   * @max 2147483647
+   */
+  TeamAssignment: number;
+  /**
+   * Position preference for the regular player
+   * @format int32
+   * @min 0
+   * @max 2147483647
+   */
+  PositionPreference: number;
+  /** User details */
+  User?: UserDetailedResponse | null;
+}
+
+export interface RosterPlayer2 {
+  /**
+   * Unique identifier for the roster entry
+   * @format int32
+   */
+  SessionRosterId: number;
+  /**
+   * User identifier
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+  /**
+   * First name of the player
+   * @minLength 1
+   * @maxLength 256
+   */
+  FirstName: string;
+  /**
+   * Last name of the player
+   * @minLength 1
+   * @maxLength 256
+   */
+  LastName: string;
+  /**
+   * Team assignment (1 for Light, 2 for Dark)
+   * @format int32
+   */
+  TeamAssignment: number;
+  /**
+   * Position for the player
+   * @format int32
+   * @min 0
+   * @max 2147483647
+   */
+  Position: number;
+  /**
+   * Position name for the player
+   * @minLength 1
+   * @maxLength 256
+   */
+  CurrentPosition: string;
+  /** Indicates if the player is currently playing */
+  IsPlaying: boolean;
+  /** Indicates if the player is a regular */
+  IsRegular: boolean;
+  /** Player's status in the roster */
+  PlayerStatus: PlayerStatus;
+  /**
+   * Player's rating
+   * @format decimal
+   */
+  Rating: number;
+  /** Indicates if the player has preferred status */
+  Preferred: boolean;
+  /** Indicates if the player has preferred plus status */
+  PreferredPlus: boolean;
+  /**
+   * Last buy/sell transaction ID affecting this roster position
+   * @format int32
+   */
+  LastBuySellId?: number | null;
+  /**
+   * Date and time when the player joined the roster
+   * @format date-time
+   * @minLength 1
+   */
+  JoinedDateTime: string;
+}
+
+export enum PlayerStatus {
+  Regular = 0,
+  Substitute = 1,
+  NotPlaying = 2,
+}
+
+export interface BuyingQueueItem {
+  /**
+   * Unique identifier for the buy/sell transaction
+   * @format int32
+   */
+  BuySellId: number;
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Name of the buyer
+   * @maxLength 512
+   */
+  BuyerName?: string | null;
+  /**
+   * Name of the seller
+   * @maxLength 512
+   */
+  SellerName?: string | null;
+  /**
+   * Team assignment (1 for Light, 2 for Dark)
+   * @format int32
+   */
+  TeamAssignment: number;
+  /**
+   * Current status of the transaction
+   * @minLength 1
+   * @maxLength 50
+   */
+  TransactionStatus: string;
+  /**
+   * Position in the buying queue
+   * @minLength 1
+   * @maxLength 50
+   */
+  QueueStatus: string;
+  /** Indicates if payment has been sent */
+  PaymentSent: boolean;
+  /** Indicates if payment has been received */
+  PaymentReceived: boolean;
+  /**
+   * Note from the buyer
+   * @maxLength 4000
+   */
+  BuyerNote?: string | null;
+  /**
+   * Note from the seller
+   * @maxLength 4000
+   */
+  SellerNote?: string | null;
+}
+
+export interface SessionBasicResponse {
+  /**
+   * Unique identifier for the session
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Date and time when the session was created
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /**
+   * Date and time when the session was last updated
+   * @format date-time
+   * @minLength 1
+   */
+  UpdateDateTime: string;
+  /** Additional notes about the session */
+  Note?: string | null;
+  /**
+   * Date and time when the session is scheduled
+   * @format date-time
+   * @minLength 1
+   */
+  SessionDate: string;
+  /**
+   * Associated regular set identifier
+   * @format int32
+   */
+  RegularSetId?: number | null;
+  /**
+   * Minimum number of days before session to allow buying
+   * @format int32
+   * @min 0
+   * @max 365
+   */
+  BuyDayMinimum?: number | null;
+}
+
+export interface UpdateRosterPositionRequest {
+  /**
+   * Session ID
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * User ID
+   * @minLength 1
+   */
+  UserId: string;
+  /**
+   * New position (0: TBD, 1: Forward, 2: Defense)
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  NewPosition: number;
+}
+
 export interface ServiceBusCommsMessage {
   /** Required message metadata (Type, etc) */
   Metadata: Record<string, string>;
@@ -708,6 +1037,11 @@ export interface User {
    * @format date-time
    */
   DateCreated?: string | null;
+  /**
+   * Roles of user
+   * @maxItems 256
+   */
+  Roles?: string[];
 }
 
 /** Generic API response wrapper with typed data payload */

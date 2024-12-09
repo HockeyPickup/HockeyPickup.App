@@ -1,10 +1,10 @@
 import styles from '@/App.module.css';
-import { ActivityLog, Session } from '@/HockeyPickup.Api';
+import { ActivityLogResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { Paper, Table, Title } from '@mantine/core';
 import moment from 'moment';
 
 interface SessionActivityLogProps {
-  session: Session;
+  session: SessionDetailedResponse;
 }
 
 export const SessionActivityLog = ({ session }: SessionActivityLogProps): JSX.Element => {
@@ -22,7 +22,7 @@ export const SessionActivityLog = ({ session }: SessionActivityLogProps): JSX.El
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {session.ActivityLogs?.map((log: ActivityLog) => (
+          {session.ActivityLogs?.map((log: ActivityLogResponse) => (
             <Table.Tr key={log.ActivityLogId}>
               <Table.Td>
                 {moment.utc(log.CreateDateTime).local().format('MM/DD/yyyy, HH:mm:ss.SSS')}
