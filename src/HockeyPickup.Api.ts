@@ -722,6 +722,11 @@ export interface RosterPlayer2 {
    */
   SessionRosterId: number;
   /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
    * User identifier
    * @minLength 1
    * @maxLength 128
@@ -903,6 +908,26 @@ export interface UpdateRosterPositionRequest {
    * @max 2
    */
   NewPosition: number;
+}
+
+export interface UpdateRosterTeamRequest {
+  /**
+   * Session ID
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * User ID
+   * @minLength 1
+   */
+  UserId: string;
+  /**
+   * New team assignment (0 for TBD, 1 for Light, 2 for Dark)
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  NewTeamAssignment: number;
 }
 
 export interface ServiceBusCommsMessage {

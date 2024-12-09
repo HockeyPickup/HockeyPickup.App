@@ -2,6 +2,7 @@ import {
   RosterPlayer2,
   SessionDetailedResponse,
   UpdateRosterPositionRequest,
+  UpdateRosterTeamRequest,
 } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { positionMap, PositionString } from '@/lib/position';
@@ -31,8 +32,8 @@ interface SessionRosterProps {
 
 interface PlayerCellProps {
   player: RosterPlayer2 | undefined;
-  editingPlayer: { userId: string; currentPosition: string } | null;
-  onEditClick: (_userId: string, _currentPosition: string) => void;
+  editingPlayer: { userId: string; currentPosition: string; currentTeam: number } | null;
+  onEditClick: (_userId: string, _currentPosition: string, _currentTeam: number) => void;
   onPositionChange: (_userId: string, _newPosition: PositionString) => Promise<void>;
   onTeamChange: (_userId: string, _newTeam: 1 | 2) => Promise<void>;
   onClose: () => void;
@@ -87,7 +88,11 @@ const PlayerCell = ({
                 if (editingPlayer?.userId === player.UserId) {
                   onClose(); // If already open, close it
                 } else {
-                  onEditClick(player.UserId ?? '', player.CurrentPosition ?? 'TBD'); // If closed, open it
+                  onEditClick(
+                    player.UserId ?? '',
+                    player.CurrentPosition ?? 'TBD',
+                    player.TeamAssignment,
+                  ); // If closed, open it
                   setCheckedPosition((player.CurrentPosition ?? 'TBD') as PositionString);
                   setCheckedTeam((player.TeamAssignment as 1 | 2) ?? 1);
                 }
@@ -106,7 +111,6 @@ const PlayerCell = ({
                 onChange={(value: string) => {
                   const newPosition = value as PositionString;
                   setCheckedPosition(newPosition);
-                  // Delay the API call slightly to allow the UI to update
                   setTimeout(() => {
                     onPositionChange(editingPlayer?.userId ?? '', newPosition);
                   }, 100);
@@ -150,6 +154,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
   const [editingPlayer, setEditingPlayer] = useState<{
     userId: string;
     currentPosition: string;
+    currentTeam: number;
   } | null>(null);
   const { canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
@@ -210,19 +215,31 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
         userId,
         team: newTeam,
       });
-      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const player = session.CurrentRosters?.find((p) => p.UserId === userId);
-      const oldTeam = player?.TeamAssignment === 1 ? 'Rockets (Light)' : 'Beauties (Dark)';
+      const currentTeamName = player?.TeamAssignment === 1 ? 'Rockets (Light)' : 'Beauties (Dark)';
       const newTeamName = newTeam === 1 ? 'Rockets (Light)' : 'Beauties (Dark)';
 
+      const request: UpdateRosterTeamRequest = {
+        SessionId: session.SessionId ?? 0,
+        UserId: userId,
+        NewTeamAssignment: newTeam,
+      };
+
+      var result = await sessionService.updateRosterTeam(request);
+      if (result.Data !== null && result.Data !== undefined) {
+        // Update the parent's session state
+        onSessionUpdate(result.Data);
+      }
+
       setEditingPlayer(null);
+
       notifications.show({
         position: 'top-center',
         autoClose: 5000,
         style: { marginTop: '60px' },
         title: 'Team Updated',
-        message: `${player?.FirstName} ${player?.LastName} moved from ${oldTeam} to ${newTeamName}`,
+        message: `${player?.FirstName} ${player?.LastName} moved from ${currentTeamName} to ${newTeamName}`,
         color: 'green',
       });
     } catch (error) {
@@ -292,8 +309,8 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                   <PlayerCell
                     player={lightPlayer}
                     editingPlayer={editingPlayer}
-                    onEditClick={(userId, currentPosition) =>
-                      setEditingPlayer({ userId, currentPosition })
+                    onEditClick={(userId, currentPosition, currentTeam) =>
+                      setEditingPlayer({ userId, currentPosition, currentTeam })
                     }
                     onPositionChange={handlePositionChange}
                     onTeamChange={handleTeamChange}
@@ -304,8 +321,8 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                   <PlayerCell
                     player={darkPlayer}
                     editingPlayer={editingPlayer}
-                    onEditClick={(userId, currentPosition) =>
-                      setEditingPlayer({ userId, currentPosition })
+                    onEditClick={(userId, currentPosition, currentTeam) =>
+                      setEditingPlayer({ userId, currentPosition, currentTeam })
                     }
                     onPositionChange={handlePositionChange}
                     onTeamChange={handleTeamChange}
