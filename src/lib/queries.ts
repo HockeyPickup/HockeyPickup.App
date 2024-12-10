@@ -152,3 +152,24 @@ export const GET_SESSION = gql`
     }
   }
 `;
+
+export const GET_LOCKERROOM13 = gql`
+  query LockerRoom13 {
+    LockerRoom13 {
+      SessionId
+      SessionDate
+      LockerRoom13Players {
+        Id
+        UserName
+        Email
+        FirstName
+        LastName
+        Active
+        Preferred
+        PreferredPlus
+        LockerRoom13
+        PlayerStatus
+      }
+    }
+  }
+`;

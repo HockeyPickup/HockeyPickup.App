@@ -9,6 +9,7 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { GamePucksPage } from './pages/GamePucksPage';
 import { GoalieLoungePage } from './pages/GoalieLoungePage';
 import { HomePage } from './pages/HomePage';
+import { LockerRoom13Page } from './pages/LockerRoom13Page';
 import { LoginPage } from './pages/LoginPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { PrivacyPage } from './pages/PrivacyPage';
@@ -42,6 +43,7 @@ const AppRoutes = (): JSX.Element => {
         <Route path='/about' element={<AboutPage />} />
         <Route path='/confirm-email' element={<ConfirmEmailPage />} />
         <Route path='/forgot-password' element={<ForgotPasswordPage />} />
+        <Route path='/lockerroom13' element={<LockerRoom13Page />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/privacy' element={<PrivacyPage />} />
         <Route path='/register' element={<RegisterPage />} />

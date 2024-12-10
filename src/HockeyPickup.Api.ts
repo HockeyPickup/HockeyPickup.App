@@ -794,6 +794,7 @@ export enum PlayerStatus {
   Regular = 0,
   Substitute = 1,
   NotPlaying = 2,
+  InQueue = 3,
 }
 
 export interface BuyingQueueItem {
@@ -928,6 +929,63 @@ export interface UpdateRosterTeamRequest {
    * @max 2
    */
   NewTeamAssignment: number;
+}
+
+export interface LockerRoom13Players {
+  /**
+   * Unique identifier for the user
+   * @minLength 1
+   * @maxLength 128
+   */
+  Id: string;
+  /**
+   * UserName of the user
+   * @minLength 1
+   * @maxLength 256
+   */
+  UserName: string;
+  /**
+   * Email address of the user
+   * @format email
+   * @maxLength 256
+   */
+  Email?: string | null;
+  /**
+   * First name of the user
+   * @maxLength 256
+   */
+  FirstName?: string | null;
+  /**
+   * Last name of the user
+   * @maxLength 256
+   */
+  LastName?: string | null;
+  /** Indicates if user account is active */
+  Active: boolean;
+  /** Indicates if the user has preferred status */
+  Preferred: boolean;
+  /** Indicates if the user has preferred plus status */
+  PreferredPlus: boolean;
+  /** Indicates if user has Locker Room 13 access */
+  LockerRoom13: boolean;
+  /** Player's status in the roster */
+  PlayerStatus: PlayerStatus;
+}
+
+export interface LockerRoom13Response {
+  /**
+   * Unique identifier for the session
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Date and time when the session is scheduled
+   * @format date-time
+   * @minLength 1
+   */
+  SessionDate: string;
+  /** List of players in LockerRoom13 */
+  LockerRoom13Players: LockerRoom13Players[];
 }
 
 export interface ServiceBusCommsMessage {
