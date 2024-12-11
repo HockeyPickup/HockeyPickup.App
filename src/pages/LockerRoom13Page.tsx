@@ -11,6 +11,9 @@ export const LockerRoom13Page = (): JSX.Element => {
 
   return (
     <Container size='xl'>
+      <p style={{ textAlign: 'center' }}>
+        <img src='/static/lr13.jpg' width='360' alt='Locker Room 13' />
+      </p>
       <LockerRoom13Table />
     </Container>
   );
