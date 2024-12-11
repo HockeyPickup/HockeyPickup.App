@@ -3,12 +3,14 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { LockerRoom13Players, LockerRoom13Response, PlayerStatus } from '@/HockeyPickup.Api';
 import { GET_LOCKERROOM13 } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { Anchor, Paper, rem, Table, Text } from '@mantine/core';
+import { Paper, rem, Table, Text } from '@mantine/core';
 import { IconCheck, IconQuestionMark, IconX } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const LockerRoom13Table = (): JSX.Element => {
+  const navigate = useNavigate();
   const { loading, error, data } = useQuery(GET_LOCKERROOM13);
 
   if (loading) return <LoadingSpinner />;
@@ -59,16 +61,15 @@ export const LockerRoom13Table = (): JSX.Element => {
         return (
           <Table key={session.SessionId} striped className={styles.table} mb='lg'>
             <Table.Thead>
-              <Table.Tr>
+              <Table.Tr
+                key={session.SessionId}
+                onClick={() => navigate(`/session/${session.SessionId}`)}
+                style={{ cursor: 'pointer' }}
+              >
                 <Table.Th>
-                  <Anchor
-                    href={`/session/${session.SessionId}`}
-                    underline='never'
-                    c='inherit'
-                    fw='bold'
-                  >
+                  <Text size='md' fw={700}>
                     {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
-                  </Anchor>
+                  </Text>
                 </Table.Th>
               </Table.Tr>
             </Table.Thead>
