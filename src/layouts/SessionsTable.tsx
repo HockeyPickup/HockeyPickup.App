@@ -27,7 +27,7 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
   // Add filtering and sorting logic
   const filteredSessions = data?.Sessions.filter((session: Session) => {
     const sessionDate = moment.utc(session.SessionDate);
-    const now = moment.utc().local();
+    const now = moment.utc();
 
     switch (display) {
       case SessionDisplay.Future:
