@@ -16,9 +16,9 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
       <Title order={3} mb='md'>
         {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
       </Title>
-      <Stack gap='md'>
+      <Stack gap={2}>
         <Group>
-          <Text>{session.Note ?? '-'}</Text>
+          <Text>{session.Note ?? ''}</Text>
         </Group>
         <Group>
           <Text size='sm' fw={700} w={100} ta='right'>
@@ -51,6 +51,12 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
             Updated:
           </Text>
           <Text>{moment.utc(session.UpdateDateTime).local().format('MM/DD/yyyy, HH:mm')}</Text>
+        </Group>
+        <Group>
+          <Text size='sm' fw={700} w={100} ta='right'>
+            Cost:
+          </Text>
+          <Text>${session.Cost ?? ''}</Text>
         </Group>
       </Stack>
     </Paper>

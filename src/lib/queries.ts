@@ -35,6 +35,7 @@ export const GET_SESSIONS = gql`
       SessionDate
       RegularSetId
       BuyDayMinimum
+      Cost
     }
   }
 `;
@@ -49,6 +50,7 @@ export const GET_SESSION = gql`
       SessionDate
       RegularSetId
       BuyDayMinimum
+      Cost
       BuySells {
         BuySellId
         BuyerUserId

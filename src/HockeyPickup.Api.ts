@@ -273,6 +273,8 @@ export interface Session {
   RegularSetId?: number | null;
   /** @format int32 */
   BuyDayMinimum?: number | null;
+  /** @format decimal */
+  Cost?: number | null;
   RegularSet?: RegularSet | null;
   BuySells?: BuySell[];
   ActivityLogs?: ActivityLog[];
@@ -425,7 +427,7 @@ export interface RegisterRequest {
    * User's password
    * @minLength 8
    * @maxLength 100
-   * @pattern ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
+   * @pattern ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[^\s]{8,}$
    */
   Password: string;
   /**
@@ -520,7 +522,7 @@ export interface ResetPasswordRequest {
    * New password to set
    * @minLength 8
    * @maxLength 100
-   * @pattern ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
+   * @pattern ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[^\s]{8,}$
    */
   NewPassword: string;
   /**
@@ -889,6 +891,11 @@ export interface SessionBasicResponse {
    * @max 365
    */
   BuyDayMinimum?: number | null;
+  /**
+   * Cost of the session
+   * @format decimal
+   */
+  Cost?: number | null;
 }
 
 export interface UpdateRosterPositionRequest {
