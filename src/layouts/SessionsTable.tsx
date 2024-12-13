@@ -7,7 +7,7 @@ import { GET_SESSIONS } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
 import { Paper, Table, Text } from '@mantine/core';
 import moment from 'moment';
-import { JSX } from 'react';
+import { JSX, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export enum SessionDisplay {
@@ -17,9 +17,16 @@ export enum SessionDisplay {
 }
 
 export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Element => {
-  const { loading, error, data } = useQuery(GET_SESSIONS);
+  const { loading, error, data, refetch } = useQuery(GET_SESSIONS, {
+    fetchPolicy: 'network-only', // This forces a network request instead of using cache
+  });
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Add effect to refetch when component mounts/remounts
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <Text c='red'>Error: {error.message}</Text>;

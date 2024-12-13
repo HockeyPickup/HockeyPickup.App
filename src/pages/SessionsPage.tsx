@@ -1,21 +1,34 @@
 import { useZoom } from '@/hooks/useZoom';
 import { SessionDisplay, SessionsTable } from '@/layouts/SessionsTable';
 import { useTitle } from '@/layouts/TitleContext';
-import { Container, Title } from '@mantine/core';
+import { useAuth } from '@/lib/auth';
+import { Button, Container, Group, Title } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
 import { JSX, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const SessionsPage = (): JSX.Element => {
   const { setTitle } = useTitle();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isAdmin = user?.Roles?.includes('Admin') ?? false;
+
   useEffect(() => {
     setTitle('Sessions');
   }, [setTitle]);
+
   useZoom(true);
 
   return (
     <Container size='xl'>
-      <Title order={2} mb='md'>
-        Upcoming Sessions
-      </Title>
+      <Group justify='space-between' mb='md'>
+        <Title order={2}>Upcoming Sessions</Title>
+        {isAdmin && (
+          <Button leftSection={<IconPlus size={16} />} onClick={() => navigate('/sessions/new')}>
+            New Session
+          </Button>
+        )}
+      </Group>
       <SessionsTable display={SessionDisplay.Future} />
       <Title order={2} mt='xl' mb='md'>
         Past Sessions

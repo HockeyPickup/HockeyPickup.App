@@ -16,6 +16,7 @@ import { PrivacyPage } from './pages/PrivacyPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { SessionFormPage } from './pages/SessionFormPage';
 import { SessionPage } from './pages/SessionPage';
 import { SessionsPage } from './pages/SessionsPage';
 import { VersionPage } from './pages/VersionPage';
@@ -78,6 +79,22 @@ const AppRoutes = (): JSX.Element => {
           element={
             <ProtectedRoute>
               <SessionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/sessions/new'
+          element={
+            <ProtectedRoute>
+              <SessionFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/sessions/:sessionId/edit'
+          element={
+            <ProtectedRoute>
+              <SessionFormPage />
             </ProtectedRoute>
           }
         />

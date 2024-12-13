@@ -1,7 +1,9 @@
 import {
   ApiDataResponseOfSessionDetailedResponse,
+  CreateSessionRequest,
   UpdateRosterPositionRequest,
   UpdateRosterTeamRequest,
+  UpdateSessionRequest,
 } from '@/HockeyPickup.Api';
 import api from '../services/api';
 
@@ -22,6 +24,28 @@ export const sessionService = {
   ): Promise<ApiDataResponseOfSessionDetailedResponse> {
     const response = await api.put<ApiDataResponseOfSessionDetailedResponse>(
       '/Session/update-roster-team',
+      request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async updateSession(
+    request: UpdateSessionRequest,
+  ): Promise<ApiDataResponseOfSessionDetailedResponse> {
+    const response = await api.put<ApiDataResponseOfSessionDetailedResponse>(
+      '/Session/update-session',
+      request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async createSession(
+    request: CreateSessionRequest,
+  ): Promise<ApiDataResponseOfSessionDetailedResponse> {
+    const response = await api.post<ApiDataResponseOfSessionDetailedResponse>(
+      '/Session/create-session',
       request,
     );
     console.info(response);

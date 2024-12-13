@@ -898,6 +898,47 @@ export interface SessionBasicResponse {
   Cost?: number | null;
 }
 
+export interface CreateSessionRequest {
+  /**
+   * Date and time when the session is scheduled
+   * @format date-time
+   * @minLength 1
+   */
+  SessionDate: string;
+  /**
+   * Notes about the session
+   * @maxLength 4000
+   */
+  Note?: string | null;
+  /**
+   * Associated regular set identifier
+   * @format int32
+   */
+  RegularSetId: number;
+  /**
+   * Minimum number of days before session to allow buying
+   * @format int32
+   * @min 0
+   * @max 365
+   */
+  BuyDayMinimum?: number;
+  /**
+   * Cost of the session
+   * @format decimal
+   * @min 0
+   * @max 1000
+   */
+  Cost?: number;
+}
+
+export type UpdateSessionRequest = CreateSessionRequest & {
+  /**
+   * Unique identifier for the session
+   * @format int32
+   */
+  SessionId: number;
+};
+
 export interface UpdateRosterPositionRequest {
   /**
    * Session ID
