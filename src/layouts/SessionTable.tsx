@@ -17,6 +17,7 @@ interface SessionTableProps {
 export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   const { loading, error, data } = useQuery(GET_SESSION, {
     variables: { SessionId: sessionId },
+    fetchPolicy: 'network-only',
   });
   const [session, setSession] = useState<SessionDetailedResponse | null>(null);
 

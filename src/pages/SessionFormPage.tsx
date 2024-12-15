@@ -1,7 +1,7 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { CreateSessionRequest, ErrorDetail, SessionDetailedResponse, UpdateSessionRequest } from '@/HockeyPickup.Api';
+import { CreateSessionRequest, ErrorDetail, RegularSetDetailedResponse, SessionDetailedResponse, UpdateSessionRequest } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
-import { GET_SESSION } from '@/lib/queries';
+import { GET_REGULARSETS, GET_SESSION } from '@/lib/queries';
 import { sessionService } from '@/lib/session';
 import { isApiErrorResponse } from '@/services/api-helpers';
 import { useQuery } from '@apollo/client';
@@ -25,8 +25,9 @@ import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-interface SessionFormValues extends Omit<CreateSessionRequest, 'SessionDate'> {
+interface SessionFormValues extends Omit<CreateSessionRequest, 'SessionDate' | 'RegularSetId'> {
   SessionDate: Date;
+  RegularSetId: string;
 }
 
 const getDefaultDateTime = (): Date => {
@@ -56,17 +57,23 @@ export const SessionFormPage = (): JSX.Element => {
     fetchPolicy: 'network-only',
   });
 
+  const { data: regularSetsData } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(GET_REGULARSETS);
+  const regularSetOptions = regularSetsData?.RegularSets?.map(s => ({
+    value: s.RegularSetId.toString(),
+    label: s.Description || ''
+  })) ?? [];
+
   const form = useForm<SessionFormValues>({
     initialValues: {
       SessionDate: getDefaultDateTime(),
       Note: '',
-      RegularSetId: 0,
+      RegularSetId: '0',
       BuyDayMinimum: 6,
       Cost: 27,
     },
     validate: {
       SessionDate: (value: Date | null) => (!value ? 'Session date is required' : null),
-      RegularSetId: (value: number) => (value === 0 ? 'Regular set is required' : null),
+      RegularSetId: (value: string) => (value === '0' ? 'Regular set is required' : null),
       BuyDayMinimum: (value: number | undefined) =>
         !value || value < 0 || value > 365 ? 'Buy day minimum must be between 0 and 365' : null,
       Cost: (value: number | undefined) =>
@@ -82,7 +89,7 @@ export const SessionFormPage = (): JSX.Element => {
       const formValues = {
         SessionDate: createDatePreservingTime(session.SessionDate),
         Note: session.Note ?? '',
-        RegularSetId: session.RegularSetId ?? 0,
+        RegularSetId: session.RegularSetId?.toString() ?? '0', // Convert to string
         BuyDayMinimum: session.BuyDayMinimum ?? 6,
         Cost: session.Cost ?? 27,
       };
@@ -109,6 +116,7 @@ export const SessionFormPage = (): JSX.Element => {
     try {
       const payload: UpdateSessionRequest | CreateSessionRequest = {
         ...values,
+        RegularSetId: parseInt(values.RegularSetId),
         SessionDate: moment(values.SessionDate).format(),
       };
       console.debug(payload);
@@ -156,7 +164,6 @@ export const SessionFormPage = (): JSX.Element => {
 
         <form onSubmit={form.onSubmit((values) => handleSubmit(values as SessionFormValues))}>
           <Stack>
-            return (
             <DateTimePicker
               label='Session Date and Time (PST)'
               placeholder='Pick date and time'
@@ -164,6 +171,7 @@ export const SessionFormPage = (): JSX.Element => {
               required
               clearable={false}
               valueFormat='MM/DD/YYYY HH:mm'
+              timeInputProps={{ type: '24' }}
               withSeconds={false}
               {...form.getInputProps('SessionDate')}
             />
@@ -172,13 +180,7 @@ export const SessionFormPage = (): JSX.Element => {
               placeholder='Select regular set'
               leftSection={<IconUsers size={16} />}
               required
-              data={[
-                // TODO: Fetch these from API
-                { value: '1', label: 'Wednesday 2022.1' },
-                { value: '2', label: 'Friday 2022.1' },
-                { value: '3', label: 'Wed Group B 2022' },
-                { value: '4', label: '20 Bretts' },
-              ]}
+              data={regularSetOptions}
               {...form.getInputProps('RegularSetId')}
             />
             <NumberInput

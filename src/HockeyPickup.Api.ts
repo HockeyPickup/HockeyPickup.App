@@ -1036,6 +1036,56 @@ export interface LockerRoom13Response {
   LockerRoom13Players: LockerRoom13Players[];
 }
 
+export interface RegularSetDetailedResponse {
+  /**
+   * Unique identifier for the regular set
+   * @format int32
+   */
+  RegularSetId: number;
+  /** Description of the regular set */
+  Description?: string | null;
+  /**
+   * Day of the week (0 = Sunday, 6 = Saturday)
+   * @format int32
+   * @min 0
+   * @max 6
+   */
+  DayOfWeek: number;
+  /**
+   * Date and time when the regular set was created
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /** List of regular players in this set */
+  Regulars?: RegularDetailedResponse[] | null;
+}
+
+export interface RegularDetailedResponse {
+  /**
+   * Regular set identifier
+   * @format int32
+   */
+  RegularSetId: number;
+  /**
+   * User identifier
+   * @minLength 1
+   */
+  UserId: string;
+  /**
+   * Team assignment for the regular player
+   * @format int32
+   */
+  TeamAssignment: number;
+  /**
+   * Position preference for the regular player
+   * @format int32
+   */
+  PositionPreference: number;
+  /** Detailed user information */
+  User?: UserDetailedResponse | null;
+}
+
 export interface ServiceBusCommsMessage {
   /** Required message metadata (Type, etc) */
   Metadata: Record<string, string>;

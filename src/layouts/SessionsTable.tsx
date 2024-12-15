@@ -18,7 +18,7 @@ export enum SessionDisplay {
 
 export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Element => {
   const { loading, error, data, refetch } = useQuery(GET_SESSIONS, {
-    fetchPolicy: 'network-only', // This forces a network request instead of using cache
+    fetchPolicy: 'network-only',
   });
   const navigate = useNavigate();
   const { user } = useAuth();

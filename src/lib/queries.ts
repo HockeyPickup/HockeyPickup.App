@@ -175,3 +175,41 @@ export const GET_LOCKERROOM13 = gql`
     }
   }
 `;
+
+
+export const GET_REGULARSETS = gql`
+  query RegularSets {
+    RegularSets {
+        RegularSetId
+        Description
+        DayOfWeek
+        CreateDateTime
+        Regulars {
+            RegularSetId
+            UserId
+            TeamAssignment
+            PositionPreference
+            User {
+                Id
+                UserName
+                Email
+                PayPalEmail
+                FirstName
+                LastName
+                Active
+                Preferred
+                PreferredPlus
+                NotificationPreference
+                VenmoAccount
+                MobileLast4
+                EmergencyName
+                EmergencyPhone
+                LockerRoom13
+                DateCreated
+                Roles
+                Rating
+            }
+        }
+    }
+  }
+`;
