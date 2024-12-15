@@ -1,5 +1,5 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { CreateSessionRequest, ErrorDetail, SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { CreateSessionRequest, ErrorDetail, SessionDetailedResponse, UpdateSessionRequest } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { GET_SESSION } from '@/lib/queries';
 import { sessionService } from '@/lib/session';
@@ -24,6 +24,10 @@ import { IconCalendar, IconCash, IconClock, IconNotes, IconUsers } from '@tabler
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+interface SessionFormValues extends Omit<CreateSessionRequest, 'SessionDate'> {
+  SessionDate: Date;
+}
 
 const getDefaultDateTime = (): Date => {
   const date = new Date();
@@ -52,16 +56,16 @@ export const SessionFormPage = (): JSX.Element => {
     fetchPolicy: 'network-only',
   });
 
-  const form = useForm<CreateSessionRequest>({
+  const form = useForm<SessionFormValues>({
     initialValues: {
-      SessionDate: getDefaultDateTime().toString(),
+      SessionDate: getDefaultDateTime(),
       Note: '',
       RegularSetId: 0,
       BuyDayMinimum: 6,
       Cost: 27,
     },
     validate: {
-      SessionDate: (value: string | null) => (!value ? 'Session date is required' : null),
+      SessionDate: (value: Date | null) => (!value ? 'Session date is required' : null),
       RegularSetId: (value: number) => (value === 0 ? 'Regular set is required' : null),
       BuyDayMinimum: (value: number | undefined) =>
         !value || value < 0 || value > 365 ? 'Buy day minimum must be between 0 and 365' : null,
@@ -76,7 +80,7 @@ export const SessionFormPage = (): JSX.Element => {
       const session: SessionDetailedResponse = sessionData.Session;
 
       const formValues = {
-        SessionDate: createDatePreservingTime(session.SessionDate).toString(),
+        SessionDate: createDatePreservingTime(session.SessionDate),
         Note: session.Note ?? '',
         RegularSetId: session.RegularSetId ?? 0,
         BuyDayMinimum: session.BuyDayMinimum ?? 6,
@@ -98,12 +102,12 @@ export const SessionFormPage = (): JSX.Element => {
     return <LoadingSpinner />;
   }
 
-  const handleSubmit = async (values: CreateSessionRequest): Promise<void> => {
+  const handleSubmit = async (values: SessionFormValues): Promise<void> => {
     setIsLoading(true);
     setApiErrors([]);
 
     try {
-      const payload = {
+      const payload: UpdateSessionRequest | CreateSessionRequest = {
         ...values,
         SessionDate: moment(values.SessionDate).format(),
       };
@@ -150,7 +154,7 @@ export const SessionFormPage = (): JSX.Element => {
           {isEditMode ? 'Edit Session' : 'Create Session'}
         </Title>
 
-        <form onSubmit={form.onSubmit((values) => handleSubmit(values as CreateSessionRequest))}>
+        <form onSubmit={form.onSubmit((values) => handleSubmit(values as SessionFormValues))}>
           <Stack>
             return (
             <DateTimePicker
