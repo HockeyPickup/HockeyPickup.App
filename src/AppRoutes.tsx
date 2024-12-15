@@ -15,6 +15,7 @@ import { PlayersPage } from './pages/PlayersPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
+import { RegularsPage } from './pages/RegularsPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { SessionFormPage } from './pages/SessionFormPage';
 import { SessionPage } from './pages/SessionPage';
@@ -114,6 +115,14 @@ const AppRoutes = (): JSX.Element => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path='/regulars'
+          element={
+            <ProtectedRoute>
+              <RegularsPage />
+            </ProtectedRoute>
+          }
+        />{' '}
         <Route
           path='/game-pucks'
           element={

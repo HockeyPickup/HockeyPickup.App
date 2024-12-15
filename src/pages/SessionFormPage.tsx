@@ -1,5 +1,11 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { CreateSessionRequest, ErrorDetail, RegularSetDetailedResponse, SessionDetailedResponse, UpdateSessionRequest } from '@/HockeyPickup.Api';
+import {
+  CreateSessionRequest,
+  ErrorDetail,
+  RegularSetDetailedResponse,
+  SessionDetailedResponse,
+  UpdateSessionRequest,
+} from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { GET_REGULARSETS, GET_SESSION } from '@/lib/queries';
 import { sessionService } from '@/lib/session';
@@ -57,11 +63,14 @@ export const SessionFormPage = (): JSX.Element => {
     fetchPolicy: 'network-only',
   });
 
-  const { data: regularSetsData } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(GET_REGULARSETS);
-  const regularSetOptions = regularSetsData?.RegularSets?.map(s => ({
-    value: s.RegularSetId.toString(),
-    label: s.Description || ''
-  })) ?? [];
+  const { data: regularSetsData } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
+    GET_REGULARSETS,
+  );
+  const regularSetOptions =
+    regularSetsData?.RegularSets?.map((s) => ({
+      value: s.RegularSetId.toString(),
+      label: s.Description ?? '',
+    })) ?? [];
 
   const form = useForm<SessionFormValues>({
     initialValues: {

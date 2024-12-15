@@ -13,3 +13,7 @@ export const positionMap: Record<PositionString, Position> = {
   Forward: Position.Forward,
   Defense: Position.Defense,
 };
+
+export const getPositionString = (positionId: number): string => {
+  return Position[positionId] || 'TBD';
+};
