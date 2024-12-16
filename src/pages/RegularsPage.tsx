@@ -5,10 +5,12 @@ import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
 import { getPositionString } from '@/lib/position';
 import { GET_REGULARSETS } from '@/lib/queries';
+import { regularService } from '@/lib/regular';
 import { Team, TEAM_LABELS } from '@/lib/team';
 import { useQuery } from '@apollo/client';
 import {
   ActionIcon,
+  Button,
   Container,
   CopyButton,
   Grid,
@@ -20,16 +22,17 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 
 export const RegularsPage = (): JSX.Element => {
   const { setTitle } = useTitle();
-  const { canViewRatings } = useAuth();
+  const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
-  const { loading, data } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
+  const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
   );
 
@@ -128,6 +131,48 @@ export const RegularsPage = (): JSX.Element => {
     );
   };
 
+  const handleDuplicate = async (): Promise<void> => {
+    if (!selectedPreset) return;
+
+    try {
+      const regularSetId = parseInt(selectedPreset);
+      const sourceDescription = data?.RegularSets?.find(
+        (set) => set.RegularSetId.toString() === selectedPreset,
+      )?.Description;
+      const response = await regularService.duplicateRegularSet(
+        regularSetId,
+        `${sourceDescription} - Copy`,
+      );
+
+      if (response.Data?.RegularSetId) {
+        // Refetch the regular sets to update the dropdown
+        await refetch();
+
+        // Select the new regular set
+        setSelectedPreset(response.Data.RegularSetId.toString());
+
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Success',
+          message: 'Regular set duplicated successfully',
+          color: 'green',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to duplicate regular set:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to duplicate regular set',
+        color: 'red',
+      });
+    }
+  };
+
   return (
     <Container size='sm' px='lg'>
       <Paper withBorder shadow='md' p={30} radius='md'>
@@ -136,14 +181,17 @@ export const RegularsPage = (): JSX.Element => {
         </Title>
 
         <Stack>
-          <Select
-            label='Select Regular Set'
-            placeholder='Choose a regular set'
-            data={regularSetOptions}
-            value={selectedPreset}
-            onChange={setSelectedPreset}
-          />
-
+          <Group justify='space-between' align='flex-end'>
+            <Select
+              style={{ flex: 1 }}
+              label='Select Regular Set'
+              placeholder='Choose a regular set'
+              data={regularSetOptions}
+              value={selectedPreset}
+              onChange={setSelectedPreset}
+            />
+            {isAdmin() && selectedPreset && <Button onClick={handleDuplicate}>Duplicate</Button>}
+          </Group>
           {selectedPreset && (
             <Stack mt='xl'>
               <Grid>
