@@ -273,7 +273,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                   fit='contain'
                   radius='md'
                 />
-                <Text>Rockets (Light)</Text>
+                <Title order={4}>Rockets (Light)</Title>
               </Stack>
             </Table.Th>
             <Table.Th>
@@ -286,7 +286,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                   fit='contain'
                   radius='md'
                 />
-                <Text>Beauties (Dark)</Text>
+                <Title order={4}>Beauties (Dark)</Title>
               </Stack>
             </Table.Th>
           </Table.Tr>

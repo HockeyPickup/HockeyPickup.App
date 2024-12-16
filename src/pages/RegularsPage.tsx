@@ -13,6 +13,7 @@ import {
   CopyButton,
   Grid,
   Group,
+  Image,
   Paper,
   Select,
   Stack,
@@ -96,7 +97,17 @@ export const RegularsPage = (): JSX.Element => {
 
     return (
       <Stack>
-        <Title order={3}>{TEAM_LABELS[teamId]}</Title>
+        <Stack align='center' gap='xs'>
+          <Image
+            src={teamId === Team.Light ? '/static/Rockets_Logo.jpg' : '/static/Beauties_Logo.jpg'}
+            alt={teamId === Team.Light ? 'Rockets Logo' : 'Beauties Logo'}
+            w={125}
+            h={125}
+            fit='contain'
+            radius='md'
+          />
+          <Title order={4}>{TEAM_LABELS[teamId]}</Title>
+        </Stack>
         {teamRegulars.map((regular) => (
           <Text key={regular.UserId}>
             {regular.User?.FirstName} {regular.User?.LastName},{' '}

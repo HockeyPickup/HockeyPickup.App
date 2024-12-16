@@ -19,6 +19,6 @@ export const getTeamString = (teamId: number): string => {
 
 export const TEAM_LABELS: Record<Team, string> = {
   [Team.TBD]: 'Unassigned',
-  [Team.Light]: 'Light Team',
-  [Team.Dark]: 'Dark Team',
+  [Team.Light]: 'Rockets (Light)',
+  [Team.Dark]: 'Beauties (Dark)',
 };
