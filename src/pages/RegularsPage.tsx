@@ -1,6 +1,8 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useRatingsVisibility } from '@/components/RatingsToggle';
 import { RegularDetailedResponse, RegularSetDetailedResponse } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
+import { useAuth } from '@/lib/auth';
 import { getPositionString } from '@/lib/position';
 import { GET_REGULARSETS } from '@/lib/queries';
 import { Team, TEAM_LABELS } from '@/lib/team';
@@ -22,6 +24,8 @@ import { JSX, useEffect, useState } from 'react';
 
 export const RegularsPage = (): JSX.Element => {
   const { setTitle } = useTitle();
+  const { canViewRatings } = useAuth();
+  const { showRatings } = useRatingsVisibility();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
   const { loading, data } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
@@ -46,7 +50,16 @@ export const RegularsPage = (): JSX.Element => {
 
   const getTeamRegulars = (teamId: Team.Light | Team.Dark): RegularDetailedResponse[] => {
     return (
-      selectedPresetData?.Regulars?.filter((regular) => regular.TeamAssignment === teamId) ?? []
+      selectedPresetData?.Regulars?.filter((regular) => regular.TeamAssignment === teamId).sort(
+        (a, b) => {
+          // Sort by position (Defense first)
+          if (a.PositionPreference !== b.PositionPreference) {
+            return b.PositionPreference - a.PositionPreference; // Defense (2) before Forward (1)
+          }
+          // Then by first name
+          return (a.User?.FirstName ?? '').localeCompare(b.User?.FirstName ?? '');
+        },
+      ) ?? []
     );
   };
 
@@ -59,13 +72,27 @@ export const RegularsPage = (): JSX.Element => {
   const getAllEmails = (): string => {
     const lightEmails = getTeamEmails(Team.Light);
     const darkEmails = getTeamEmails(Team.Dark);
-    return [...lightEmails, ...darkEmails].join('\n');
+    return [...lightEmails, ...darkEmails].sort((a, b) => a.localeCompare(b)).join('\n');
   };
 
   const TeamSection = ({ teamId }: { teamId: Team.Light | Team.Dark }): JSX.Element => {
     const teamRegulars = getTeamRegulars(teamId);
 
     if (teamRegulars.length === 0) return <></>;
+
+    const calculateTeamRatings = (): { total: string; average: string } => {
+      const playersWithRatings = teamRegulars.filter(
+        (regular) => regular.User?.Rating !== undefined && regular.User.Rating !== null,
+      );
+      const total = playersWithRatings.reduce(
+        (sum, regular) => sum + (regular.User?.Rating ?? 0),
+        0,
+      );
+      const avg = playersWithRatings.length ? total / playersWithRatings.length : 0;
+      return { total: total.toFixed(1), average: avg.toFixed(2) };
+    };
+
+    const ratings = calculateTeamRatings();
 
     return (
       <Stack>
@@ -74,8 +101,18 @@ export const RegularsPage = (): JSX.Element => {
           <Text key={regular.UserId}>
             {regular.User?.FirstName} {regular.User?.LastName},{' '}
             {getPositionString(regular.PositionPreference)}
+            {canViewRatings() &&
+              showRatings &&
+              regular.User?.Rating !== undefined &&
+              regular.User.Rating !== null &&
+              `, ${regular.User.Rating.toFixed(1)}`}
           </Text>
         ))}
+        {canViewRatings() && showRatings && (
+          <Text size='lg' fw={700} mt='xs'>
+            Total: {ratings.total}, Average: {ratings.average}
+          </Text>
+        )}
       </Stack>
     );
   };
