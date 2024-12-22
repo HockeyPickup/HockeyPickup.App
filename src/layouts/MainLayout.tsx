@@ -146,7 +146,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
         {isAdmin() || isSubAdmin() ? (
           <Group justify='center' gap='xs'>
             <Text size='xs'>
-              Role(s): {isAdmin() && 'Admin'}
+              Role{isAdmin() && isSubAdmin() && 's'}: {isAdmin() && 'Admin'}
               {isAdmin() && isSubAdmin() && ', '}
               {isSubAdmin() && 'SubAdmin'}
             </Text>

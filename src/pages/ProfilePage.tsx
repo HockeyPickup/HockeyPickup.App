@@ -27,16 +27,25 @@ import {
 } from '../HockeyPickup.Api';
 
 const HeaderSection = (): JSX.Element => {
-  const { user } = useAuth();
+  const { user, isAdmin, isSubAdmin } = useAuth();
 
   if (!user) return <></>;
 
   return (
     <Paper withBorder p='md' mb='lg' bg='var(--mantine-color-dark-7)'>
-      <Title order={2} mb='md'>
+      <Title order={2}>
         Welcome, {user.FirstName} {user.LastName}
       </Title>
-      <Group>
+      {isAdmin() || isSubAdmin() ? (
+        <Group justify='left' gap='xs'>
+          <Text size='xs'>
+            Role{isAdmin() && isSubAdmin() && 's'}: {isAdmin() && 'Admin'}
+            {isAdmin() && isSubAdmin() && ', '}
+            {isSubAdmin() && 'SubAdmin'}
+          </Text>
+        </Group>
+      ) : null}
+      <Group mt='md'>
         <Text size='sm'>
           Active:{' '}
           <Text span c={user.Active ? 'green.6' : 'red.6'}>
@@ -85,8 +94,7 @@ const HeaderSection = (): JSX.Element => {
       </Group>
     </Paper>
   );
-};
-// Basic components for each section
+}; // Basic components for each section
 const PaymentsSection = (): JSX.Element => <Text>Payments Due / Received</Text>;
 
 const PasswordSection = (): JSX.Element => {
