@@ -15,7 +15,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const [avatarSrc, setAvatarSrc] = useState('');
   const { title } = useTitle();
-  const { canViewRatings } = useAuth();
+  const { canViewRatings, isAdmin, isSubAdmin } = useAuth();
   useZoom(false);
 
   useEffect(() => {
@@ -125,8 +125,8 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
                   <MenuItems />
                 </Menu.Dropdown>
               </Menu>
-            </Group>{' '}
-          </Group>{' '}
+            </Group>
+          </Group>
         </div>
       </AppShell.Header>
       <AppShell.Main className={styles.main}>{children}</AppShell.Main>
@@ -143,6 +143,15 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           </Link>
           <RatingsToggle canViewRatings={canViewRatings()} />
         </Group>
+        {isAdmin() || isSubAdmin() ? (
+          <Group justify='center' gap='xs'>
+            <Text size='xs'>
+              Role(s): {isAdmin() && 'Admin'}
+              {isAdmin() && isSubAdmin() && ', '}
+              {isSubAdmin() && 'SubAdmin'}
+            </Text>
+          </Group>
+        ) : null}
       </AppShell.Footer>
     </AppShell>
   );
