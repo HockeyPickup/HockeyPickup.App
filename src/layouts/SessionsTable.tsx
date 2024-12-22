@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { GET_SESSIONS } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
 import { Paper, Table, Text } from '@mantine/core';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { JSX, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,8 +33,10 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
 
   // Add filtering and sorting logic
   const filteredSessions = data?.Sessions.filter((session: Session) => {
-    const sessionDate = moment.utc(session.SessionDate);
-    const now = moment.utc();
+    // SessionDate is already PST, so just create moment without timezone conversion
+    const sessionDate = moment(session.SessionDate);
+    // Create current time in PST
+    const now = moment.tz('America/Los_Angeles');
 
     switch (display) {
       case SessionDisplay.Future:
@@ -46,7 +48,8 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
     }
   }).sort((a: Session, b: Session) => {
     const multiplier = display === SessionDisplay.Future ? 1 : -1;
-    return multiplier * (moment.utc(a.SessionDate).valueOf() - moment.utc(b.SessionDate).valueOf());
+
+    return multiplier * (moment(a.SessionDate).valueOf() - moment(b.SessionDate).valueOf());
   });
 
   return (
