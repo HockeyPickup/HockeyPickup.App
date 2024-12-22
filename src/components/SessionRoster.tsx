@@ -7,8 +7,10 @@ import {
 import { useAuth } from '@/lib/auth';
 import { positionMap, PositionString } from '@/lib/position';
 import { sessionService } from '@/lib/session';
+import { AvatarService } from '@/services/avatar';
 import {
   ActionIcon,
+  Avatar,
   Divider,
   Group,
   Image,
@@ -22,7 +24,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconPencil } from '@tabler/icons-react';
-import { JSX, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionRosterProps {
@@ -53,11 +55,34 @@ const PlayerCell = ({
     (editingPlayer?.currentPosition as PositionString) ?? 'TBD',
   );
   const [checkedTeam, setCheckedTeam] = useState<1 | 2>((player?.TeamAssignment as 1 | 2) ?? 1);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  useEffect(() => {
+    const loadAvatar = async (): Promise<void> => {
+      if (player?.Email) {
+        const url = await AvatarService.getAvatarUrl(
+          player.Email,
+          `${player.FirstName} ${player.LastName}`,
+          {
+            size: 24,
+            fallbackType: 'initials',
+          },
+        );
+        setAvatarUrl(url);
+      }
+    };
+    loadAvatar();
+  }, [player?.Email]);
 
   if (!player) return null;
 
   return (
     <Group wrap='nowrap' gap={4} style={{ marginLeft: -4 }}>
+      <Avatar
+        src={avatarUrl}
+        alt={`${player.FirstName} ${player.LastName}`}
+        size={24}
+        radius='xl'
+      />
       <Text
         size='xs'
         style={{

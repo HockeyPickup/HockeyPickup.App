@@ -7,9 +7,11 @@ import { getPositionString } from '@/lib/position';
 import { GET_REGULARSETS } from '@/lib/queries';
 import { regularService } from '@/lib/regular';
 import { Team, TEAM_LABELS } from '@/lib/team';
+import { AvatarService } from '@/services/avatar';
 import { useQuery } from '@apollo/client';
 import {
   ActionIcon,
+  Avatar,
   Button,
   Container,
   CopyButton,
@@ -81,6 +83,32 @@ export const RegularsPage = (): JSX.Element => {
 
   const TeamSection = ({ teamId }: { teamId: Team.Light | Team.Dark }): JSX.Element => {
     const teamRegulars = getTeamRegulars(teamId);
+    const [avatars, setAvatars] = useState<Record<string, string>>({});
+    const teamRegularsKey = teamRegulars
+      .map((regular) => regular.UserId)
+      .sort()
+      .join(',');
+
+    useEffect(() => {
+      const loadAvatars = async (): Promise<void> => {
+        const newAvatars: Record<string, string> = {};
+        for (const regular of teamRegulars) {
+          if (regular.User?.Email) {
+            const avatarUrl = await AvatarService.getAvatarUrl(
+              regular.User.Email,
+              `${regular.User.FirstName} ${regular.User.LastName}`,
+              {
+                size: 24,
+                fallbackType: 'initials',
+              },
+            );
+            newAvatars[regular.UserId] = avatarUrl;
+          }
+        }
+        setAvatars(newAvatars);
+      };
+      loadAvatars();
+    }, [teamRegularsKey]);
 
     if (teamRegulars.length === 0) return <></>;
 
@@ -112,15 +140,23 @@ export const RegularsPage = (): JSX.Element => {
           <Title order={4}>{TEAM_LABELS[teamId]}</Title>
         </Stack>
         {teamRegulars.map((regular) => (
-          <Text key={regular.UserId}>
-            {regular.User?.FirstName} {regular.User?.LastName},{' '}
-            {getPositionString(regular.PositionPreference)}
-            {canViewRatings() &&
-              showRatings &&
-              regular.User?.Rating !== undefined &&
-              regular.User.Rating !== null &&
-              `, ${regular.User.Rating.toFixed(1)}`}
-          </Text>
+          <Group key={regular.UserId} gap='sm'>
+            <Avatar
+              src={avatars[regular.UserId]}
+              alt={`${regular.User?.FirstName} ${regular.User?.LastName}`}
+              size={24}
+              radius='xl'
+            />
+            <Text key={regular.UserId}>
+              {regular.User?.FirstName} {regular.User?.LastName},{' '}
+              {getPositionString(regular.PositionPreference)}
+              {canViewRatings() &&
+                showRatings &&
+                regular.User?.Rating !== undefined &&
+                regular.User.Rating !== null &&
+                `, ${regular.User.Rating.toFixed(1)}`}
+            </Text>
+          </Group>
         ))}
         {canViewRatings() && showRatings && (
           <Text size='lg' fw={700} mt='xs'>

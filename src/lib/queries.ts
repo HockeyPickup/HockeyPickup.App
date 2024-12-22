@@ -124,6 +124,7 @@ export const GET_SESSION = gql`
       CurrentRosters {
         SessionRosterId
         UserId
+        Email
         FirstName
         LastName
         TeamAssignment

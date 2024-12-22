@@ -323,6 +323,7 @@ export interface RosterPlayer {
   /** @format int32 */
   SessionRosterId?: number;
   UserId?: string;
+  Email?: string;
   FirstName?: string;
   LastName?: string;
   /** @format int32 */
@@ -803,6 +804,13 @@ export interface RosterPlayer2 {
    * @maxLength 128
    */
   UserId: string;
+  /**
+   * Email address of the user
+   * @format email
+   * @minLength 1
+   * @maxLength 256
+   */
+  Email: string;
   /**
    * First name of the player
    * @minLength 1
