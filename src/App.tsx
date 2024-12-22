@@ -12,6 +12,7 @@ import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { TitleProvider } from './layouts/TitleContext';
+import { VersionChecker } from './layouts/VersionChecker';
 import { AuthProvider, useAuth } from './lib/auth';
 import { theme } from './lib/theme';
 import { apolloClient } from './services/graphql';
@@ -42,6 +43,7 @@ const App = (): JSX.Element => {
       <QueryClientProvider client={queryClient}>
         <MantineProvider theme={theme} defaultColorScheme='dark'>
           <Notifications position='top-right' zIndex={1000} />
+          <VersionChecker />
           <BrowserRouter>
             <TitleProvider>
               <AuthProvider>
