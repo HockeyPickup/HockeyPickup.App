@@ -14,6 +14,7 @@ import { LockerRoom13Page } from './pages/LockerRoom13Page';
 import { LoginPage } from './pages/LoginPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { PrivacyPage } from './pages/PrivacyPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { RegularsPage } from './pages/RegularsPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -56,6 +57,14 @@ const AppRoutes = (): JSX.Element => {
           element={
             <ProtectedRoute>
               <GoalieLoungePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/profile/:userId'
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

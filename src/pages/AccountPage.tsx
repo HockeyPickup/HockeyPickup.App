@@ -4,7 +4,6 @@ import { authService, useAuth } from '@/lib/auth';
 import {
   Button,
   Container,
-  Group,
   Paper,
   PasswordInput,
   Select,
@@ -17,8 +16,8 @@ import {
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ChangePasswordRequest,
   ErrorDetail,
@@ -26,75 +25,6 @@ import {
   SaveUserRequest,
 } from '../HockeyPickup.Api';
 
-const HeaderSection = (): JSX.Element => {
-  const { user, isAdmin, isSubAdmin } = useAuth();
-
-  if (!user) return <></>;
-
-  return (
-    <Paper withBorder p='md' mb='lg' bg='var(--mantine-color-dark-7)'>
-      <Title order={2}>
-        Welcome, {user.FirstName} {user.LastName}
-      </Title>
-      {isAdmin() || isSubAdmin() ? (
-        <Group justify='left' gap='xs'>
-          <Text size='xs'>
-            Role{isAdmin() && isSubAdmin() && 's'}: {isAdmin() && 'Admin'}
-            {isAdmin() && isSubAdmin() && ', '}
-            {isSubAdmin() && 'SubAdmin'}
-          </Text>
-        </Group>
-      ) : null}
-      <Group mt='md'>
-        <Text size='sm'>
-          Active:{' '}
-          <Text span c={user.Active ? 'green.6' : 'red.6'}>
-            {user.Active ? '✓' : '✗'}
-          </Text>
-        </Text>
-        <Text size='sm'>
-          Preferred:{' '}
-          <Text span c={user.Preferred ? 'green.6' : 'red.6'}>
-            {user.Preferred ? '✓' : '✗'}
-          </Text>
-        </Text>
-        <Text size='sm'>
-          Preferred Plus:{' '}
-          <Text span c={user.PreferredPlus ? 'green.6' : 'red.6'}>
-            {user.PreferredPlus ? '✓' : '✗'}
-          </Text>
-        </Text>
-        <Text size='sm'>
-          Locker Room 13:{' '}
-          <Text span c={user.LockerRoom13 ? 'green.6' : 'red.6'}>
-            {user.LockerRoom13 ? '✓' : '✗'}
-          </Text>
-        </Text>
-      </Group>
-      <br />
-      <Group>
-        <Text size='sm'>
-          Player Since:{' '}
-          <Text span fw={500}>
-            {moment.utc(user.DateCreated).local().format('MM/DD/yyyy')}
-          </Text>
-        </Text>
-        <Text size='sm'>
-          Sessions Played:{' '}
-          <Text span fw={500}>
-            999
-          </Text>
-        </Text>
-        <Text size='sm'>
-          Last Session:{' '}
-          <Text span fw={500}>
-            01/01/2030
-          </Text>
-        </Text>
-      </Group>
-    </Paper>
-  );
-}; // Basic components for each section
 const PaymentsSection = (): JSX.Element => <Text>Payments Due / Received</Text>;
 
 const PasswordSection = (): JSX.Element => {
@@ -323,13 +253,13 @@ const PreferencesSection = (): JSX.Element => {
 export const AccountPage = (): JSX.Element => {
   const { setTitle } = useTitle();
   const isMobile = useMediaQuery('(max-width: 48em)');
+  const { user } = useAuth();
   useEffect(() => {
     setTitle('Account');
   }, [setTitle]);
 
   return (
     <Container size='xl'>
-      <HeaderSection />
       <Tabs
         variant='pills'
         orientation={isMobile ? 'horizontal' : 'vertical'}
@@ -352,6 +282,11 @@ export const AccountPage = (): JSX.Element => {
           <PreferencesSection />
         </Tabs.Panel>
       </Tabs>
+      <Link to={`/profile/${user?.Id}`}>
+        <Button variant='outline' mt='xl'>
+          Profile
+        </Button>
+      </Link>
     </Container>
   );
 };
