@@ -580,6 +580,103 @@ export interface SaveUserRequest {
 }
 
 /** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfImpersonationResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: ImpersonationResponse | null;
+};
+
+export interface ImpersonationResponse {
+  /**
+   * JWT token for impersonation session
+   * @minLength 1
+   * @maxLength 2048
+   */
+  Token: string;
+  /**
+   * User ID of the impersonated user
+   * @minLength 1
+   * @maxLength 128
+   */
+  ImpersonatedUserId: string;
+  /**
+   * User ID of the original admin user
+   * @minLength 1
+   * @maxLength 128
+   */
+  OriginalUserId: string;
+  /** Details of the impersonated user */
+  ImpersonatedUser?: UserDetailedResponse | null;
+  /**
+   * Timestamp when impersonation started
+   * @format date-time
+   * @minLength 1
+   */
+  StartTime: string;
+}
+
+export interface ImpersonationRequest {
+  /**
+   * User ID of the target user to impersonate
+   * @minLength 1
+   * @maxLength 128
+   */
+  TargetUserId: string;
+}
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfRevertImpersonationResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: RevertImpersonationResponse | null;
+};
+
+export interface RevertImpersonationResponse {
+  /**
+   * New JWT token for original admin user
+   * @minLength 1
+   * @maxLength 2048
+   */
+  Token: string;
+  /**
+   * User ID of the original admin user
+   * @minLength 1
+   * @maxLength 128
+   */
+  OriginalUserId: string;
+  /**
+   * Timestamp when impersonation ended
+   * @format date-time
+   * @minLength 1
+   */
+  EndTime: string;
+}
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfImpersonationStatusResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: ImpersonationStatusResponse | null;
+};
+
+export interface ImpersonationStatusResponse {
+  /** Indicates if user is currently impersonating another user */
+  IsImpersonating: boolean;
+  /**
+   * Original admin user ID if impersonating
+   * @maxLength 128
+   */
+  OriginalUserId?: string | null;
+  /**
+   * Currently impersonated user ID
+   * @maxLength 128
+   */
+  ImpersonatedUserId?: string | null;
+  /**
+   * Start time of current impersonation session
+   * @format date-time
+   */
+  StartTime?: string | null;
+}
+
+/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfRegularSetDetailedResponse = ApiResponse & {
   /** Response data payload of type T */
   Data?: RegularSetDetailedResponse | null;

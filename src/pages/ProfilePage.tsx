@@ -1,22 +1,38 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { UserDetailedResponse } from '@/HockeyPickup.Api';
+import {
+  ImpersonationResponse,
+  ImpersonationStatusResponse,
+  RevertImpersonationResponse,
+  UserDetailedResponse,
+} from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
-import { getUserById } from '@/lib/user';
+import { authService, useAuth } from '@/lib/auth';
+import {
+  getImpersonationStatus,
+  getUserById,
+  impersonateUser,
+  revertImpersonation,
+} from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
-import { Avatar, Container, Group, Paper, Text, Title } from '@mantine/core';
+import { Avatar, Button, Container, Group, Paper, Text, Title } from '@mantine/core';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-const HeaderSection = ({ user }: { user: UserDetailedResponse | null }): JSX.Element => {
+const HeaderSection = ({
+  profileUser,
+}: {
+  profileUser: UserDetailedResponse | null;
+}): JSX.Element => {
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadAvatar = async (): Promise<void> => {
-      if (user?.Email) {
+      if (profileUser?.Email) {
         const url = await AvatarService.getAvatarUrl(
-          user.Email,
-          `${user.FirstName} ${user.LastName}`,
+          profileUser.Email,
+          `${profileUser.FirstName} ${profileUser.LastName}`,
           {
             size: 80,
             fallbackType: 'initials',
@@ -26,41 +42,46 @@ const HeaderSection = ({ user }: { user: UserDetailedResponse | null }): JSX.Ele
       }
     };
     loadAvatar();
-  }, [user?.Email]);
+  }, [profileUser?.Email]);
 
-  if (!user) return <Text>Player not found</Text>;
+  if (!profileUser) return <Text>Player not found</Text>;
 
   return (
     <Paper withBorder p='md' mb='lg' bg='var(--mantine-color-dark-7)'>
       <Group>
-        <Avatar src={avatarUrl} alt={`${user.FirstName} ${user.LastName}`} size={80} radius='xl' />
+        <Avatar
+          src={avatarUrl}
+          alt={`${profileUser.FirstName} ${profileUser.LastName}`}
+          size={80}
+          radius='xl'
+        />
         <div>
           <Title order={2}>
-            {user.FirstName} {user.LastName}
+            {profileUser.FirstName} {profileUser.LastName} {profileUser.Id === user?.Id && '(Me)'}
           </Title>
           <Group mt='md'>
             <Text size='sm'>
               Active:{' '}
-              <Text span c={user.Active ? 'green.6' : 'red.6'}>
-                {user.Active ? '✓' : '✗'}
+              <Text span c={profileUser.Active ? 'green.6' : 'red.6'}>
+                {profileUser.Active ? '✓' : '✗'}
               </Text>
             </Text>
             <Text size='sm'>
               Preferred:{' '}
-              <Text span c={user.Preferred ? 'green.6' : 'red.6'}>
-                {user.Preferred ? '✓' : '✗'}
+              <Text span c={profileUser.Preferred ? 'green.6' : 'red.6'}>
+                {profileUser.Preferred ? '✓' : '✗'}
               </Text>
             </Text>
             <Text size='sm'>
               Preferred Plus:{' '}
-              <Text span c={user.PreferredPlus ? 'green.6' : 'red.6'}>
-                {user.PreferredPlus ? '✓' : '✗'}
+              <Text span c={profileUser.PreferredPlus ? 'green.6' : 'red.6'}>
+                {profileUser.PreferredPlus ? '✓' : '✗'}
               </Text>
             </Text>
             <Text size='sm'>
               Locker Room 13:{' '}
-              <Text span c={user.LockerRoom13 ? 'green.6' : 'red.6'}>
-                {user.LockerRoom13 ? '✓' : '✗'}
+              <Text span c={profileUser.LockerRoom13 ? 'green.6' : 'red.6'}>
+                {profileUser.LockerRoom13 ? '✓' : '✗'}
               </Text>
             </Text>
           </Group>
@@ -69,7 +90,7 @@ const HeaderSection = ({ user }: { user: UserDetailedResponse | null }): JSX.Ele
             <Text size='sm'>
               Player Since:{' '}
               <Text span fw={500}>
-                {moment.utc(user.DateCreated).local().format('MM/DD/yyyy')}
+                {moment.utc(profileUser.DateCreated).local().format('MM/DD/yyyy')}
               </Text>
             </Text>
             <Text size='sm'>
@@ -94,18 +115,51 @@ const HeaderSection = ({ user }: { user: UserDetailedResponse | null }): JSX.Ele
 export const ProfilePage = (): JSX.Element => {
   const { userId } = useParams();
   const { setTitle } = useTitle();
-  const [user, setUser] = useState<UserDetailedResponse | null>(null);
+  const { isAdmin, user, setUser } = useAuth();
+  const [profileUser, setProfileUser] = useState<UserDetailedResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [impersonationStatus, setImpersonationStatus] = useState<ImpersonationStatusResponse>();
+
+  const fetchImpersonationStatus = async (): Promise<void> => {
+    const status: ImpersonationStatusResponse | null = await getImpersonationStatus();
+    if (status) {
+      setImpersonationStatus(status);
+    }
+  };
+
+  useEffect(() => {
+    fetchImpersonationStatus();
+  }, []);
+
+  const handleImpersonate = async (): Promise<void> => {
+    if (!userId) return;
+
+    const response: ImpersonationResponse | null = await impersonateUser(userId);
+    if (response && response.Token) {
+      localStorage.setItem('auth_token', response.Token);
+      await authService.refreshUser(setUser);
+      fetchImpersonationStatus();
+    }
+  };
+
+  const handleRevertImpersonation = async (): Promise<void> => {
+    const response: RevertImpersonationResponse | null = await revertImpersonation();
+    if (response && response.Token) {
+      localStorage.setItem('auth_token', response.Token);
+      await authService.refreshUser(setUser);
+      fetchImpersonationStatus();
+    }
+  };
 
   useEffect(() => {
     setTitle('Player Profile');
     getUserById(userId)
       .then((response) => {
-        setUser(response);
+        setProfileUser(response);
         setLoading(false);
       })
       .catch(() => {
-        setUser(null);
+        setProfileUser(null);
         setLoading(false);
       });
   }, [setTitle, userId]);
@@ -114,7 +168,13 @@ export const ProfilePage = (): JSX.Element => {
 
   return (
     <Container size='xl'>
-      <HeaderSection user={user} />
+      <HeaderSection profileUser={profileUser} />
+      {isAdmin() && !impersonationStatus?.IsImpersonating && user && user.Id !== userId && (
+        <Button onClick={handleImpersonate}>Impersonate</Button>
+      )}
+      {impersonationStatus?.IsImpersonating && (
+        <Button onClick={handleRevertImpersonation}>Revert Impersonation</Button>
+      )}
     </Container>
   );
 };
