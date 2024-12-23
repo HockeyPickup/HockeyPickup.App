@@ -38,6 +38,7 @@ const authService = {
       const response = await api.post<ApiDataResponseOfLoginResponse>('/Auth/login', data);
       if (response.data.Data?.Token) {
         localStorage.setItem('auth_token', response.data.Data?.Token);
+        await authService.refreshUser(authService.setUser); // Pass setUser to refreshUser
         return response.data;
       } else {
         throw new Error('No token received in login response');
@@ -87,6 +88,21 @@ const authService = {
     console.debug('Confirm email response:', response);
     return response.data;
   },
+
+  async refreshUser(setUser: (_user: UserDetailedResponse | null) => void): Promise<void> {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      try {
+        const currentUser = await userService.getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Failed to refresh user data:', error);
+        localStorage.removeItem('auth_token');
+      }
+    }
+  },
+
+  setUser: (_user: UserDetailedResponse | null): void => {},
 };
 
 // Auth Context and Provider
@@ -98,6 +114,7 @@ interface AuthContextType {
   isSubAdmin: () => boolean;
   canViewRatings: () => boolean;
   isInRole: (_role: string) => boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -134,6 +151,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }): JSX.Ele
         isSubAdmin: () => userHelpers.isSubAdmin(user),
         canViewRatings: () => userHelpers.canViewRatings(user),
         isInRole: (role) => userHelpers.isInRole(user, role),
+        refreshUser: () => authService.refreshUser(setUser), // Pass setUser to refreshUser
       }}
     >
       {children}

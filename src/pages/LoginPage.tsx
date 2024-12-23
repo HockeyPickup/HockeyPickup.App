@@ -23,7 +23,7 @@ export const LoginPage = (): JSX.Element => {
     setTitle('Login');
   }, [setTitle]);
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { setUser, refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginRequest>({
@@ -43,6 +43,7 @@ export const LoginPage = (): JSX.Element => {
       const response = await authService.login(values);
       if (response.Success && response.Data) {
         setUser(response.Data.UserDetailedResponse);
+        await refreshUser(); // Refresh user data after login
         navigate('/');
       }
     } catch (error) {
