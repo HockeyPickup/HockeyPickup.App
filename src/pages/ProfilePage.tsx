@@ -1,3 +1,4 @@
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { UserDetailedResponse } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { getUserById } from '@/lib/user';
@@ -94,17 +95,22 @@ export const ProfilePage = (): JSX.Element => {
   const { userId } = useParams();
   const { setTitle } = useTitle();
   const [user, setUser] = useState<UserDetailedResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setTitle('Player Profile');
     getUserById(userId)
       .then((response) => {
         setUser(response);
+        setLoading(false);
       })
       .catch(() => {
         setUser(null);
+        setLoading(false);
       });
   }, [setTitle, userId]);
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <Container size='xl'>
