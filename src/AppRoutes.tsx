@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
 import { useAuth } from './lib/auth';
 import { AboutPage } from './pages/AboutPage';
+import { AccountPage } from './pages/AccountPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { ConfirmEmailPage } from './pages/ConfirmEmailPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
@@ -13,7 +14,6 @@ import { LockerRoom13Page } from './pages/LockerRoom13Page';
 import { LoginPage } from './pages/LoginPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { PrivacyPage } from './pages/PrivacyPage';
-import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { RegularsPage } from './pages/RegularsPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -68,10 +68,10 @@ const AppRoutes = (): JSX.Element => {
           }
         />
         <Route
-          path='/profile'
+          path='/account'
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <AccountPage />
             </ProtectedRoute>
           }
         />

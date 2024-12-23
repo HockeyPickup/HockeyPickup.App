@@ -320,11 +320,11 @@ const PreferencesSection = (): JSX.Element => {
   );
 };
 
-export const ProfilePage = (): JSX.Element => {
+export const AccountPage = (): JSX.Element => {
   const { setTitle } = useTitle();
   const isMobile = useMediaQuery('(max-width: 48em)');
   useEffect(() => {
-    setTitle('Profile');
+    setTitle('Account');
   }, [setTitle]);
 
   return (
@@ -334,7 +334,7 @@ export const ProfilePage = (): JSX.Element => {
         variant='pills'
         orientation={isMobile ? 'horizontal' : 'vertical'}
         defaultValue='payments'
-        classNames={{ root: styles.profileTabs }}
+        classNames={{ root: styles.accountTabs }}
       >
         <Tabs.List w={isMobile ? '100%' : 200} mb={isMobile ? 'md' : 0}>
           <Tabs.Tab value='payments'>Payments Due / Received</Tabs.Tab>

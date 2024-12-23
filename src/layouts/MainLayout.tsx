@@ -99,10 +99,10 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
             <Text className={`${styles.pageTitle} ${styles.noZoom}`}>{title}</Text>
             {/* Right section with avatar and burger menu */}
             <Group gap='xs' className={styles.noZoom}>
-              <Link to='/profile'>
+              <Link to='/account'>
                 <Avatar
                   src={user ? avatarSrc : null}
-                  alt={user?.FirstName ?? 'Profile'}
+                  alt={user?.FirstName ?? 'Account'}
                   radius='xl'
                   size='md'
                   className={`${styles.avatar} ${styles.noZoom}`}
