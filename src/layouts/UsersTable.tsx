@@ -1,15 +1,18 @@
 import styles from '@/App.module.css';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { User } from '@/HockeyPickup.Api';
+import { useAuth } from '@/lib/auth';
 import { GET_USERS } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { Avatar, Paper, Table, Text } from '@mantine/core';
+import { ActionIcon, Avatar, CopyButton, Group, Paper, Table, Text } from '@mantine/core';
+import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { AvatarService } from '../services/avatar';
 
 export const UsersTable = (): JSX.Element => {
   const { loading, error, data } = useQuery(GET_USERS);
   const [avatars, setAvatars] = useState<Record<string, string>>({});
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     const loadAvatars = async (): Promise<void> => {
@@ -38,6 +41,10 @@ export const UsersTable = (): JSX.Element => {
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
   const activePlayersCount = data?.UsersEx.length || 0;
+
+  const getAllEmails = (): string => {
+    return data?.UsersEx.map((user: User) => user.Email).join('\n');
+  };
 
   return (
     <Paper shadow='sm' p='md'>
@@ -73,6 +80,23 @@ export const UsersTable = (): JSX.Element => {
           ))}
         </Table.Tbody>
       </Table>
+      {isAdmin() && (
+        <>
+          <Group align='center' mt='md'>
+            <Text size='sm'>Emails:</Text>
+            <CopyButton value={getAllEmails()}>
+              {({ copied, copy }) => (
+                <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
+                  {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                </ActionIcon>
+              )}
+            </CopyButton>
+          </Group>
+          <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
+            {getAllEmails()}
+          </Text>
+        </>
+      )}
     </Paper>
   );
 };
