@@ -25,6 +25,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconPencil } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionRosterProps {
@@ -77,12 +78,14 @@ const PlayerCell = ({
 
   return (
     <Group wrap='nowrap' gap={4} style={{ marginLeft: -4 }}>
-      <Avatar
-        src={avatarUrl}
-        alt={`${player.FirstName} ${player.LastName}`}
-        size={24}
-        radius='xl'
-      />
+      <Link to={`/profile/${player.UserId}`}>
+        <Avatar
+          src={avatarUrl}
+          alt={`${player.FirstName} ${player.LastName}`}
+          size={24}
+          radius='xl'
+        />
+      </Link>
       <Text
         size='xs'
         style={{

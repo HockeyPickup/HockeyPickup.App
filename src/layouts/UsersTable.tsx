@@ -7,6 +7,7 @@ import { useQuery } from '@apollo/client';
 import { ActionIcon, Avatar, CopyButton, Group, Paper, Table, Text } from '@mantine/core';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AvatarService } from '../services/avatar';
 
 const UsersTableComponent = ({
@@ -30,12 +31,14 @@ const UsersTableComponent = ({
       {users.map((user: User) => (
         <Table.Tr key={user.Id}>
           <Table.Td>
-            <Avatar
-              src={avatars[user.Id]}
-              alt={`${user.FirstName} ${user.LastName}`}
-              radius='xl'
-              size='md'
-            />
+            <Link to={`/profile/${user.Id}`}>
+              <Avatar
+                src={avatars[user.Id]}
+                alt={`${user.FirstName} ${user.LastName}`}
+                radius='xl'
+                size='md'
+              />
+            </Link>
           </Table.Td>
           <Table.Td>{`${user.FirstName} ${user.LastName}`}</Table.Td>
           <Table.Td>{user.Email}</Table.Td>
