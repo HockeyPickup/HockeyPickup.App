@@ -9,6 +9,44 @@ import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { AvatarService } from '../services/avatar';
 
+const UsersTableComponent = ({
+  users,
+  avatars,
+}: {
+  users: User[];
+  avatars: Record<string, string>;
+}): JSX.Element => (
+  <Table striped highlightOnHover className={styles.table} mb='xl'>
+    <Table.Thead>
+      <Table.Tr>
+        <Table.Th>Avatar</Table.Th>
+        <Table.Th>Name</Table.Th>
+        <Table.Th>Email</Table.Th>
+        <Table.Th>PayPal Email</Table.Th>
+        <Table.Th>Venmo Account</Table.Th>
+      </Table.Tr>
+    </Table.Thead>
+    <Table.Tbody>
+      {users.map((user: User) => (
+        <Table.Tr key={user.Id}>
+          <Table.Td>
+            <Avatar
+              src={avatars[user.Id]}
+              alt={`${user.FirstName} ${user.LastName}`}
+              radius='xl'
+              size='md'
+            />
+          </Table.Td>
+          <Table.Td>{`${user.FirstName} ${user.LastName}`}</Table.Td>
+          <Table.Td>{user.Email}</Table.Td>
+          <Table.Td>{user.PayPalEmail}</Table.Td>
+          <Table.Td>{user.VenmoAccount}</Table.Td>
+        </Table.Tr>
+      ))}
+    </Table.Tbody>
+  </Table>
+);
+
 export const UsersTable = (): JSX.Element => {
   const { loading, error, data } = useQuery(GET_USERS);
   const [avatars, setAvatars] = useState<Record<string, string>>({});
@@ -40,51 +78,24 @@ export const UsersTable = (): JSX.Element => {
   if (loading) return <LoadingSpinner />;
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
-  const activePlayersCount = data?.UsersEx.length || 0;
+  const activeUsers = data?.UsersEx.filter((user: User) => user.Active) || [];
+  const inactiveUsers = data?.UsersEx.filter((user: User) => !user.Active) || [];
 
-  const getAllEmails = (): string => {
-    return data?.UsersEx.map((user: User) => user.Email).join('\n');
+  const getAllEmails = (users: User[]): string => {
+    return users.map((user: User) => user.Email).join('\n');
   };
 
   return (
     <Paper shadow='sm' p='md'>
       <Text ta='left' mt='xs' mb='xs'>
-        {activePlayersCount} Active Players
+        {activeUsers.length} Active Players
       </Text>
-      <Table striped highlightOnHover className={styles.table} mb='xl'>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Avatar</Table.Th>
-            <Table.Th>Name</Table.Th>
-            <Table.Th>Email</Table.Th>
-            <Table.Th>PayPal Email</Table.Th>
-            <Table.Th>Venmo Account</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {data?.UsersEx.map((user: User) => (
-            <Table.Tr key={user.Id}>
-              <Table.Td>
-                <Avatar
-                  src={avatars[user.Id]}
-                  alt={`${user.FirstName} ${user.LastName}`}
-                  radius='xl'
-                  size='md'
-                />
-              </Table.Td>
-              <Table.Td>{`${user.FirstName} ${user.LastName}`}</Table.Td>
-              <Table.Td>{user.Email}</Table.Td>
-              <Table.Td>{user.PayPalEmail}</Table.Td>
-              <Table.Td>{user.VenmoAccount}</Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+      <UsersTableComponent users={activeUsers} avatars={avatars} />
       {isAdmin() && (
         <>
           <Group align='center' mt='md'>
             <Text size='sm'>Emails:</Text>
-            <CopyButton value={getAllEmails()}>
+            <CopyButton value={getAllEmails(activeUsers)}>
               {({ copied, copy }) => (
                 <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
                   {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
@@ -93,8 +104,12 @@ export const UsersTable = (): JSX.Element => {
             </CopyButton>
           </Group>
           <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
-            {getAllEmails()}
+            {getAllEmails(activeUsers)}
           </Text>
+          <Text ta='left' mt='xs' mb='xs'>
+            {inactiveUsers.length} Inactive Players
+          </Text>
+          <UsersTableComponent users={inactiveUsers} avatars={avatars} />
         </>
       )}
     </Paper>
