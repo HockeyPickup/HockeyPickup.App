@@ -19,7 +19,7 @@ const UsersTableComponent = ({
   <Table striped highlightOnHover className={styles.table} mb='xl'>
     <Table.Thead>
       <Table.Tr>
-        <Table.Th>Avatar</Table.Th>
+        <Table.Th>&nbsp;</Table.Th>
         <Table.Th>Name</Table.Th>
         <Table.Th>Email</Table.Th>
         <Table.Th>PayPal Email</Table.Th>
