@@ -26,7 +26,7 @@ Serve up the instance of the app locally, using [Vite](https://vitejs.dev/).
 
 `$ yarn dev`
 
-![](public/static/vite-output.png)
+![Vite Output](public/static/vite-output.png)
 
 Vite expects the local HockeyPickup.Api to be listening on port `7042`. See [vite.config.mjs](vite.config.mjs).
 
@@ -35,8 +35,8 @@ Vite expects the local HockeyPickup.Api to be listening on port `7042`. See [vit
 HockeyPickup.App uses very strict static typing, and data models referenced are generated from the Api using the OpenApi standard. To update the data models from the latest Api, simply run the `refresh-api` command to the Production or Local instance of the Api. This will update the [HockeyPickup.Api.ts](src/HockeyPickup.Api.ts) file.
 
 ```bash
-$ yarn refresh-api:prod
-$ yarn refresh-api:local
+yarn refresh-api:prod
+yarn refresh-api:local
 ```
 
 ## 🌐 Updating packages
