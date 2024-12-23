@@ -11,14 +11,10 @@ export const PrivacyPage = (): JSX.Element => {
   }, [setTitle]);
 
   return (
-    <Container size='md' py='xl'>
+    <Container size='md' py='sm' ml='sm' mr='sm' mb='sm'>
       <Stack gap='md'>
-        <Title order={1}>About Hockey Pickup</Title>
+        <Title order={1}>Privacy Policy</Title>
         <Text>
-          <p>Privacy Policy</p>
-          This Privacy Policy was last updated on July 7, 2021.
-          <br />
-          <br />
           Our Policy: Welcome to the web site (the "Site") of Pickup Hockey ("Pickup Hockey", "we",
           "us" and/or "our"). This Site is operated by Pickup Hockey and has been created to provide
           information about our company and the services we offer to our Service visitors and users
@@ -216,10 +212,10 @@ export const PrivacyPage = (): JSX.Element => {
           the following address:
           <br />
           <br />
-          Pickup Hockey 1187 Coast Village Road, STE 1-311, Montecito, California, 93108, USA
+          Pickup Hockey, 1187 Coast Village Road, STE 1-311, Montecito, California, 93108, USA
           <br />
           <br />
-          Last Updated: 04/04/2022{' '}
+          Last Updated: 04/04/2022
         </Text>
       </Stack>
     </Container>

@@ -11,7 +11,7 @@ export const AboutPage = (): JSX.Element => {
   }, [setTitle]);
 
   return (
-    <Container size='md' py='xl'>
+    <Container size='md' py='sm' ml='sm' mr='sm' mb='sm'>
       <Stack gap='md'>
         <Title order={1}>About Hockey Pickup</Title>
         <Text>
@@ -26,6 +26,13 @@ export const AboutPage = (): JSX.Element => {
               Toyota Sports Performance Center
             </a>{' '}
             in El Segundo, California, USA.
+          </p>
+          <p>
+            The mission since John Bryan founded this pickup was, and still is:&nbsp;
+            <b>
+              To provide a safe skate for pickup hockey where players can improve their skills and
+              have fun together.
+            </b>
           </p>
           <p>
             This portal is brought to you with ❤️ by{' '}
