@@ -1,5 +1,6 @@
 import { createContext, FC, JSX, ReactNode, useContext, useEffect, useState } from 'react';
 import {
+  AdminUserUpdateRequest,
   ApiDataResponse1,
   ApiDataResponseOfAspNetUser,
   ApiDataResponseOfLoginResponse,
@@ -80,6 +81,12 @@ const authService = {
   async saveUser(data: SaveUserRequest): Promise<ApiResponse> {
     const response = await api.post('/Auth/save-user', data);
     console.debug('Save user response:', response);
+    return response.data;
+  },
+
+  async adminSaveUser(data: AdminUserUpdateRequest): Promise<ApiResponse> {
+    const response = await api.post('/Auth/admin/update-user', data);
+    console.debug('Admin update user response:', response);
     return response.data;
   },
 

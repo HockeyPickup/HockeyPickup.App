@@ -1,7 +1,10 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
+  AdminUserUpdateRequest,
+  ErrorDetail,
   ImpersonationResponse,
   ImpersonationStatusResponse,
+  NotificationPreference,
   RevertImpersonationResponse,
   UserDetailedResponse,
 } from '@/HockeyPickup.Api';
@@ -14,7 +17,22 @@ import {
   revertImpersonation,
 } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
-import { Avatar, Button, Container, Group, Paper, Text, Title } from '@mantine/core';
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Container,
+  Group,
+  NumberInput,
+  Paper,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -112,6 +130,134 @@ const HeaderSection = ({
   );
 };
 
+const EditUserForm = ({
+  profileUser,
+  onSave,
+  isLoading,
+  apiErrors,
+}: {
+  profileUser: UserDetailedResponse;
+  onSave: (_values: AdminUserUpdateRequest) => Promise<void>;
+  isLoading: boolean;
+  apiErrors: ErrorDetail[];
+}): JSX.Element => {
+  const form = useForm<AdminUserUpdateRequest>({
+    initialValues: {
+      UserId: profileUser.Id,
+      FirstName: profileUser.FirstName ?? '',
+      LastName: profileUser.LastName ?? '',
+      PayPalEmail: profileUser.PayPalEmail ?? '',
+      VenmoAccount: profileUser.VenmoAccount ?? '',
+      MobileLast4: profileUser.MobileLast4 ?? '',
+      EmergencyName: profileUser.EmergencyName ?? '',
+      EmergencyPhone: profileUser.EmergencyPhone ?? '',
+      NotificationPreference: profileUser.NotificationPreference ?? NotificationPreference.None,
+      Active: profileUser.Active,
+      Preferred: profileUser.Preferred,
+      PreferredPlus: profileUser.PreferredPlus,
+      LockerRoom13: profileUser.LockerRoom13,
+      Rating: profileUser.Rating,
+    },
+    validate: {
+      FirstName: (value) => (!value ? 'First name is required' : null),
+      LastName: (value) => (!value ? 'Last name is required' : null),
+      PayPalEmail: (value) => {
+        if (!value) return 'PayPal email is required';
+        return /^\S+@\S+$/.test(value) ? null : 'Invalid email format';
+      },
+      MobileLast4: (value) => (value ? (/^\d{4}$/.test(value) ? null : 'Must be 4 digits') : null),
+      EmergencyPhone: (value) =>
+        value ? (/^\+?[\d\s-]{10,}$/.test(value) ? null : 'Invalid phone number') : null,
+    },
+  });
+
+  return (
+    <Paper withBorder shadow='md' p={30} radius='md' style={{ maxWidth: 420 }}>
+      <Title size='xl'>Edit Player</Title>
+      <form onSubmit={form.onSubmit(onSave)}>
+        <Stack>
+          <TextInput
+            label='First Name'
+            placeholder='First name'
+            {...form.getInputProps('FirstName')}
+          />
+          <TextInput
+            label='Last Name'
+            placeholder='Last name'
+            {...form.getInputProps('LastName')}
+          />
+          <TextInput
+            label='PayPal Email'
+            placeholder='email@example.com'
+            {...form.getInputProps('PayPalEmail')}
+          />
+          <TextInput
+            label='Venmo Account'
+            placeholder='@username'
+            {...form.getInputProps('VenmoAccount')}
+          />
+          <TextInput
+            label='Mobile Last 4 Digits'
+            placeholder='1234'
+            maxLength={4}
+            {...form.getInputProps('MobileLast4')}
+          />
+          <TextInput
+            label='Emergency Contact Name'
+            placeholder='Contact name'
+            {...form.getInputProps('EmergencyName')}
+          />
+          <TextInput
+            label='Emergency Contact Phone'
+            placeholder='+1 234 567 8900'
+            {...form.getInputProps('EmergencyPhone')}
+          />
+          <Select
+            label='Notification Preference'
+            data={[
+              { value: NotificationPreference.None.toString(), label: 'None' },
+              { value: NotificationPreference.All.toString(), label: 'All' },
+              { value: NotificationPreference.OnlyMyBuySell.toString(), label: 'Only My Buy/Sell' },
+            ]}
+            value={form.values.NotificationPreference?.toString()}
+            onChange={(value) =>
+              form.setFieldValue(
+                'NotificationPreference',
+                value ? (parseInt(value) as NotificationPreference) : null,
+              )
+            }
+          />
+          <Checkbox label='Active' {...form.getInputProps('Active', { type: 'checkbox' })} />
+          <Checkbox label='Preferred' {...form.getInputProps('Preferred', { type: 'checkbox' })} />
+          <Checkbox
+            label='Preferred Plus'
+            {...form.getInputProps('PreferredPlus', { type: 'checkbox' })}
+          />
+          <Checkbox
+            label='Locker Room 13'
+            {...form.getInputProps('LockerRoom13', { type: 'checkbox' })}
+          />
+          <NumberInput label='Rating' step={0.5} {...form.getInputProps('Rating')} />
+
+          {apiErrors.length > 0 && (
+            <Stack gap='xs'>
+              {apiErrors.map((error, index) => (
+                <Text key={index} c='red' size='sm'>
+                  {error.Message}
+                </Text>
+              ))}
+            </Stack>
+          )}
+
+          <Button type='submit' mb='md' fullWidth loading={isLoading}>
+            Save Player
+          </Button>
+        </Stack>
+      </form>
+    </Paper>
+  );
+};
+
 export const ProfilePage = (): JSX.Element => {
   const { userId } = useParams();
   const { setTitle } = useTitle();
@@ -119,6 +265,9 @@ export const ProfilePage = (): JSX.Element => {
   const [profileUser, setProfileUser] = useState<UserDetailedResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [impersonationStatus, setImpersonationStatus] = useState<ImpersonationStatusResponse>();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
 
   const fetchImpersonationStatus = async (): Promise<void> => {
     const status: ImpersonationStatusResponse | null = await getImpersonationStatus();
@@ -151,6 +300,40 @@ export const ProfilePage = (): JSX.Element => {
     }
   };
 
+  const handleSaveUser = async (values: AdminUserUpdateRequest): Promise<void> => {
+    setIsSaving(true);
+    setApiErrors([]);
+
+    try {
+      const response = await authService.adminSaveUser({ ...values });
+      if (response.Success) {
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Success',
+          message: 'Player has been updated successfully',
+          color: 'green',
+        });
+        getUserById(userId).then((response) => {
+          setProfileUser(response);
+          setIsEditing(false);
+        });
+      } else if (response.Errors) {
+        setApiErrors(response.Errors);
+      }
+    } catch (error: any) {
+      console.error('Save player failed:', error.response?.data.Errors);
+      if (error.response?.data?.Errors) {
+        setApiErrors(error.response.data.Errors);
+      } else {
+        setApiErrors([{ Message: 'An unexpected error occurred while saving player' }]);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   useEffect(() => {
     setTitle('Player Profile');
     getUserById(userId)
@@ -172,8 +355,19 @@ export const ProfilePage = (): JSX.Element => {
       {isAdmin() && !impersonationStatus?.IsImpersonating && user && user.Id !== userId && (
         <Button onClick={handleImpersonate}>Impersonate</Button>
       )}
-      {impersonationStatus?.IsImpersonating && (
+      {impersonationStatus?.IsImpersonating && user && user.Id === userId && (
         <Button onClick={handleRevertImpersonation}>Revert Impersonation</Button>
+      )}{' '}
+      {isAdmin() && (
+        <Button onClick={() => setIsEditing(!isEditing)}>{isEditing ? 'Cancel' : 'Edit'}</Button>
+      )}
+      {isEditing && profileUser && (
+        <EditUserForm
+          profileUser={profileUser}
+          onSave={handleSaveUser}
+          isLoading={isSaving}
+          apiErrors={apiErrors}
+        />
       )}
     </Container>
   );

@@ -115,7 +115,7 @@ export interface UserDetailedResponse {
    * User's rating
    * @format decimal
    * @min 0
-   * @max 5
+   * @max 10
    */
   Rating: number;
 }
@@ -579,6 +579,33 @@ export interface SaveUserRequest {
   NotificationPreference?: NotificationPreference | null;
 }
 
+export type AdminUserUpdateRequest = SaveUserRequestEx & {
+  /**
+   * ID of the user to update
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+};
+
+export type SaveUserRequestEx = SaveUserRequest & {
+  /** Whether the user account is active */
+  Active?: boolean | null;
+  /** Whether the user has preferred status */
+  Preferred?: boolean | null;
+  /** Whether the user has preferred plus status */
+  PreferredPlus?: boolean | null;
+  /** Whether the user has Locker Room 13 access */
+  LockerRoom13?: boolean | null;
+  /**
+   * User's rating
+   * @format decimal
+   * @min 0
+   * @max 10
+   */
+  Rating?: number | null;
+};
+
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfImpersonationResponse = ApiResponse & {
   /** Response data payload of type T */
@@ -798,7 +825,7 @@ export interface BuySellResponse {
    * Team assignment for the transaction
    * @format int32
    * @min 0
-   * @max 2147483647
+   * @max 2
    */
   TeamAssignment: number;
   /** Buyer details */
@@ -870,14 +897,14 @@ export interface RegularResponse {
    * Team assignment for the regular player
    * @format int32
    * @min 0
-   * @max 2147483647
+   * @max 2
    */
   TeamAssignment: number;
   /**
    * Position preference for the regular player
    * @format int32
    * @min 0
-   * @max 2147483647
+   * @max 2
    */
   PositionPreference: number;
   /** User details */
@@ -929,7 +956,7 @@ export interface RosterPlayer2 {
    * Position for the player
    * @format int32
    * @min 0
-   * @max 2147483647
+   * @max 2
    */
   Position: number;
   /**
@@ -1319,7 +1346,7 @@ export interface User {
    * User's rating
    * @format decimal
    * @min 0
-   * @max 5
+   * @max 10
    */
   Rating: number;
   /** Indicates if user has preferred plus status */
