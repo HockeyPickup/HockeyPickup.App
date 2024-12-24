@@ -59,11 +59,12 @@ export const RegisterPage = (): JSX.Element => {
       if (response.Success) {
         form.reset();
         notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
           title: 'Registration Successful!',
           message: `Thank you ${response.Data?.FirstName}, for registering. Please check your email for a confirmation link to activate your account.`,
           color: 'green',
-          autoClose: false,
-          withCloseButton: true,
         });
         navigate('/');
       } else if (response.Errors) {

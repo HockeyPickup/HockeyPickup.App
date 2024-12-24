@@ -54,11 +54,12 @@ const PasswordSection = (): JSX.Element => {
       if (response.Success) {
         form.reset();
         notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
           title: 'Success',
           message: 'Your password has been changed successfully',
           color: 'green',
-          autoClose: false,
-          withCloseButton: true,
         });
       } else if (response.Errors) {
         setApiErrors(response.Errors);
@@ -155,11 +156,12 @@ const PreferencesSection = (): JSX.Element => {
       const response = await authService.saveUser(values);
       if (response.Success) {
         notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
           title: 'Success',
           message: 'Your preferences have been updated successfully',
           color: 'green',
-          autoClose: false,
-          withCloseButton: true,
         });
       } else if (response.Errors) {
         setApiErrors(response.Errors);

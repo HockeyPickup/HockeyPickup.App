@@ -25,6 +25,9 @@ export const ConfirmEmailPage = (): JSX.Element => {
 
       if (!token || !email) {
         notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
           title: 'Invalid Link',
           message: 'The confirmation link is invalid or expired.',
           color: 'red',
@@ -44,6 +47,9 @@ export const ConfirmEmailPage = (): JSX.Element => {
 
         if (response.Success) {
           notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
             title: 'Email Confirmed!',
             message: 'Your email has been confirmed. Please sign in.',
             color: 'green',
