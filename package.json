@@ -17,16 +17,16 @@
   "dependencies": {
     "@apollo/client": "^3.12.4",
     "@emotion/react": "^11.14.0",
-    "@mantine/carousel": "^7.15.1",
-    "@mantine/core": "^7.15.1",
-    "@mantine/dates": "^7.15.1",
-    "@mantine/dropzone": "^7.15.1",
-    "@mantine/form": "^7.15.1",
-    "@mantine/hooks": "^7.15.1",
-    "@mantine/modals": "^7.15.1",
-    "@mantine/notifications": "^7.15.1",
+    "@mantine/carousel": "^7.15.2",
+    "@mantine/core": "^7.15.2",
+    "@mantine/dates": "^7.15.2",
+    "@mantine/dropzone": "^7.15.2",
+    "@mantine/form": "^7.15.2",
+    "@mantine/hooks": "^7.15.2",
+    "@mantine/modals": "^7.15.2",
+    "@mantine/notifications": "^7.15.2",
     "@tabler/icons-react": "^3.26.0",
-    "@tanstack/react-query": "^5.62.8",
+    "@tanstack/react-query": "^5.62.9",
     "axios": "^1.7.9",
     "dayjs": "^1.11.13",
     "eslint-config-prettier": "^9.1.0",
@@ -43,7 +43,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-json-view": "^1.21.3",
-    "react-router-dom": "^7.1.0"
+    "react-router-dom": "^7.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -59,7 +59,7 @@
     "globals": "^15.14.0",
     "swagger-typescript-api": "^13.0.23",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.18.1",
+    "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5",
     "vite-plugin-environment": "^1.1.3"
   },
