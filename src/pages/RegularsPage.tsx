@@ -30,6 +30,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export const RegularsPage = (): JSX.Element => {
   const { setTitle } = useTitle();
@@ -146,12 +147,14 @@ export const RegularsPage = (): JSX.Element => {
         </Stack>
         {teamRegulars.map((regular) => (
           <Group key={regular.UserId} gap='sm'>
-            <Avatar
-              src={avatars[regular.UserId]}
-              alt={`${regular.User?.FirstName} ${regular.User?.LastName}`}
-              size={24}
-              radius='xl'
-            />
+            <Link to={`/profile/${regular.UserId}`}>
+              <Avatar
+                src={avatars[regular.UserId]}
+                alt={`${regular.User?.FirstName} ${regular.User?.LastName}`}
+                size={24}
+                radius='xl'
+              />
+            </Link>
             <Text key={regular.UserId}>
               {regular.User?.FirstName} {regular.User?.LastName},{' '}
               {getPositionString(regular.PositionPreference)}
