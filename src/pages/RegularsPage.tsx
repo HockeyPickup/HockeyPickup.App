@@ -13,6 +13,7 @@ import {
   ActionIcon,
   Avatar,
   Button,
+  Checkbox,
   Container,
   CopyButton,
   Grid,
@@ -33,6 +34,7 @@ export const RegularsPage = (): JSX.Element => {
   const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [includeArchived, setIncludeArchived] = useState<boolean>(false);
 
   const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
@@ -45,7 +47,7 @@ export const RegularsPage = (): JSX.Element => {
   if (loading) return <LoadingSpinner />;
 
   const regularSetOptions =
-    data?.RegularSets?.map((s) => ({
+    data?.RegularSets?.filter((s) => includeArchived || !s.Archived).map((s) => ({
       value: s.RegularSetId.toString(),
       label: s.Description ?? '',
     })) ?? [];
@@ -225,6 +227,11 @@ export const RegularsPage = (): JSX.Element => {
               data={regularSetOptions}
               value={selectedPreset}
               onChange={setSelectedPreset}
+            />
+            <Checkbox
+              label='Include Archived'
+              checked={includeArchived}
+              onChange={(event) => setIncludeArchived(event.currentTarget.checked)}
             />
             {isAdmin() && selectedPreset && <Button onClick={handleDuplicate}>Duplicate</Button>}
           </Group>

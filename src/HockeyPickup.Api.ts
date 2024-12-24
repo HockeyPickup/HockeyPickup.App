@@ -290,6 +290,7 @@ export interface RegularSet {
   DayOfWeek?: number;
   /** @format date-time */
   CreateDateTime?: string;
+  Archived?: boolean;
   Sessions?: Session[];
   Regulars?: Regular[];
 }
@@ -730,6 +731,8 @@ export interface RegularSetDetailedResponse {
    * @minLength 1
    */
   CreateDateTime: string;
+  /** Indicates if the regular set is archived */
+  Archived: boolean;
   /** List of regular players in this set */
   Regulars?: RegularDetailedResponse[] | null;
 }

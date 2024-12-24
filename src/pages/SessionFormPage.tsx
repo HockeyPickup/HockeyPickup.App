@@ -13,6 +13,7 @@ import { isApiErrorResponse } from '@/services/api-helpers';
 import { useQuery } from '@apollo/client';
 import {
   Button,
+  Checkbox,
   Container,
   Group,
   NumberInput,
@@ -54,6 +55,7 @@ export const SessionFormPage = (): JSX.Element => {
   const { sessionId } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
+  const [includeArchived, setIncludeArchived] = useState<boolean>(false);
 
   const isEditMode = !!sessionId;
 
@@ -67,7 +69,7 @@ export const SessionFormPage = (): JSX.Element => {
     GET_REGULARSETS,
   );
   const regularSetOptions =
-    regularSetsData?.RegularSets?.map((s) => ({
+    regularSetsData?.RegularSets?.filter((s) => includeArchived || !s.Archived).map((s) => ({
       value: s.RegularSetId.toString(),
       label: s.Description ?? '',
     })) ?? [];
@@ -184,14 +186,21 @@ export const SessionFormPage = (): JSX.Element => {
               withSeconds={false}
               {...form.getInputProps('SessionDate')}
             />
-            <Select
-              label='Regular Set'
-              placeholder='Select regular set'
-              leftSection={<IconUsers size={16} />}
-              required
-              data={regularSetOptions}
-              {...form.getInputProps('RegularSetId')}
-            />
+            <Group align='flex-end'>
+              <Select
+                label='Regular Set'
+                placeholder='Select regular set'
+                leftSection={<IconUsers size={16} />}
+                required
+                data={regularSetOptions}
+                {...form.getInputProps('RegularSetId')}
+              />
+              <Checkbox
+                label='Include Archived'
+                checked={includeArchived}
+                onChange={(event) => setIncludeArchived(event.currentTarget.checked)}
+              />
+            </Group>
             <NumberInput
               label='Buy Day Minimum'
               placeholder='Enter minimum days before buying'

@@ -96,6 +96,7 @@ export const GET_SESSION = gql`
         Description
         DayOfWeek
         CreateDateTime
+        Archived
         Regulars {
           RegularSetId
           UserId
@@ -184,6 +185,7 @@ export const GET_REGULARSETS = gql`
       Description
       DayOfWeek
       CreateDateTime
+      Archived
       Regulars {
         RegularSetId
         UserId
