@@ -14,6 +14,7 @@ import {
   Avatar,
   Button,
   Checkbox,
+  Collapse,
   Container,
   CopyButton,
   Grid,
@@ -21,6 +22,7 @@ import {
   Image,
   Paper,
   Select,
+  Space,
   Stack,
   Text,
   Title,
@@ -35,6 +37,7 @@ export const RegularsPage = (): JSX.Element => {
   const { showRatings } = useRatingsVisibility();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [includeArchived, setIncludeArchived] = useState<boolean>(false);
+  const [showEmails, setShowEmails] = useState(false);
 
   const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
@@ -245,26 +248,35 @@ export const RegularsPage = (): JSX.Element => {
                   <TeamSection teamId={2} />
                 </Grid.Col>
               </Grid>
-
-              <Stack mt='xl'>
-                <Group align='center'>
-                  <Text size='sm'>Emails:</Text>
-                  <CopyButton value={getAllEmails()}>
-                    {({ copied, copy }) => (
-                      <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
-                        {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                      </ActionIcon>
-                    )}
-                  </CopyButton>
-                </Group>
-                <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
-                  {getAllEmails()}
-                </Text>
-              </Stack>
             </Stack>
           )}
         </Stack>
       </Paper>
+      <Space h='sm' />
+      {selectedPreset && (
+        <Stack mt='xl'>
+          <Group align='center'>
+            <Button onClick={() => setShowEmails((prev) => !prev)}>
+              {showEmails ? 'Hide Emails' : 'Show Emails'}
+            </Button>
+          </Group>
+          <Collapse in={showEmails}>
+            <Group align='center'>
+              <Text size='sm'>Emails:</Text>
+              <CopyButton value={getAllEmails()}>
+                {({ copied, copy }) => (
+                  <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
+                    {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                  </ActionIcon>
+                )}
+              </CopyButton>
+            </Group>
+            <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
+              {getAllEmails()}
+            </Text>
+          </Collapse>
+        </Stack>
+      )}
     </Container>
   );
 };
