@@ -307,6 +307,10 @@ export const RegularsPage = (): JSX.Element => {
     }
   };
 
+  const getDayOfWeek = (dayNumber: number): string => {
+    return moment.weekdays(dayNumber);
+  };
+
   return (
     <Container size='sm' px='lg'>
       <Paper withBorder shadow='md' p={30} radius='md'>
@@ -315,33 +319,42 @@ export const RegularsPage = (): JSX.Element => {
         </Title>
 
         <Stack>
-          <Group justify='space-between' align='flex-end'>
-            <Select
-              style={{ flex: 1 }}
-              label='Select Regular Set'
-              placeholder='Choose a regular set'
-              data={regularSetOptions}
-              value={selectedPreset}
-              onChange={setSelectedPreset}
-            />
-            <Checkbox
-              label='Include Archived'
-              checked={includeArchived}
-              onChange={(event) => setIncludeArchived(event.currentTarget.checked)}
-            />
-            {isAdmin() && selectedPreset && (
-              <Group>
-                <Button onClick={handleDuplicate}>Duplicate</Button>
-                <Button variant='outline' onClick={() => setEditingRegularSet(true)}>
-                  <Group gap='xs'>
-                    <IconEdit size={16} />
-                    <span>Edit</span>
+          <Group justify='space-between' align='flex-start'>
+            <Stack style={{ flex: 1 }} gap='xs'>
+              <Select
+                label='Select Regular Set'
+                placeholder='Choose a regular set'
+                data={regularSetOptions}
+                value={selectedPreset}
+                onChange={setSelectedPreset}
+              />
+              {selectedPresetData && (
+                <Text size='sm' c='dimmed' ml='sm'>
+                  {selectedPresetData.Description} - {getDayOfWeek(selectedPresetData.DayOfWeek)}
+                </Text>
+              )}
+            </Stack>
+            <Stack gap='xs' pt={25}>
+              <Group mt='xl'>
+                <Checkbox
+                  label='Include Archived'
+                  checked={includeArchived}
+                  onChange={(event) => setIncludeArchived(event.currentTarget.checked)}
+                />
+                {isAdmin() && selectedPreset && (
+                  <Group>
+                    <Button onClick={handleDuplicate}>Duplicate</Button>
+                    <Button variant='outline' onClick={() => setEditingRegularSet(true)}>
+                      <Group gap='xs'>
+                        <IconEdit size={16} />
+                        <span>Edit</span>
+                      </Group>
+                    </Button>
                   </Group>
-                </Button>
+                )}
               </Group>
-            )}
+            </Stack>
           </Group>
-
           {selectedPreset && selectedPresetData && editingRegularSet ? (
             <EditRegularSetForm
               regularSet={selectedPresetData}
