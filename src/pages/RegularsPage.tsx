@@ -84,10 +84,15 @@ const EditRegularSetForm = ({
     }
   };
 
-  const dayOptions = moment.weekdays().map((day, index) => ({
-    value: index.toString(),
-    label: day,
-  }));
+  const dayOptions = [
+    { value: '1', label: 'Saturday' },
+    { value: '2', label: 'Sunday' },
+    { value: '3', label: 'Monday' },
+    { value: '4', label: 'Tuesday' },
+    { value: '5', label: 'Wednesday' },
+    { value: '6', label: 'Thursday' },
+    { value: '7', label: 'Friday' },
+  ];
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
