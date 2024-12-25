@@ -775,6 +775,28 @@ export interface DuplicateRegularSetRequest {
   Description: string;
 }
 
+export interface UpdateRegularSetRequest {
+  /**
+   * Regular Set identifier
+   * @format int32
+   */
+  RegularSetId: number;
+  /**
+   * Description of the regular set
+   * @minLength 1
+   */
+  Description: string;
+  /**
+   * Day of the week (0 = Sunday, 6 = Saturday)
+   * @format int32
+   * @min 0
+   * @max 6
+   */
+  DayOfWeek: number;
+  /** Indicates if the regular set is archived */
+  Archived: boolean;
+}
+
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfSessionDetailedResponse = ApiResponse & {
   /** Response data payload of type T */
@@ -881,6 +903,8 @@ export interface RegularSetResponse {
    * @minLength 1
    */
   CreateDateTime: string;
+  /** Indicates if the regular set is archived */
+  Archived: boolean;
   /** Regular players in the set */
   Regulars?: RegularResponse[] | null;
 }

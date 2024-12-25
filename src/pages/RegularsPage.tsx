@@ -25,12 +25,96 @@ import {
   Space,
   Stack,
   Text,
+  TextInput,
   Title,
 } from '@mantine/core';
+import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconCopy } from '@tabler/icons-react';
+import { IconCheck, IconCopy, IconEdit } from '@tabler/icons-react';
+import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+const EditRegularSetForm = ({
+  regularSet,
+  onSave,
+  onCancel,
+}: {
+  regularSet: RegularSetDetailedResponse;
+  onSave: () => void;
+  onCancel: () => void;
+}): JSX.Element => {
+  const form = useForm({
+    initialValues: {
+      description: regularSet.Description ?? '',
+      dayOfWeek: regularSet.DayOfWeek,
+      archived: regularSet.Archived,
+    },
+  });
+
+  const handleSubmit = async (values: typeof form.values): Promise<void> => {
+    try {
+      await regularService.updateRegularSet(
+        regularSet.RegularSetId,
+        values.description,
+        values.dayOfWeek,
+        values.archived,
+      );
+
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Success',
+        message: 'Regular set updated successfully',
+        color: 'green',
+      });
+
+      onSave();
+    } catch (error) {
+      console.error('Failed to update regular set:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to update regular set',
+        color: 'red',
+      });
+    }
+  };
+
+  const dayOptions = moment.weekdays().map((day, index) => ({
+    value: index.toString(),
+    label: day,
+  }));
+
+  return (
+    <form onSubmit={form.onSubmit(handleSubmit)}>
+      <Stack>
+        <TextInput
+          label='Description'
+          placeholder='Enter description'
+          {...form.getInputProps('description')}
+        />
+        <Select
+          label='Day of Week'
+          placeholder='Select day'
+          data={dayOptions}
+          value={form.values.dayOfWeek.toString()}
+          onChange={(value) => form.setFieldValue('dayOfWeek', parseInt(value ?? '0'))}
+        />{' '}
+        <Checkbox label='Archived' {...form.getInputProps('archived', { type: 'checkbox' })} />
+        <Group justify='flex-end'>
+          <Button variant='outline' onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type='submit'>Save</Button>
+        </Group>
+      </Stack>
+    </form>
+  );
+};
 
 export const RegularsPage = (): JSX.Element => {
   const { setTitle } = useTitle();
@@ -39,6 +123,7 @@ export const RegularsPage = (): JSX.Element => {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [includeArchived, setIncludeArchived] = useState<boolean>(false);
   const [showEmails, setShowEmails] = useState(false);
+  const [editingRegularSet, setEditingRegularSet] = useState<boolean>(false);
 
   const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
@@ -59,6 +144,11 @@ export const RegularsPage = (): JSX.Element => {
   const selectedPresetData = data?.RegularSets?.find(
     (set) => set.RegularSetId.toString() === selectedPreset,
   );
+
+  const handleEditComplete = async (): Promise<void> => {
+    setEditingRegularSet(false);
+    await refetch();
+  };
 
   const getTeamRegulars = (teamId: Team.Light | Team.Dark): RegularDetailedResponse[] => {
     return (
@@ -239,24 +329,43 @@ export const RegularsPage = (): JSX.Element => {
               checked={includeArchived}
               onChange={(event) => setIncludeArchived(event.currentTarget.checked)}
             />
-            {isAdmin() && selectedPreset && <Button onClick={handleDuplicate}>Duplicate</Button>}
+            {isAdmin() && selectedPreset && (
+              <Group>
+                <Button onClick={handleDuplicate}>Duplicate</Button>
+                <Button variant='outline' onClick={() => setEditingRegularSet(true)}>
+                  <Group gap='xs'>
+                    <IconEdit size={16} />
+                    <span>Edit</span>
+                  </Group>
+                </Button>
+              </Group>
+            )}
           </Group>
-          {selectedPreset && (
-            <Stack mt='xl'>
-              <Grid>
-                <Grid.Col span={6}>
-                  <TeamSection teamId={1} />
-                </Grid.Col>
-                <Grid.Col span={6}>
-                  <TeamSection teamId={2} />
-                </Grid.Col>
-              </Grid>
-            </Stack>
+
+          {selectedPreset && selectedPresetData && editingRegularSet ? (
+            <EditRegularSetForm
+              regularSet={selectedPresetData}
+              onSave={handleEditComplete}
+              onCancel={() => setEditingRegularSet(false)}
+            />
+          ) : (
+            selectedPreset && (
+              <Stack mt='xl'>
+                <Grid>
+                  <Grid.Col span={6}>
+                    <TeamSection teamId={1} />
+                  </Grid.Col>
+                  <Grid.Col span={6}>
+                    <TeamSection teamId={2} />
+                  </Grid.Col>
+                </Grid>
+              </Stack>
+            )
           )}
         </Stack>
       </Paper>
       <Space h='sm' />
-      {selectedPreset && (
+      {selectedPreset && !selectedPresetData && !editingRegularSet && (
         <Stack mt='xl'>
           <Group align='center'>
             <Button onClick={() => setShowEmails((prev) => !prev)}>
