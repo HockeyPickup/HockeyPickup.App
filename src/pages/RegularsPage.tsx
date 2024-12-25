@@ -32,30 +32,30 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy, IconEdit, IconFilter } from '@tabler/icons-react';
-import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+// For filtering - includes "All Days" option
 const dayOptions = [
   { value: '', label: 'All Days' },
-  { value: '1', label: 'Saturday' },
-  { value: '2', label: 'Sunday' },
-  { value: '3', label: 'Monday' },
-  { value: '4', label: 'Tuesday' },
-  { value: '5', label: 'Wednesday' },
-  { value: '6', label: 'Thursday' },
-  { value: '7', label: 'Friday' },
+  { value: '0', label: 'Sunday' },
+  { value: '1', label: 'Monday' },
+  { value: '2', label: 'Tuesday' },
+  { value: '3', label: 'Wednesday' },
+  { value: '4', label: 'Thursday' },
+  { value: '5', label: 'Friday' },
+  { value: '6', label: 'Saturday' },
 ];
 
 // For editing - only actual days
 const editDayOptions = [
-  { value: '1', label: 'Saturday' },
-  { value: '2', label: 'Sunday' },
-  { value: '3', label: 'Monday' },
-  { value: '4', label: 'Tuesday' },
-  { value: '5', label: 'Wednesday' },
-  { value: '6', label: 'Thursday' },
-  { value: '7', label: 'Friday' },
+  { value: '0', label: 'Sunday' },
+  { value: '1', label: 'Monday' },
+  { value: '2', label: 'Tuesday' },
+  { value: '3', label: 'Wednesday' },
+  { value: '4', label: 'Thursday' },
+  { value: '5', label: 'Friday' },
+  { value: '6', label: 'Saturday' },
 ];
 
 const getDayOfWeek = (dayNumber: number): string | undefined => {
@@ -77,14 +77,6 @@ const FilterModal = ({
   selectedDayFilter: string | null;
   setSelectedDayFilter: (_value: string | null) => void;
 }): JSX.Element => {
-  const dayOptions = [
-    { value: '', label: 'All Days' },
-    ...moment.weekdays().map((day, index) => ({
-      value: index.toString(),
-      label: day,
-    })),
-  ];
-
   return (
     <Modal opened={opened} onClose={onClose} title='Filter Regular Sets' size='sm'>
       <Stack>
