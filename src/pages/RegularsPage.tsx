@@ -31,9 +31,18 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy, IconEdit } from '@tabler/icons-react';
-import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+const dayOptions = [
+  { value: '1', label: 'Saturday' },
+  { value: '2', label: 'Sunday' },
+  { value: '3', label: 'Monday' },
+  { value: '4', label: 'Tuesday' },
+  { value: '5', label: 'Wednesday' },
+  { value: '6', label: 'Thursday' },
+  { value: '7', label: 'Friday' },
+];
 
 const EditRegularSetForm = ({
   regularSet,
@@ -83,16 +92,6 @@ const EditRegularSetForm = ({
       });
     }
   };
-
-  const dayOptions = [
-    { value: '1', label: 'Saturday' },
-    { value: '2', label: 'Sunday' },
-    { value: '3', label: 'Monday' },
-    { value: '4', label: 'Tuesday' },
-    { value: '5', label: 'Wednesday' },
-    { value: '6', label: 'Thursday' },
-    { value: '7', label: 'Friday' },
-  ];
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -312,8 +311,8 @@ export const RegularsPage = (): JSX.Element => {
     }
   };
 
-  const getDayOfWeek = (dayNumber: number): string => {
-    return moment.weekdays(dayNumber);
+  const getDayOfWeek = (dayNumber: number): string | undefined => {
+    return dayOptions.find((v) => v.value === dayNumber.toString())?.label;
   };
 
   return (
