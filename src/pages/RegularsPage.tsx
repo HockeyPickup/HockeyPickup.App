@@ -4,7 +4,7 @@ import { RegularSetSelect } from '@/components/RegularSetSelect';
 import { RegularDetailedResponse, RegularSetDetailedResponse } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
-import { getPositionString } from '@/lib/position';
+import { getPositionString, positionMap, PositionString } from '@/lib/position';
 import { GET_REGULARSETS } from '@/lib/queries';
 import { regularService } from '@/lib/regular';
 import { Team, TEAM_LABELS } from '@/lib/team';
@@ -18,10 +18,13 @@ import {
   Collapse,
   Container,
   CopyButton,
+  Divider,
   Grid,
   Group,
   Image,
   Paper,
+  Popover,
+  Radio,
   Select,
   Space,
   Stack,
@@ -31,7 +34,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconCopy, IconEdit } from '@tabler/icons-react';
+import { IconCheck, IconCopy, IconEdit, IconPencil } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -221,6 +224,181 @@ export const RegularsPage = (): JSX.Element => {
 
     const ratings = calculateTeamRatings();
 
+    const handlePositionChange = async (userId: string, newPosition: number): Promise<void> => {
+      try {
+        if (!selectedPreset) return;
+
+        const result = await regularService.updateRegularPosition({
+          RegularSetId: parseInt(selectedPreset),
+          UserId: userId,
+          NewPosition: newPosition,
+        });
+
+        if (result.Data) {
+          await refetch();
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Success',
+            message: 'Position updated successfully',
+            color: 'green',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to update position:', error);
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Error',
+          message: 'Failed to update position',
+          color: 'red',
+        });
+      }
+    };
+
+    const handleTeamChange = async (
+      userId: string,
+      newTeam: Team.Light | Team.Dark,
+    ): Promise<void> => {
+      try {
+        if (!selectedPreset) return;
+
+        const result = await regularService.updateRegularTeam({
+          RegularSetId: parseInt(selectedPreset),
+          UserId: userId,
+          NewTeamAssignment: newTeam,
+        });
+
+        if (result.Data) {
+          await refetch();
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Success',
+            message: 'Team updated successfully',
+            color: 'green',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to update team:', error);
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Error',
+          message: 'Failed to update team',
+          color: 'red',
+        });
+      }
+    };
+
+    const PlayerRow = ({
+      regular,
+      onPositionChange,
+      onTeamChange,
+    }: {
+      regular: RegularDetailedResponse;
+      onPositionChange: (_userId: string, _newPosition: number) => Promise<void>;
+      onTeamChange: (_userId: string, _newTeam: Team.Light | Team.Dark) => Promise<void>;
+    }): JSX.Element => {
+      const { isAdmin, canViewRatings } = useAuth();
+      const { showRatings } = useRatingsVisibility();
+      const [editingPlayer, setEditingPlayer] = useState(false);
+      const [checkedPosition, setCheckedPosition] = useState<PositionString>(
+        getPositionString(regular.PositionPreference) as PositionString,
+      );
+      const [checkedTeam, setCheckedTeam] = useState<Team.Light | Team.Dark>(
+        regular.TeamAssignment,
+      );
+
+      return (
+        <Group gap='sm'>
+          <Link to={`/profile/${regular.UserId}`}>
+            <Avatar
+              src={avatars[regular.UserId]}
+              alt={`${regular.User?.FirstName} ${regular.User?.LastName}`}
+              size={24}
+              radius='xl'
+            />
+          </Link>
+            <Text size='xs' key={regular.UserId}>
+            {regular.User?.FirstName} {regular.User?.LastName},{' '}
+            {getPositionString(regular.PositionPreference)}
+            {canViewRatings() &&
+              showRatings &&
+              regular.User?.Rating !== undefined &&
+              regular.User.Rating !== null &&
+              `, ${regular.User.Rating.toFixed(1)}`}
+          </Text>
+          {isAdmin() && (
+            <Popover
+              position='top'
+              withArrow
+              shadow='md'
+              opened={editingPlayer}
+              onClose={() => setEditingPlayer(false)}
+            >
+              <Popover.Target>
+                <ActionIcon
+                  size='xs'
+                  variant='subtle'
+                  onClick={() => setEditingPlayer((prev) => !prev)}
+                >
+                  <IconPencil size={16} />
+                </ActionIcon>
+              </Popover.Target>
+              <Popover.Dropdown>
+                <Stack>
+                  <Text size='sm' fw={500}>
+                    Position
+                  </Text>
+                  <Radio.Group
+                    value={checkedPosition}
+                    onChange={(value: string) => {
+                      const newPosition = value as PositionString;
+                      setCheckedPosition(newPosition);
+                      setTimeout(() => {
+                        onPositionChange(regular.UserId, positionMap[newPosition]);
+                      }, 100);
+                    }}
+                  >
+                    <Stack>
+                      <Radio value='Defense' label='Defense' />
+                      <Radio value='Forward' label='Forward' />
+                      <Radio value='TBD' label='TBD' />
+                    </Stack>
+                  </Radio.Group>
+                  <Divider my='xs' />
+
+                  <Text size='sm' fw={500}>
+                    Team
+                  </Text>
+                  <Radio.Group
+                    value={checkedTeam.toString()}
+                    onChange={(value: string) => {
+                      const newTeam = parseInt(value) as Team.Light | Team.Dark;
+                      setCheckedTeam(newTeam);
+                      setTimeout(() => {
+                        onTeamChange(regular.UserId, newTeam);
+                      }, 100);
+                    }}
+                  >
+                    <Stack>
+                      <Radio value={Team.Light.toString()} label='Rockets (Light)' />
+                      <Radio value={Team.Dark.toString()} label='Beauties (Dark)' />
+                    </Stack>
+                  </Radio.Group>
+                </Stack>
+              </Popover.Dropdown>
+            </Popover>
+          )}
+        </Group>
+      );
+    };
+
     return (
       <Stack>
         <Stack align='center' gap='xs'>
@@ -235,25 +413,12 @@ export const RegularsPage = (): JSX.Element => {
           <Title order={4}>{TEAM_LABELS[teamId]}</Title>
         </Stack>
         {teamRegulars.map((regular) => (
-          <Group key={regular.UserId} gap='sm'>
-            <Link to={`/profile/${regular.UserId}`}>
-              <Avatar
-                src={avatars[regular.UserId]}
-                alt={`${regular.User?.FirstName} ${regular.User?.LastName}`}
-                size={24}
-                radius='xl'
-              />
-            </Link>
-            <Text size='xs' key={regular.UserId}>
-              {regular.User?.FirstName} {regular.User?.LastName},{' '}
-              {getPositionString(regular.PositionPreference)}
-              {canViewRatings() &&
-                showRatings &&
-                regular.User?.Rating !== undefined &&
-                regular.User.Rating !== null &&
-                `, ${regular.User.Rating.toFixed(1)}`}
-            </Text>
-          </Group>
+          <PlayerRow
+            key={regular.UserId}
+            regular={regular}
+            onPositionChange={handlePositionChange}
+            onTeamChange={handleTeamChange}
+          />
         ))}
         {canViewRatings() && showRatings && (
           <Text size='lg' fw={700} mt='xs'>

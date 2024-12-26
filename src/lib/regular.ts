@@ -1,7 +1,9 @@
 import {
   ApiDataResponseOfRegularSetDetailedResponse,
   DuplicateRegularSetRequest,
+  UpdateRegularPositionRequest,
   UpdateRegularSetRequest,
+  UpdateRegularTeamRequest,
 } from '@/HockeyPickup.Api';
 import api from '../services/api';
 
@@ -40,6 +42,28 @@ export const regularService = {
       '/Regular/update-regular-set',
       request,
     );
+    return response.data;
+  },
+
+  async updateRegularPosition(
+    request: UpdateRegularPositionRequest,
+  ): Promise<ApiDataResponseOfRegularSetDetailedResponse> {
+    const response = await api.put<ApiDataResponseOfRegularSetDetailedResponse>(
+      '/Regular/update-regular-position',
+      request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async updateRegularTeam(
+    request: UpdateRegularTeamRequest,
+  ): Promise<ApiDataResponseOfRegularSetDetailedResponse> {
+    const response = await api.put<ApiDataResponseOfRegularSetDetailedResponse>(
+      '/Regular/update-regular-team',
+      request,
+    );
+    console.info(response);
     return response.data;
   },
 };

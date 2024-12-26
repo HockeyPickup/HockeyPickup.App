@@ -797,6 +797,46 @@ export interface UpdateRegularSetRequest {
   Archived: boolean;
 }
 
+export interface UpdateRegularPositionRequest {
+  /**
+   * Regular Set ID
+   * @format int32
+   */
+  RegularSetId: number;
+  /**
+   * User ID
+   * @minLength 1
+   */
+  UserId: string;
+  /**
+   * New position (0: TBD, 1: Forward, 2: Defense)
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  NewPosition: number;
+}
+
+export interface UpdateRegularTeamRequest {
+  /**
+   * Regular Set ID
+   * @format int32
+   */
+  RegularSetId: number;
+  /**
+   * User ID
+   * @minLength 1
+   */
+  UserId: string;
+  /**
+   * New team assignment (1: Light, 2: Dark)
+   * @format int32
+   * @min 1
+   * @max 2
+   */
+  NewTeamAssignment: number;
+}
+
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfSessionDetailedResponse = ApiResponse & {
   /** Response data payload of type T */
