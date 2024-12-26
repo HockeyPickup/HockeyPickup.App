@@ -14,6 +14,7 @@ import {
   Divider,
   Group,
   Image,
+  LoadingOverlay,
   Paper,
   Popover,
   Radio,
@@ -26,6 +27,7 @@ import { notifications } from '@mantine/notifications';
 import { IconPencil } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { LoadingSpinner } from './LoadingSpinner';
 import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionRosterProps {
@@ -52,6 +54,7 @@ const PlayerCell = ({
 }: PlayerCellProps): JSX.Element | null => {
   const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
+  const [isSaving, setIsSaving] = useState(false);
   const [checkedPosition, setCheckedPosition] = useState<PositionString>(
     (editingPlayer?.currentPosition as PositionString) ?? 'TBD',
   );
@@ -73,6 +76,26 @@ const PlayerCell = ({
     };
     loadAvatar();
   }, [player?.Email]);
+
+  const handlePositionChange = async (newPosition: PositionString): Promise<void> => {
+    setIsSaving(true);
+    try {
+      await onPositionChange(editingPlayer?.userId ?? '', newPosition);
+    } finally {
+      setIsSaving(false);
+      onClose();
+    }
+  };
+
+  const handleTeamChange = async (newTeam: 1 | 2): Promise<void> => {
+    setIsSaving(true);
+    try {
+      await onTeamChange(editingPlayer?.userId ?? '', newTeam);
+    } finally {
+      setIsSaving(false);
+      onClose();
+    }
+  };
 
   if (!player) return null;
 
@@ -106,7 +129,7 @@ const PlayerCell = ({
           withArrow
           shadow='md'
           opened={editingPlayer?.userId === player.UserId}
-          onClose={onClose}
+          onClose={() => !isSaving && onClose()}
         >
           <Popover.Target>
             <ActionIcon
@@ -114,63 +137,66 @@ const PlayerCell = ({
               variant='subtle'
               onClick={() => {
                 if (editingPlayer?.userId === player.UserId) {
-                  onClose(); // If already open, close it
+                  !isSaving && onClose();
                 } else {
                   onEditClick(
                     player.UserId ?? '',
                     player.CurrentPosition ?? 'TBD',
                     player.TeamAssignment,
-                  ); // If closed, open it
-                  setCheckedPosition((player.CurrentPosition ?? 'TBD') as PositionString);
-                  setCheckedTeam((player.TeamAssignment as 1 | 2) ?? 1);
+                  );
                 }
               }}
+              disabled={isSaving}
             >
               <IconPencil size={16} />
             </ActionIcon>
           </Popover.Target>
           <Popover.Dropdown>
-            <Stack>
-              <Text size='sm' fw={500}>
-                Position
-              </Text>
-              <Radio.Group
-                value={checkedPosition}
-                onChange={(value: string) => {
-                  const newPosition = value as PositionString;
-                  setCheckedPosition(newPosition);
-                  setTimeout(() => {
-                    onPositionChange(editingPlayer?.userId ?? '', newPosition);
-                  }, 100);
-                }}
-              >
-                <Stack>
-                  <Radio value='Defense' label='Defense' checked={checkedPosition === 'Defense'} />
-                  <Radio value='Forward' label='Forward' checked={checkedPosition === 'Forward'} />
-                  <Radio value='TBD' label='TBD' checked={checkedPosition === 'TBD'} />
-                </Stack>
-              </Radio.Group>
-              <Divider my='xs' />
+            <Paper pos='relative'>
+              <LoadingOverlay
+                visible={isSaving}
+                zIndex={1000}
+                overlayProps={{ blur: 2 }}
+                loaderProps={{ children: <LoadingSpinner mini /> }}
+              />
+              <Stack>
+                <Text size='sm' fw={500}>
+                  Position
+                </Text>
+                <Radio.Group
+                  value={checkedPosition}
+                  onChange={(value: string) => {
+                    const newPosition = value as PositionString;
+                    setCheckedPosition(newPosition);
+                    handlePositionChange(newPosition);
+                  }}
+                >
+                  <Stack>
+                    <Radio value='Defense' label='Defense' disabled={isSaving} />
+                    <Radio value='Forward' label='Forward' disabled={isSaving} />
+                    <Radio value='TBD' label='TBD' disabled={isSaving} />
+                  </Stack>
+                </Radio.Group>
+                <Divider my='xs' />
 
-              <Text size='sm' fw={500}>
-                Team
-              </Text>
-              <Radio.Group
-                value={checkedTeam.toString()}
-                onChange={(value: string) => {
-                  const newTeam = parseInt(value) as 1 | 2;
-                  setCheckedTeam(newTeam);
-                  setTimeout(() => {
-                    onTeamChange(editingPlayer?.userId ?? '', newTeam);
-                  }, 100);
-                }}
-              >
-                <Stack>
-                  <Radio value='1' label='Rockets (Light)' checked={checkedTeam === 1} />
-                  <Radio value='2' label='Beauties (Dark)' checked={checkedTeam === 2} />
-                </Stack>
-              </Radio.Group>
-            </Stack>
+                <Text size='sm' fw={500}>
+                  Team
+                </Text>
+                <Radio.Group
+                  value={checkedTeam.toString()}
+                  onChange={(value: string) => {
+                    const newTeam = parseInt(value) as 1 | 2;
+                    setCheckedTeam(newTeam);
+                    handleTeamChange(newTeam);
+                  }}
+                >
+                  <Stack>
+                    <Radio value='1' label='Rockets (Light)' disabled={isSaving} />
+                    <Radio value='2' label='Beauties (Dark)' disabled={isSaving} />
+                  </Stack>
+                </Radio.Group>
+              </Stack>
+            </Paper>
           </Popover.Dropdown>
         </Popover>
       )}
