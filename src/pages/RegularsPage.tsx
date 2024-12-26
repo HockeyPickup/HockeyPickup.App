@@ -1,5 +1,6 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
+import { RegularSetSelect } from '@/components/RegularSetSelect';
 import { RegularDetailedResponse, RegularSetDetailedResponse } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
@@ -20,7 +21,6 @@ import {
   Grid,
   Group,
   Image,
-  Modal,
   Paper,
   Select,
   Space,
@@ -31,21 +31,9 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconCopy, IconEdit, IconFilter } from '@tabler/icons-react';
+import { IconCheck, IconCopy, IconEdit } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-
-// For filtering - includes "All Days" option
-const dayOptions = [
-  { value: '', label: 'All Days' },
-  { value: '0', label: 'Sunday' },
-  { value: '1', label: 'Monday' },
-  { value: '2', label: 'Tuesday' },
-  { value: '3', label: 'Wednesday' },
-  { value: '4', label: 'Thursday' },
-  { value: '5', label: 'Friday' },
-  { value: '6', label: 'Saturday' },
-];
 
 // For editing - only actual days
 const editDayOptions = [
@@ -57,51 +45,6 @@ const editDayOptions = [
   { value: '5', label: 'Friday' },
   { value: '6', label: 'Saturday' },
 ];
-
-const getDayOfWeek = (dayNumber: number): string | undefined => {
-  return dayOptions.find((v) => v.value === dayNumber.toString())?.label;
-};
-
-const FilterModal = ({
-  opened,
-  onClose,
-  includeArchived,
-  setIncludeArchived,
-  selectedDayFilter,
-  setSelectedDayFilter,
-}: {
-  opened: boolean;
-  onClose: () => void;
-  includeArchived: boolean;
-  setIncludeArchived: (_value: boolean) => void;
-  selectedDayFilter: string | null;
-  setSelectedDayFilter: (_value: string | null) => void;
-}): JSX.Element => {
-  return (
-    <Modal opened={opened} onClose={onClose} title='Filter Regular Sets' size='sm'>
-      <Stack>
-        <Checkbox
-          label='Include Archived'
-          checked={includeArchived}
-          onChange={(event) => setIncludeArchived(event.currentTarget.checked)}
-        />
-        <Select
-          label='Day of Week'
-          placeholder='Select day'
-          data={dayOptions}
-          value={selectedDayFilter}
-          onChange={setSelectedDayFilter}
-          clearable
-        />
-        <Group justify='flex-end'>
-          <Button variant='outline' onClick={onClose}>
-            Close
-          </Button>
-        </Group>
-      </Stack>
-    </Modal>
-  );
-};
 
 const EditRegularSetForm = ({
   regularSet,
@@ -184,11 +127,8 @@ export const RegularsPage = (): JSX.Element => {
   const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-  const [includeArchived, setIncludeArchived] = useState<boolean>(false);
   const [showEmails, setShowEmails] = useState(false);
   const [editingRegularSet, setEditingRegularSet] = useState<boolean>(false);
-  const [filterOpened, setFilterOpened] = useState(false);
-  const [selectedDayFilter, setSelectedDayFilter] = useState<string | null>(null);
 
   const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
@@ -199,16 +139,6 @@ export const RegularsPage = (): JSX.Element => {
   }, [setTitle]);
 
   if (loading) return <LoadingSpinner />;
-
-  const regularSetOptions =
-    data?.RegularSets?.filter(
-      (s) =>
-        (includeArchived || !s.Archived) &&
-        (!selectedDayFilter || s.DayOfWeek.toString() === selectedDayFilter),
-    ).map((s) => ({
-      value: s.RegularSetId.toString(),
-      label: s.Description ?? '',
-    })) ?? [];
 
   const selectedPresetData = data?.RegularSets?.find(
     (set) => set.RegularSetId.toString() === selectedPreset,
@@ -386,27 +316,12 @@ export const RegularsPage = (): JSX.Element => {
           <Stack style={{ flex: 1 }} gap='xs'>
             <Group align='flex-start'>
               <Stack style={{ flex: 1 }} gap='xs'>
-                <Select
-                  label='Select Regular Set'
-                  placeholder='Choose a regular set'
-                  data={regularSetOptions}
+                <RegularSetSelect
                   value={selectedPreset}
                   onChange={setSelectedPreset}
+                  defaultIncludeArchived={false}
                 />
-                {selectedPresetData && (
-                  <Text size='sm' c='dimmed' ml='sm'>
-                    {selectedPresetData.Description} - {getDayOfWeek(selectedPresetData.DayOfWeek)}
-                  </Text>
-                )}
               </Stack>
-              <Button
-                mt='lg'
-                variant='subtle'
-                leftSection={<IconFilter size={16} />}
-                onClick={() => setFilterOpened(true)}
-              >
-                Filter
-              </Button>
             </Group>
 
             {isAdmin() && selectedPreset && (
@@ -443,14 +358,6 @@ export const RegularsPage = (): JSX.Element => {
             )
           )}
         </Stack>
-        <FilterModal
-          opened={filterOpened}
-          onClose={() => setFilterOpened(false)}
-          includeArchived={includeArchived}
-          setIncludeArchived={setIncludeArchived}
-          selectedDayFilter={selectedDayFilter}
-          setSelectedDayFilter={setSelectedDayFilter}
-        />
       </Paper>
       <Space h='sm' />
       {selectedPreset && !selectedPresetData && !editingRegularSet && (

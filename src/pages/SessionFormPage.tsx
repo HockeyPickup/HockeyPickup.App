@@ -1,24 +1,22 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { RegularSetSelect } from '@/components/RegularSetSelect';
 import {
   CreateSessionRequest,
   ErrorDetail,
-  RegularSetDetailedResponse,
   SessionDetailedResponse,
   UpdateSessionRequest,
 } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
-import { GET_REGULARSETS, GET_SESSION } from '@/lib/queries';
+import { GET_SESSION } from '@/lib/queries';
 import { sessionService } from '@/lib/session';
 import { isApiErrorResponse } from '@/services/api-helpers';
 import { useQuery } from '@apollo/client';
 import {
   Button,
-  Checkbox,
   Container,
   Group,
   NumberInput,
   Paper,
-  Select,
   Stack,
   Text,
   Textarea,
@@ -27,7 +25,7 @@ import {
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconCalendar, IconCash, IconClock, IconNotes, IconUsers } from '@tabler/icons-react';
+import { IconCalendar, IconCash, IconClock, IconNotes } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -55,7 +53,6 @@ export const SessionFormPage = (): JSX.Element => {
   const { sessionId } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
-  const [includeArchived, setIncludeArchived] = useState<boolean>(false);
 
   const isEditMode = !!sessionId;
 
@@ -64,15 +61,6 @@ export const SessionFormPage = (): JSX.Element => {
     skip: !isEditMode,
     fetchPolicy: 'network-only',
   });
-
-  const { data: regularSetsData } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
-    GET_REGULARSETS,
-  );
-  const regularSetOptions =
-    regularSetsData?.RegularSets?.filter((s) => includeArchived || !s.Archived).map((s) => ({
-      value: s.RegularSetId.toString(),
-      label: s.Description ?? '',
-    })) ?? [];
 
   const form = useForm<SessionFormValues>({
     initialValues: {
@@ -186,21 +174,11 @@ export const SessionFormPage = (): JSX.Element => {
               withSeconds={false}
               {...form.getInputProps('SessionDate')}
             />
-            <Group align='flex-end'>
-              <Select
-                label='Regular Set'
-                placeholder='Select regular set'
-                leftSection={<IconUsers size={16} />}
-                required
-                data={regularSetOptions}
-                {...form.getInputProps('RegularSetId')}
-              />
-              <Checkbox
-                label='Include Archived'
-                checked={includeArchived}
-                onChange={(event) => setIncludeArchived(event.currentTarget.checked)}
-              />
-            </Group>
+            <RegularSetSelect
+              value={form.values.RegularSetId}
+              onChange={(value) => form.setFieldValue('RegularSetId', value ?? '')}
+              defaultIncludeArchived={false}
+            />{' '}
             <NumberInput
               label='Buy Day Minimum'
               placeholder='Enter minimum days before buying'
