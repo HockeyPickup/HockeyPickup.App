@@ -229,6 +229,10 @@ export const RegularsPage = (): JSX.Element => {
       try {
         if (!selectedPreset) return;
 
+        const player = teamRegulars.find((p) => p.UserId === userId);
+        const currentPosition = getPositionString(player?.PositionPreference ?? 0);
+        const newPositionString = getPositionString(newPosition);
+
         const result = await regularService.updateRegularPosition({
           RegularSetId: parseInt(selectedPreset),
           UserId: userId,
@@ -241,8 +245,8 @@ export const RegularsPage = (): JSX.Element => {
             position: 'top-center',
             autoClose: 5000,
             style: { marginTop: '60px' },
-            title: 'Success',
-            message: 'Position updated successfully',
+            title: 'Position Updated',
+            message: `${player?.User?.FirstName} ${player?.User?.LastName} changed position from ${currentPosition} to ${newPositionString}`,
             color: 'green',
           });
         }
@@ -253,7 +257,7 @@ export const RegularsPage = (): JSX.Element => {
           autoClose: 5000,
           style: { marginTop: '60px' },
           title: 'Error',
-          message: 'Failed to update position',
+          message: 'Failed to update player position. Please try again.',
           color: 'red',
         });
       }
@@ -265,6 +269,11 @@ export const RegularsPage = (): JSX.Element => {
     ): Promise<void> => {
       try {
         if (!selectedPreset) return;
+
+        const player = teamRegulars.find((p) => p.UserId === userId);
+        const currentTeamName =
+          player?.TeamAssignment === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
+        const newTeamName = newTeam === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
 
         const result = await regularService.updateRegularTeam({
           RegularSetId: parseInt(selectedPreset),
@@ -278,8 +287,8 @@ export const RegularsPage = (): JSX.Element => {
             position: 'top-center',
             autoClose: 5000,
             style: { marginTop: '60px' },
-            title: 'Success',
-            message: 'Team updated successfully',
+            title: 'Team Updated',
+            message: `${player?.User?.FirstName} ${player?.User?.LastName} moved from ${currentTeamName} to ${newTeamName}`,
             color: 'green',
           });
         }
@@ -290,7 +299,7 @@ export const RegularsPage = (): JSX.Element => {
           autoClose: 5000,
           style: { marginTop: '60px' },
           title: 'Error',
-          message: 'Failed to update team',
+          message: 'Failed to update player team. Please try again.',
           color: 'red',
         });
       }
