@@ -3,9 +3,17 @@ import { forwardRef, JSX } from 'react';
 
 interface LoaderProps {
   visible?: boolean;
+  mini?: boolean; // New prop for mini version
 }
 
-export const LoadingSpinner: React.FC<LoaderProps> = ({ visible = true }): React.JSX.Element => {
+export const LoadingSpinner: React.FC<LoaderProps> = ({
+  visible = true,
+  mini = false,
+}): React.JSX.Element => {
+  if (mini) {
+    return <LogoSpinner mini />;
+  }
+
   return (
     <div
       style={{
@@ -31,8 +39,17 @@ export const LoadingSpinnerLoader: MantineLoaderComponent = forwardRef(() => {
   return <LogoSpinner />;
 });
 
-export const LogoSpinner = (): JSX.Element => (
-  <svg width='231' height='231' viewBox='0 0 38 38' xmlns='http://www.w3.org/2000/svg'>
+interface LogoSpinnerProps {
+  mini?: boolean; // New prop for mini version
+}
+
+export const LogoSpinner = ({ mini = false }: LogoSpinnerProps): JSX.Element => (
+  <svg
+    width={mini ? '48' : '231'}
+    height={mini ? '48' : '231'}
+    viewBox='0 0 38 38'
+    xmlns='http://www.w3.org/2000/svg'
+  >
     <g fill='none' fillRule='evenodd'>
       <g transform='translate(1 1)' strokeWidth='2'>
         <image xlinkHref='/static/JB_Puck_Logo.png' x='0' y='0' width='36' height='36'>

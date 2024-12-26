@@ -379,7 +379,7 @@ export const RegularsPage = (): JSX.Element => {
                     visible={isSaving}
                     zIndex={1000}
                     overlayProps={{ blur: 2 }}
-                    loaderProps={{ children: <LoadingSpinner size='xs' /> }}
+                    loaderProps={{ children: <LoadingSpinner mini /> }}
                   />
                   <Stack>
                     <Text size='sm' fw={500}>
