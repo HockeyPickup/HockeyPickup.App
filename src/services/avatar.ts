@@ -71,8 +71,12 @@ export class AvatarService {
     if (!url) return false;
     try {
       const response = await fetch(url, { method: 'HEAD' });
+      if (response.status === 404) {
+        return false;
+      }
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.error('Error checking image existence:', error);
       return false;
     }
   }
