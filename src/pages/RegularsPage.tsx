@@ -22,6 +22,7 @@ import {
   Grid,
   Group,
   Image,
+  LoadingOverlay,
   Paper,
   Popover,
   Radio,
@@ -307,12 +308,33 @@ export const RegularsPage = (): JSX.Element => {
       const { isAdmin, canViewRatings } = useAuth();
       const { showRatings } = useRatingsVisibility();
       const [editingPlayer, setEditingPlayer] = useState(false);
+      const [isSaving, setIsSaving] = useState(false);
       const [checkedPosition, setCheckedPosition] = useState<PositionString>(
-        getPositionString(regular.PositionPreference) as PositionString,
+        () => getPositionString(regular.PositionPreference) as PositionString,
       );
       const [checkedTeam, setCheckedTeam] = useState<Team.Light | Team.Dark>(
         regular.TeamAssignment,
       );
+
+      const handlePositionChange = async (newPosition: PositionString): Promise<void> => {
+        setIsSaving(true);
+        try {
+          await onPositionChange(regular.UserId, positionMap[newPosition]);
+        } finally {
+          setIsSaving(false);
+          setEditingPlayer(false);
+        }
+      };
+
+      const handleTeamChange = async (newTeam: Team.Light | Team.Dark): Promise<void> => {
+        setIsSaving(true);
+        try {
+          await onTeamChange(regular.UserId, newTeam);
+        } finally {
+          setIsSaving(false);
+          setEditingPlayer(false);
+        }
+      };
 
       return (
         <Group gap='sm'>
@@ -324,7 +346,7 @@ export const RegularsPage = (): JSX.Element => {
               radius='xl'
             />
           </Link>
-            <Text size='xs' key={regular.UserId}>
+          <Text size='xs' key={regular.UserId}>
             {regular.User?.FirstName} {regular.User?.LastName},{' '}
             {getPositionString(regular.PositionPreference)}
             {canViewRatings() &&
@@ -339,66 +361,77 @@ export const RegularsPage = (): JSX.Element => {
               withArrow
               shadow='md'
               opened={editingPlayer}
-              onClose={() => setEditingPlayer(false)}
+              onClose={() => !isSaving && setEditingPlayer(false)}
             >
               <Popover.Target>
                 <ActionIcon
                   size='xs'
                   variant='subtle'
                   onClick={() => setEditingPlayer((prev) => !prev)}
+                  disabled={isSaving}
                 >
                   <IconPencil size={16} />
                 </ActionIcon>
               </Popover.Target>
               <Popover.Dropdown>
-                <Stack>
-                  <Text size='sm' fw={500}>
-                    Position
-                  </Text>
-                  <Radio.Group
-                    value={checkedPosition}
-                    onChange={(value: string) => {
-                      const newPosition = value as PositionString;
-                      setCheckedPosition(newPosition);
-                      setTimeout(() => {
-                        onPositionChange(regular.UserId, positionMap[newPosition]);
-                      }, 100);
-                    }}
-                  >
-                    <Stack>
-                      <Radio value='Defense' label='Defense' />
-                      <Radio value='Forward' label='Forward' />
-                      <Radio value='TBD' label='TBD' />
-                    </Stack>
-                  </Radio.Group>
-                  <Divider my='xs' />
-
-                  <Text size='sm' fw={500}>
-                    Team
-                  </Text>
-                  <Radio.Group
-                    value={checkedTeam.toString()}
-                    onChange={(value: string) => {
-                      const newTeam = parseInt(value) as Team.Light | Team.Dark;
-                      setCheckedTeam(newTeam);
-                      setTimeout(() => {
-                        onTeamChange(regular.UserId, newTeam);
-                      }, 100);
-                    }}
-                  >
-                    <Stack>
-                      <Radio value={Team.Light.toString()} label='Rockets (Light)' />
-                      <Radio value={Team.Dark.toString()} label='Beauties (Dark)' />
-                    </Stack>
-                  </Radio.Group>
-                </Stack>
+                <Paper pos='relative'>
+                  <LoadingOverlay
+                    visible={isSaving}
+                    zIndex={1000}
+                    overlayProps={{ blur: 2 }}
+                    loaderProps={{ children: <LoadingSpinner size='xs' /> }}
+                  />
+                  <Stack>
+                    <Text size='sm' fw={500}>
+                      Position
+                    </Text>
+                    <Radio.Group
+                      value={checkedPosition}
+                      onChange={(value: string) => {
+                        const newPosition = value as PositionString;
+                        setCheckedPosition(newPosition);
+                        handlePositionChange(newPosition);
+                      }}
+                    >
+                      <Stack>
+                        <Radio value='Defense' label='Defense' disabled={isSaving} />
+                        <Radio value='Forward' label='Forward' disabled={isSaving} />
+                        <Radio value='TBD' label='TBD' disabled={isSaving} />
+                      </Stack>
+                    </Radio.Group>
+                    <Divider my='xs' />
+                    <Text size='sm' fw={500}>
+                      Team
+                    </Text>
+                    <Radio.Group
+                      value={checkedTeam.toString()}
+                      onChange={(value: string) => {
+                        const newTeam = parseInt(value) as Team.Light | Team.Dark;
+                        setCheckedTeam(newTeam);
+                        handleTeamChange(newTeam);
+                      }}
+                    >
+                      <Stack>
+                        <Radio
+                          value={Team.Light.toString()}
+                          label='Rockets (Light)'
+                          disabled={isSaving}
+                        />
+                        <Radio
+                          value={Team.Dark.toString()}
+                          label='Beauties (Dark)'
+                          disabled={isSaving}
+                        />
+                      </Stack>
+                    </Radio.Group>{' '}
+                  </Stack>
+                </Paper>
               </Popover.Dropdown>
             </Popover>
           )}
         </Group>
       );
     };
-
     return (
       <Stack>
         <Stack align='center' gap='xs'>
