@@ -100,7 +100,7 @@ const PlayerCell = ({
   if (!player) return null;
 
   return (
-    <Group wrap='nowrap' gap={4} style={{ marginLeft: -4 }}>
+    <Group gap={0}>
       <Link to={`/profile/${player.UserId}`}>
         <Avatar
           src={avatarUrl}

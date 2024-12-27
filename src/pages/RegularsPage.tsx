@@ -346,7 +346,7 @@ export const RegularsPage = (): JSX.Element => {
       };
 
       return (
-        <Group gap='sm'>
+        <Group gap={0}>
           <Link to={`/profile/${regular.UserId}`}>
             <Avatar
               src={avatars[regular.UserId]}
@@ -462,8 +462,11 @@ export const RegularsPage = (): JSX.Element => {
             onTeamChange={handleTeamChange}
           />
         ))}
+        <Text size='lg' fw={700}>
+          {teamRegulars.length} Players
+        </Text>
         {canViewRatings() && showRatings && (
-          <Text size='lg' fw={700} mt='xs'>
+          <Text size='sm' fw={500}>
             Total: {ratings.total}, Average: {ratings.average}
           </Text>
         )}
