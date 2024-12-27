@@ -8,10 +8,12 @@ import { useAuth } from '@/lib/auth';
 import { positionMap, PositionString } from '@/lib/position';
 import { sessionService } from '@/lib/session';
 import { AvatarService } from '@/services/avatar';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import {
   ActionIcon,
   Avatar,
   Divider,
+  Grid,
   Group,
   Image,
   LoadingOverlay,
@@ -19,7 +21,6 @@ import {
   Popover,
   Radio,
   Stack,
-  Table,
   Text,
   Title,
 } from '@mantine/core';
@@ -215,6 +216,26 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
   } | null>(null);
   const { canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragEnd = async (result: DropResult): Promise<void> => {
+    if (!result.destination) return;
+
+    const sourceTeam = parseInt(result.source.droppableId);
+    const destinationTeam = parseInt(result.destination.droppableId);
+
+    if (sourceTeam === destinationTeam) return;
+
+    const playerId = result.draggableId;
+    setIsDragging(true);
+    try {
+      await handleTeamChange(playerId, destinationTeam as 1 | 2);
+    } catch (error) {
+      console.error('Failed to move player:', error);
+    } finally {
+      setIsDragging(false);
+    }
+  };
 
   const handlePositionChange = async (
     userId: string,
@@ -317,10 +338,16 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
       <Title order={3} mb='md'>
         Roster - {session.RegularSet?.Description}
       </Title>
-      <Table striped highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Stack pos='relative'>
+          <LoadingOverlay
+            visible={isDragging}
+            zIndex={1000}
+            overlayProps={{ blur: 2 }}
+            loaderProps={{ children: <LoadingSpinner medium /> }}
+          />
+          <Grid>
+            <Grid.Col span={6}>
               <Stack align='center' gap='xs'>
                 <Image
                   src='/static/Rockets_Logo.jpg'
@@ -332,8 +359,71 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 />
                 <Title order={4}>Rockets (Light)</Title>
               </Stack>
-            </Table.Th>
-            <Table.Th>
+              <Droppable droppableId='1'>
+                {(provided) => (
+                  <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
+                    {session.CurrentRosters?.filter((p) => p.TeamAssignment === 1).map(
+                      (player, index) => (
+                        <Draggable
+                          key={player.UserId}
+                          draggableId={player.UserId ?? ''}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <PlayerCell
+                                player={player}
+                                editingPlayer={editingPlayer}
+                                onEditClick={(userId, currentPosition, currentTeam) =>
+                                  setEditingPlayer({ userId, currentPosition, currentTeam })
+                                }
+                                onPositionChange={handlePositionChange}
+                                onTeamChange={handleTeamChange}
+                                onClose={() => setEditingPlayer(null)}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ),
+                    )}
+                    {provided.placeholder}
+                  </Stack>
+                )}
+              </Droppable>
+              <Text size='sm' fw={700} mt='md'>
+                {
+                  session.CurrentRosters?.filter((p) => p.TeamAssignment === 1 && p.IsPlaying)
+                    .length
+                }{' '}
+                Players
+              </Text>
+              {canViewRatings() && showRatings && (
+                <Text size='sm' fw={500}>
+                  {((): string => {
+                    const team = session.CurrentRosters?.filter(
+                      (p) => p.TeamAssignment === 1 && p.Rating && p.IsPlaying,
+                    );
+                    const total = team?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
+                    const avg = team?.length ? total / team.length : 0;
+                    return `Total: ${total.toFixed(1)}, Average: ${avg.toFixed(2)}`;
+                  })()}
+                </Text>
+              )}
+            </Grid.Col>
+            <div
+              style={{
+                width: '2px',
+                backgroundColor: 'var(--mantine-color-dark-4)',
+                margin: '0 -1px', // negative margin to not affect overall layout
+                alignSelf: 'stretch',
+                opacity: 0.5, // make it subtle
+              }}
+            />
+            <Grid.Col span={6}>
               <Stack align='center' gap='xs'>
                 <Image
                   src='/static/Beauties_Logo.jpg'
@@ -345,104 +435,64 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 />
                 <Title order={4}>Beauties (Dark)</Title>
               </Stack>
-            </Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {Array.from({
-            length: Math.max(
-              session.CurrentRosters?.filter((p) => p.TeamAssignment === 1).length ?? 0,
-              session.CurrentRosters?.filter((p) => p.TeamAssignment === 2).length ?? 0,
-            ),
-          }).map((_, index) => {
-            const lightPlayer = session.CurrentRosters?.filter((p) => p.TeamAssignment === 1)[
-              index
-            ];
-            const darkPlayer = session.CurrentRosters?.filter((p) => p.TeamAssignment === 2)[index];
-
-            return (
-              <Table.Tr key={index}>
-                <Table.Td>
-                  <PlayerCell
-                    player={lightPlayer}
-                    editingPlayer={editingPlayer}
-                    onEditClick={(userId, currentPosition, currentTeam) =>
-                      setEditingPlayer({ userId, currentPosition, currentTeam })
-                    }
-                    onPositionChange={handlePositionChange}
-                    onTeamChange={handleTeamChange}
-                    onClose={() => setEditingPlayer(null)}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <PlayerCell
-                    player={darkPlayer}
-                    editingPlayer={editingPlayer}
-                    onEditClick={(userId, currentPosition, currentTeam) =>
-                      setEditingPlayer({ userId, currentPosition, currentTeam })
-                    }
-                    onPositionChange={handlePositionChange}
-                    onTeamChange={handleTeamChange}
-                    onClose={() => setEditingPlayer(null)}
-                  />
-                </Table.Td>
-              </Table.Tr>
-            );
-          })}
-          <Table.Tr>
-            <Table.Td>
-              <Text size='sm' fw={700}>
-                {
-                  session.CurrentRosters?.filter((p) => p.TeamAssignment === 1 && p.IsPlaying)
-                    .length
-                }{' '}
-                Players
-              </Text>
-            </Table.Td>
-            <Table.Td>
-              <Text size='sm' fw={700}>
+              <Droppable droppableId='2'>
+                {(provided) => (
+                  <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
+                    {session.CurrentRosters?.filter((p) => p.TeamAssignment === 2).map(
+                      (player, index) => (
+                        <Draggable
+                          key={player.UserId}
+                          draggableId={player.UserId ?? ''}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <PlayerCell
+                                player={player}
+                                editingPlayer={editingPlayer}
+                                onEditClick={(userId, currentPosition, currentTeam) =>
+                                  setEditingPlayer({ userId, currentPosition, currentTeam })
+                                }
+                                onPositionChange={handlePositionChange}
+                                onTeamChange={handleTeamChange}
+                                onClose={() => setEditingPlayer(null)}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ),
+                    )}
+                    {provided.placeholder}
+                  </Stack>
+                )}
+              </Droppable>
+              <Text size='sm' fw={700} mt='md'>
                 {
                   session.CurrentRosters?.filter((p) => p.TeamAssignment === 2 && p.IsPlaying)
                     .length
                 }{' '}
                 Players
               </Text>
-            </Table.Td>
-          </Table.Tr>
-          {canViewRatings() && showRatings && (
-            <Table.Tr>
-              <Table.Td>
-                {((): JSX.Element => {
-                  const lightTeam = session.CurrentRosters?.filter(
-                    (p) => p.TeamAssignment === 1 && p.Rating && p.IsPlaying,
-                  );
-                  const total = lightTeam?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
-                  const avg = lightTeam?.length ? total / lightTeam.length : 0;
-                  return (
-                    <Text size='sm' fw={500}>
-                      Total: {total.toFixed(1)}, Average: {avg.toFixed(2)}
-                    </Text>
-                  );
-                })()}
-              </Table.Td>
-              <Table.Td>
-                {((): JSX.Element => {
-                  const darkTeam = session.CurrentRosters?.filter(
-                    (p) => p.TeamAssignment === 2 && p.Rating && p.IsPlaying,
-                  );
-                  const total = darkTeam?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
-                  const avg = darkTeam?.length ? total / darkTeam.length : 0;
-                  return (
-                    <Text size='sm' fw={500}>
-                      Total: {total.toFixed(1)}, Average: {avg.toFixed(2)}
-                    </Text>
-                  );
-                })()}
-              </Table.Td>
-            </Table.Tr>
-          )}
-        </Table.Tbody>
-      </Table>
+              {canViewRatings() && showRatings && (
+                <Text size='sm' fw={500}>
+                  {((): string => {
+                    const team = session.CurrentRosters?.filter(
+                      (p) => p.TeamAssignment === 2 && p.Rating && p.IsPlaying,
+                    );
+                    const total = team?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
+                    const avg = team?.length ? total / team.length : 0;
+                    return `Total: ${total.toFixed(1)}, Average: ${avg.toFixed(2)}`;
+                  })()}
+                </Text>
+              )}
+            </Grid.Col>
+          </Grid>
+        </Stack>
+      </DragDropContext>
     </Paper>
   );
 };

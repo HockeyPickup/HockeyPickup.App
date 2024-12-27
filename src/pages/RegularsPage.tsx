@@ -614,6 +614,15 @@ export const RegularsPage = (): JSX.Element => {
                     <Grid.Col span={6}>
                       <TeamSection teamId={Team.Light} />
                     </Grid.Col>
+                    <div
+                      style={{
+                        width: '2px',
+                        backgroundColor: 'var(--mantine-color-dark-4)',
+                        margin: '0 -1px', // negative margin to not affect overall layout
+                        alignSelf: 'stretch',
+                        opacity: 0.5, // make it subtle
+                      }}
+                    />{' '}
                     <Grid.Col span={6}>
                       <TeamSection teamId={Team.Dark} />
                     </Grid.Col>
