@@ -373,7 +373,7 @@ export const RegularsPage = (): JSX.Element => {
       };
 
       return (
-        <Group gap={0}>
+        <Group gap={2} mb={10}>
           <Link to={`/profile/${regular.UserId}`}>
             <Avatar
               src={avatars[regular.UserId]}
