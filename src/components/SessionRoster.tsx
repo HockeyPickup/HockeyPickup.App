@@ -56,7 +56,7 @@ const PlayerCell = ({
   const { showRatings } = useRatingsVisibility();
   const [isSaving, setIsSaving] = useState(false);
   const [checkedPosition, setCheckedPosition] = useState<PositionString>(
-    (editingPlayer?.currentPosition as PositionString) ?? 'TBD',
+    (player?.CurrentPosition as PositionString) ?? 'TBD',
   );
   const [checkedTeam, setCheckedTeam] = useState<1 | 2>((player?.TeamAssignment as 1 | 2) ?? 1);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
