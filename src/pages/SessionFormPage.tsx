@@ -26,7 +26,7 @@ import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconCalendar, IconCash, IconClock, IconNotes } from '@tabler/icons-react';
-import moment from 'moment-timezone';
+import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -116,9 +116,7 @@ export const SessionFormPage = (): JSX.Element => {
       const payload: UpdateSessionRequest | CreateSessionRequest = {
         ...values,
         RegularSetId: parseInt(values.RegularSetId),
-        SessionDate: moment(values.SessionDate)
-          .tz('America/Los_Angeles')
-          .format('YYYY-MM-DDTHH:mm:ssZ'),
+        SessionDate: moment(values.SessionDate).format(),
       };
       console.debug(payload);
 
