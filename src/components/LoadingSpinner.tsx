@@ -3,15 +3,17 @@ import { forwardRef, JSX } from 'react';
 
 interface LoaderProps {
   visible?: boolean;
-  mini?: boolean; // New prop for mini version
+  mini?: boolean;
+  medium?: boolean;
 }
 
 export const LoadingSpinner: React.FC<LoaderProps> = ({
   visible = true,
   mini = false,
+  medium = false,
 }): React.JSX.Element => {
-  if (mini) {
-    return <LogoSpinner mini />;
+  if (mini || medium) {
+    return <LogoSpinner mini={mini} medium={medium} />;
   }
 
   return (
@@ -40,29 +42,29 @@ export const LoadingSpinnerLoader: MantineLoaderComponent = forwardRef(() => {
 });
 
 interface LogoSpinnerProps {
-  mini?: boolean; // New prop for mini version
+  mini?: boolean;
+  medium?: boolean;
 }
 
-export const LogoSpinner = ({ mini = false }: LogoSpinnerProps): JSX.Element => (
-  <svg
-    width={mini ? '48' : '231'}
-    height={mini ? '48' : '231'}
-    viewBox='0 0 38 38'
-    xmlns='http://www.w3.org/2000/svg'
-  >
-    <g fill='none' fillRule='evenodd'>
-      <g transform='translate(1 1)' strokeWidth='2'>
-        <image xlinkHref='/static/JB_Puck_Logo.png' x='0' y='0' width='36' height='36'>
-          <animateTransform
-            attributeName='transform'
-            type='rotate'
-            from='0 18 18'
-            to='360 18 18'
-            dur='2s'
-            repeatCount='indefinite'
-          />
-        </image>
+export const LogoSpinner = ({ mini = false, medium = false }: LogoSpinnerProps): JSX.Element => {
+  const size: string = mini ? '48' : medium ? '128' : '231';
+
+  return (
+    <svg width={size} height={size} viewBox='0 0 38 38' xmlns='http://www.w3.org/2000/svg'>
+      <g fill='none' fillRule='evenodd'>
+        <g transform='translate(1 1)' strokeWidth='2'>
+          <image xlinkHref='/static/JB_Puck_Logo.png' x='0' y='0' width='36' height='36'>
+            <animateTransform
+              attributeName='transform'
+              type='rotate'
+              from='0 18 18'
+              to='360 18 18'
+              dur='2s'
+              repeatCount='indefinite'
+            />
+          </image>
+        </g>
       </g>
-    </g>
-  </svg>
-);
+    </svg>
+  );
+};

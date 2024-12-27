@@ -10,6 +10,7 @@ import { regularService } from '@/lib/regular';
 import { Team, TEAM_LABELS } from '@/lib/team';
 import { AvatarService } from '@/services/avatar';
 import { useQuery } from '@apollo/client';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import {
   ActionIcon,
   Avatar,
@@ -133,6 +134,7 @@ export const RegularsPage = (): JSX.Element => {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [showEmails, setShowEmails] = useState(false);
   const [editingRegularSet, setEditingRegularSet] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
@@ -180,6 +182,111 @@ export const RegularsPage = (): JSX.Element => {
     return [...lightEmails, ...darkEmails].sort((a, b) => a.localeCompare(b)).join('\n');
   };
 
+  const handlePositionChange = async (userId: string, newPosition: number): Promise<void> => {
+    try {
+      if (!selectedPreset) return;
+
+      const player = data?.RegularSets?.find(
+        (set) => set.RegularSetId.toString() === selectedPreset,
+      )?.Regulars?.find((p) => p.UserId === userId);
+
+      const currentPosition = getPositionString(player?.PositionPreference ?? 0);
+      const newPositionString = getPositionString(newPosition);
+
+      const result = await regularService.updateRegularPosition({
+        RegularSetId: parseInt(selectedPreset),
+        UserId: userId,
+        NewPosition: newPosition,
+      });
+
+      if (result.Data) {
+        await refetch();
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Position Updated',
+          message: `${player?.User?.FirstName} ${player?.User?.LastName} changed position from ${currentPosition} to ${newPositionString}`,
+          color: 'green',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update position:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to update player position. Please try again.',
+        color: 'red',
+      });
+    }
+  };
+
+  const handleTeamChange = async (
+    userId: string,
+    newTeam: Team.Light | Team.Dark,
+  ): Promise<void> => {
+    setIsDragging(true);
+    try {
+      if (!selectedPreset) return;
+
+      const player = data?.RegularSets?.find(
+        (set) => set.RegularSetId.toString() === selectedPreset,
+      )?.Regulars?.find((p) => p.UserId === userId);
+
+      const currentTeamName =
+        player?.TeamAssignment === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
+      const newTeamName = newTeam === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
+
+      const result = await regularService.updateRegularTeam({
+        RegularSetId: parseInt(selectedPreset),
+        UserId: userId,
+        NewTeamAssignment: newTeam,
+      });
+
+      if (result.Data) {
+        await refetch();
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Team Updated',
+          message: `${player?.User?.FirstName} ${player?.User?.LastName} moved from ${currentTeamName} to ${newTeamName}`,
+          color: 'green',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update team:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to update player team. Please try again.',
+        color: 'red',
+      });
+    } finally {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragEnd = async (result: DropResult): Promise<void> => {
+    if (!result.destination || !selectedPreset) return;
+
+    const sourceTeam = parseInt(result.source.droppableId.split('-')[1]);
+    const destinationTeam = parseInt(result.destination.droppableId.split('-')[1]);
+
+    if (sourceTeam === destinationTeam) return;
+
+    const playerId = result.draggableId;
+    try {
+      await handleTeamChange(playerId, destinationTeam as Team.Light | Team.Dark);
+    } catch (error) {
+      console.error('Failed to move player:', error);
+    }
+  };
+
   const TeamSection = ({ teamId }: { teamId: Team.Light | Team.Dark }): JSX.Element => {
     const teamRegulars = getTeamRegulars(teamId);
     const [avatars, setAvatars] = useState<Record<string, string>>({});
@@ -224,86 +331,6 @@ export const RegularsPage = (): JSX.Element => {
     };
 
     const ratings = calculateTeamRatings();
-
-    const handlePositionChange = async (userId: string, newPosition: number): Promise<void> => {
-      try {
-        if (!selectedPreset) return;
-
-        const player = teamRegulars.find((p) => p.UserId === userId);
-        const currentPosition = getPositionString(player?.PositionPreference ?? 0);
-        const newPositionString = getPositionString(newPosition);
-
-        const result = await regularService.updateRegularPosition({
-          RegularSetId: parseInt(selectedPreset),
-          UserId: userId,
-          NewPosition: newPosition,
-        });
-
-        if (result.Data) {
-          await refetch();
-          notifications.show({
-            position: 'top-center',
-            autoClose: 5000,
-            style: { marginTop: '60px' },
-            title: 'Position Updated',
-            message: `${player?.User?.FirstName} ${player?.User?.LastName} changed position from ${currentPosition} to ${newPositionString}`,
-            color: 'green',
-          });
-        }
-      } catch (error) {
-        console.error('Failed to update position:', error);
-        notifications.show({
-          position: 'top-center',
-          autoClose: 5000,
-          style: { marginTop: '60px' },
-          title: 'Error',
-          message: 'Failed to update player position. Please try again.',
-          color: 'red',
-        });
-      }
-    };
-
-    const handleTeamChange = async (
-      userId: string,
-      newTeam: Team.Light | Team.Dark,
-    ): Promise<void> => {
-      try {
-        if (!selectedPreset) return;
-
-        const player = teamRegulars.find((p) => p.UserId === userId);
-        const currentTeamName =
-          player?.TeamAssignment === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
-        const newTeamName = newTeam === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
-
-        const result = await regularService.updateRegularTeam({
-          RegularSetId: parseInt(selectedPreset),
-          UserId: userId,
-          NewTeamAssignment: newTeam,
-        });
-
-        if (result.Data) {
-          await refetch();
-          notifications.show({
-            position: 'top-center',
-            autoClose: 5000,
-            style: { marginTop: '60px' },
-            title: 'Team Updated',
-            message: `${player?.User?.FirstName} ${player?.User?.LastName} moved from ${currentTeamName} to ${newTeamName}`,
-            color: 'green',
-          });
-        }
-      } catch (error) {
-        console.error('Failed to update team:', error);
-        notifications.show({
-          position: 'top-center',
-          autoClose: 5000,
-          style: { marginTop: '60px' },
-          title: 'Error',
-          message: 'Failed to update player team. Please try again.',
-          color: 'red',
-        });
-      }
-    };
 
     const PlayerRow = ({
       regular,
@@ -454,14 +481,34 @@ export const RegularsPage = (): JSX.Element => {
           />
           <Title order={4}>{TEAM_LABELS[teamId]}</Title>
         </Stack>
-        {teamRegulars.map((regular) => (
-          <PlayerRow
-            key={regular.UserId}
-            regular={regular}
-            onPositionChange={handlePositionChange}
-            onTeamChange={handleTeamChange}
-          />
-        ))}
+        <Droppable droppableId={`team-${teamId}`}>
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {teamRegulars.map((regular, index) => (
+                <Draggable key={regular.UserId} draggableId={regular.UserId} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        opacity: snapshot.isDragging ? 0.5 : 1,
+                      }}
+                    >
+                      <PlayerRow
+                        regular={regular}
+                        onPositionChange={handlePositionChange}
+                        onTeamChange={handleTeamChange}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
         <Text size='lg' fw={700}>
           {teamRegulars.length} Players
         </Text>
@@ -555,16 +602,24 @@ export const RegularsPage = (): JSX.Element => {
             />
           ) : (
             selectedPreset && (
-              <Stack mt='xl'>
-                <Grid>
-                  <Grid.Col span={6}>
-                    <TeamSection teamId={1} />
-                  </Grid.Col>
-                  <Grid.Col span={6}>
-                    <TeamSection teamId={2} />
-                  </Grid.Col>
-                </Grid>
-              </Stack>
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Stack mt='xl' pos='relative'>
+                  <LoadingOverlay
+                    visible={isDragging}
+                    zIndex={1000}
+                    overlayProps={{ blur: 2 }}
+                    loaderProps={{ children: <LoadingSpinner medium /> }}
+                  />
+                  <Grid>
+                    <Grid.Col span={6}>
+                      <TeamSection teamId={Team.Light} />
+                    </Grid.Col>
+                    <Grid.Col span={6}>
+                      <TeamSection teamId={Team.Dark} />
+                    </Grid.Col>
+                  </Grid>
+                </Stack>
+              </DragDropContext>
             )
           )}
         </Stack>
