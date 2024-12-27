@@ -33,9 +33,11 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
 
   // Add filtering and sorting logic
   const filteredSessions = data?.Sessions.filter((session: Session) => {
-    // SessionDate is already PST, so just create moment without timezone conversion
-    const sessionDate = moment(session.SessionDate);
-    // Create current time in PST
+    if (!session.SessionDate) return false;
+
+    // Remove the UTC indicator before parsing
+    const localString = session.SessionDate.replace('Z', '');
+    const sessionDate = moment(localString);
     const now = moment.tz('America/Los_Angeles');
 
     switch (display) {
@@ -49,7 +51,12 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
   }).sort((a: Session, b: Session) => {
     const multiplier = display === SessionDisplay.Future ? 1 : -1;
 
-    return multiplier * (moment(a.SessionDate).valueOf() - moment(b.SessionDate).valueOf());
+    // Handle potential undefined dates
+    if (!a.SessionDate || !b.SessionDate) return 0;
+
+    const dateA = moment(a.SessionDate.replace('Z', ''));
+    const dateB = moment(b.SessionDate.replace('Z', ''));
+    return multiplier * (dateA.valueOf() - dateB.valueOf());
   });
 
   return (
