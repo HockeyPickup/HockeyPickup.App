@@ -355,7 +355,7 @@ export const RegularsPage = (): JSX.Element => {
               radius='xl'
             />
           </Link>
-          <Text size='xs' key={regular.UserId}>
+          <Text size='xs' ml={4} mr={2} key={regular.UserId}>
             {regular.User?.FirstName} {regular.User?.LastName},{' '}
             {getPositionString(regular.PositionPreference)}
             {canViewRatings() &&

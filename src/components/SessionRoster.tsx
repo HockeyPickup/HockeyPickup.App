@@ -111,6 +111,9 @@ const PlayerCell = ({
       </Link>
       <Text
         size='xs'
+        ml={4}
+        mr={2}
+        key={player.UserId}
         style={{
           textDecoration: !player.IsPlaying ? 'line-through' : 'none',
           whiteSpace: 'nowrap',
