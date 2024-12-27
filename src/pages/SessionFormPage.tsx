@@ -26,7 +26,6 @@ import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconCalendar, IconCash, IconClock, IconNotes } from '@tabler/icons-react';
-import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -36,15 +35,44 @@ interface SessionFormValues extends Omit<CreateSessionRequest, 'SessionDate' | '
 }
 
 const getDefaultDateTime = (): Date => {
-  const date = new Date();
+  // Create a date string in PST
+  const pstDate = new Date().toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+  });
+  const date = new Date(pstDate);
   date.setHours(7, 30, 0, 0);
   return date;
 };
 
-const createDatePreservingTime = (isoString: string): Date => {
-  const [datePart, timePart] = isoString.split('T');
-  const [hours, minutes] = timePart.split(':');
-  return new Date(`${datePart}T${hours}:${minutes}:00`);
+const formatDateForApi = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+};
+
+const parseDateFromApi = (isoString: string): Date => {
+  // Remove any timezone indicator to prevent conversion
+  const localString = isoString.replace('Z', '');
+
+  const [datePart, timePart] = localString.split('T');
+  const [year, month, day] = datePart.split('-');
+  const [hours, minutes, seconds] = timePart.split(':');
+
+  const date = new Date();
+  date.setFullYear(parseInt(year));
+  date.setMonth(parseInt(month) - 1);
+  date.setDate(parseInt(day));
+  date.setHours(parseInt(hours));
+  date.setMinutes(parseInt(minutes));
+  date.setSeconds(parseFloat(seconds));
+
+  return date;
 };
 
 export const SessionFormPage = (): JSX.Element => {
@@ -86,7 +114,7 @@ export const SessionFormPage = (): JSX.Element => {
       const session: SessionDetailedResponse = sessionData.Session;
 
       const formValues = {
-        SessionDate: createDatePreservingTime(session.SessionDate),
+        SessionDate: parseDateFromApi(session.SessionDate),
         Note: session.Note ?? '',
         RegularSetId: session.RegularSetId?.toString() ?? '0', // Convert to string
         BuyDayMinimum: session.BuyDayMinimum ?? 6,
@@ -116,7 +144,7 @@ export const SessionFormPage = (): JSX.Element => {
       const payload: UpdateSessionRequest | CreateSessionRequest = {
         ...values,
         RegularSetId: parseInt(values.RegularSetId),
-        SessionDate: moment(values.SessionDate).format(),
+        SessionDate: formatDateForApi(values.SessionDate),
       };
       console.debug(payload);
 
