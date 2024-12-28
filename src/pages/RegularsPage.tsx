@@ -496,6 +496,7 @@ export const RegularsPage = (): JSX.Element => {
                         opacity: snapshot.isDragging ? 0.5 : 1,
                       }}
                     >
+                      <Divider my={1} opacity={0.2} color='gray' />
                       <PlayerRow
                         regular={regular}
                         onPositionChange={handlePositionChange}

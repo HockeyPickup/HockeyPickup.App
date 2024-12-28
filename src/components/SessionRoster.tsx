@@ -369,23 +369,26 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                           draggableId={player.UserId ?? ''}
                           index={index}
                         >
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <PlayerCell
-                                player={player}
-                                editingPlayer={editingPlayer}
-                                onEditClick={(userId, currentPosition, currentTeam) =>
-                                  setEditingPlayer({ userId, currentPosition, currentTeam })
-                                }
-                                onPositionChange={handlePositionChange}
-                                onTeamChange={handleTeamChange}
-                                onClose={() => setEditingPlayer(null)}
-                              />
-                            </div>
+                          {(provided, _snapshot) => (
+                            <>
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <Divider my={1} opacity={0.2} color='gray' />
+                                <PlayerCell
+                                  player={player}
+                                  editingPlayer={editingPlayer}
+                                  onEditClick={(userId, currentPosition, currentTeam) =>
+                                    setEditingPlayer({ userId, currentPosition, currentTeam })
+                                  }
+                                  onPositionChange={handlePositionChange}
+                                  onTeamChange={handleTeamChange}
+                                  onClose={() => setEditingPlayer(null)}
+                                />
+                              </div>
+                            </>
                           )}
                         </Draggable>
                       ),
@@ -445,23 +448,26 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                           draggableId={player.UserId ?? ''}
                           index={index}
                         >
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <PlayerCell
-                                player={player}
-                                editingPlayer={editingPlayer}
-                                onEditClick={(userId, currentPosition, currentTeam) =>
-                                  setEditingPlayer({ userId, currentPosition, currentTeam })
-                                }
-                                onPositionChange={handlePositionChange}
-                                onTeamChange={handleTeamChange}
-                                onClose={() => setEditingPlayer(null)}
-                              />
-                            </div>
+                          {(provided, _snapshot) => (
+                            <>
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <Divider my={1} opacity={0.2} color='gray' />
+                                <PlayerCell
+                                  player={player}
+                                  editingPlayer={editingPlayer}
+                                  onEditClick={(userId, currentPosition, currentTeam) =>
+                                    setEditingPlayer({ userId, currentPosition, currentTeam })
+                                  }
+                                  onPositionChange={handlePositionChange}
+                                  onTeamChange={handleTeamChange}
+                                  onClose={() => setEditingPlayer(null)}
+                                />
+                              </div>
+                            </>
                           )}
                         </Draggable>
                       ),
