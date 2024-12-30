@@ -38,7 +38,7 @@
     "md5": "^2.3.0",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.46",
-    "npm-check-updates": "^17.1.12",
+    "npm-check-updates": "^17.1.13",
     "prettier": "^3.4.2",
     "prettier-plugin-organize-imports": "^4.1.0",
     "react": "^19.0.0",
@@ -60,7 +60,7 @@
     "globals": "^15.14.0",
     "swagger-typescript-api": "^13.0.23",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.18.2",
+    "typescript-eslint": "^8.19.0",
     "vite": "^6.0.6",
     "vite-plugin-environment": "^1.1.3"
   },
