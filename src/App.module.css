@@ -277,7 +277,9 @@
 
 .table {
   font-size: var(--mantine-font-size-xs);
-  min-width: 800px;
+  .usersTable {
+    min-width: 800px;
+  }
 }
 
 .table th,

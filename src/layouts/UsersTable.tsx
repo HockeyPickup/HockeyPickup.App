@@ -18,7 +18,7 @@ const UsersTableComponent = ({
   avatars: Record<string, string>;
 }): JSX.Element => (
   <div style={{ overflowX: 'auto', width: '100%' }}>
-    <Table striped highlightOnHover className={styles.table} mb='xl'>
+    <Table striped highlightOnHover className={styles.usersTable} mb='xl'>
       <Table.Thead>
         <Table.Tr>
           <Table.Th>&nbsp;</Table.Th>
