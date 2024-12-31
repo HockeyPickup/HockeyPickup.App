@@ -635,7 +635,7 @@ export const RegularsPage = (): JSX.Element => {
         </Stack>
       </Paper>
       <Space h='sm' />
-      {selectedPreset && !selectedPresetData && !editingRegularSet && (
+      {selectedPreset && selectedPresetData && !editingRegularSet && (
         <Stack mt='xl'>
           <Group align='center'>
             <Button onClick={() => setShowEmails((prev) => !prev)}>
@@ -659,6 +659,7 @@ export const RegularsPage = (): JSX.Element => {
           </Collapse>
         </Stack>
       )}
+      <Space h='xl' />
     </Container>
   );
 };
