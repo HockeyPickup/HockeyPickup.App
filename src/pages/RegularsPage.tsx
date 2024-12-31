@@ -131,7 +131,6 @@ export const RegularsPage = (): JSX.Element => {
   const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-  const [showEmails, setShowEmails] = useState(false);
   const [editingRegularSet, setEditingRegularSet] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState(false);
 
