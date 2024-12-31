@@ -34,7 +34,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   console.info(session);
 
   return (
-    <Stack gap='md'>
+    <Stack gap='md' mb='xl'>
       <SessionDetails session={session} />
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <SessionRoster session={session} onSessionUpdate={setSession} />

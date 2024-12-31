@@ -277,6 +277,7 @@
 
 .table {
   font-size: var(--mantine-font-size-xs);
+  min-width: 800px;
 }
 
 .table th,

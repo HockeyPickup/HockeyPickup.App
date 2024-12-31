@@ -8,7 +8,7 @@ export const GoalieLoungePage = (): JSX.Element => {
     setTitle('Goalie Lounge');
   }, [setTitle]);
   return (
-    <Container>
+    <Container size='xl' mb='lg'>
       <Text>Goalie Lounge page content</Text>
     </Container>
   );

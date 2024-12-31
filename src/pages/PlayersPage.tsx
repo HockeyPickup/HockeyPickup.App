@@ -10,7 +10,7 @@ export const PlayersPage = (): JSX.Element => {
   }, [setTitle]);
 
   return (
-    <Container size='xl'>
+    <Container size='xl' mb='lg'>
       <UsersTable />
     </Container>
   );

@@ -10,7 +10,7 @@ export const VersionPage: FC = () => {
     setTitle('Version');
   }, [setTitle]);
   return (
-    <Container size='xs' px='xs'>
+    <Container size='xs' px='xs' mb='xl'>
       <Group mt='md' mb='xs'>
         <Stack>
           <Text size='lg'>Version Info:</Text>

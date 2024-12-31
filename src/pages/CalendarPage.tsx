@@ -27,7 +27,7 @@ export const CalendarPage = (): JSX.Element => {
   };
 
   return (
-    <Container size='md' py='xl'>
+    <Container size='md' py='xs'>
       <Group justify='space-between' align='center'>
         <Title>Calendar</Title>
         <img src='/static/calendar.png' alt='Calendar' width={48} height={48} />

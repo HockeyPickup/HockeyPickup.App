@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Container, Stack, Text, Title } from '@mantine/core';
 import { JSX, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTitle } from '../layouts/TitleContext';
 
 export const AboutPage = (): JSX.Element => {
@@ -49,6 +50,7 @@ export const AboutPage = (): JSX.Element => {
           <p>See you on the ice. Enjoy, and long may you glide...</p>
         </Text>
       </Stack>
+      <Link to='/version'>Version Info</Link>
     </Container>
   );
 };

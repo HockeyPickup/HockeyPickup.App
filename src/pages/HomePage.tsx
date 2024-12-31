@@ -15,7 +15,7 @@ export const HomePage = (): JSX.Element => {
   }, [setTitle]);
 
   return (
-    <Container>
+    <Container size='xl' mb='lg'>
       <Stack align='center' gap='sm'>
         <Image
           src='/static/JB_Puck_Logo.png'

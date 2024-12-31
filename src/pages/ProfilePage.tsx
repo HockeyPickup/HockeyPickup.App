@@ -350,7 +350,7 @@ export const ProfilePage = (): JSX.Element => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <Container size='xl'>
+    <Container size='xl' mb='lg'>
       <HeaderSection profileUser={profileUser} />
       {isAdmin() && !impersonationStatus?.IsImpersonating && user && user.Id !== userId && (
         <Button onClick={handleImpersonate}>Impersonate</Button>

@@ -20,7 +20,7 @@ export const SessionsPage = (): JSX.Element => {
   useZoom(true);
 
   return (
-    <Container size='xl'>
+    <Container size='xl' mb='lg'>
       <Group justify='space-between' mb='md'>
         <Title order={2}>Upcoming Sessions</Title>
         {isAdmin && (

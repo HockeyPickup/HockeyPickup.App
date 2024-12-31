@@ -17,37 +17,39 @@ const UsersTableComponent = ({
   users: User[];
   avatars: Record<string, string>;
 }): JSX.Element => (
-  <Table striped highlightOnHover className={styles.table} mb='xl'>
-    <Table.Thead>
-      <Table.Tr>
-        <Table.Th>&nbsp;</Table.Th>
-        <Table.Th>Name</Table.Th>
-        <Table.Th>Email</Table.Th>
-        <Table.Th>PayPal Email</Table.Th>
-        <Table.Th>Venmo Account</Table.Th>
-      </Table.Tr>
-    </Table.Thead>
-    <Table.Tbody>
-      {users.map((user: User) => (
-        <Table.Tr key={user.Id}>
-          <Table.Td>
-            <Link to={`/profile/${user.Id}`}>
-              <Avatar
-                src={avatars[user.Id]}
-                alt={`${user.FirstName} ${user.LastName}`}
-                radius='xl'
-                size='md'
-              />
-            </Link>
-          </Table.Td>
-          <Table.Td>{`${user.FirstName} ${user.LastName}`}</Table.Td>
-          <Table.Td>{user.Email}</Table.Td>
-          <Table.Td>{user.PayPalEmail}</Table.Td>
-          <Table.Td>{user.VenmoAccount}</Table.Td>
+  <div style={{ overflowX: 'auto', width: '100%' }}>
+    <Table striped highlightOnHover className={styles.table} mb='xl'>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>&nbsp;</Table.Th>
+          <Table.Th>Name</Table.Th>
+          <Table.Th>Email</Table.Th>
+          <Table.Th>PayPal Email</Table.Th>
+          <Table.Th>Venmo Account</Table.Th>
         </Table.Tr>
-      ))}
-    </Table.Tbody>
-  </Table>
+      </Table.Thead>
+      <Table.Tbody>
+        {users.map((user: User) => (
+          <Table.Tr key={user.Id}>
+            <Table.Td>
+              <Link to={`/profile/${user.Id}`}>
+                <Avatar
+                  src={avatars[user.Id]}
+                  alt={`${user.FirstName} ${user.LastName}`}
+                  radius='xl'
+                  size='md'
+                />
+              </Link>
+            </Table.Td>
+            <Table.Td>{`${user.FirstName} ${user.LastName}`}</Table.Td>
+            <Table.Td>{user.Email}</Table.Td>
+            <Table.Td>{user.PayPalEmail}</Table.Td>
+            <Table.Td>{user.VenmoAccount}</Table.Td>
+          </Table.Tr>
+        ))}
+      </Table.Tbody>
+    </Table>
+  </div>
 );
 
 export const UsersTable = (): JSX.Element => {

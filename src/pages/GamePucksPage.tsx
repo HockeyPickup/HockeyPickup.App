@@ -88,7 +88,7 @@ export const GamePucksPage = (): JSX.Element => {
   }, []); // Empty dependency array means this effect runs once on mount
 
   return (
-    <Container>
+    <Container size='xl' mb='lg'>
       {isLoading && <LoadingSpinner />}
       <Box>
         <div

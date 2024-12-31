@@ -10,7 +10,7 @@ export const LockerRoom13Page = (): JSX.Element => {
   }, [setTitle]);
 
   return (
-    <Container size='xl'>
+    <Container size='xl' mb='lg'>
       <p style={{ textAlign: 'center' }}>
         <img src='/static/lr13.jpg' width='360' alt='Locker Room 13' />
       </p>

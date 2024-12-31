@@ -565,7 +565,7 @@ export const RegularsPage = (): JSX.Element => {
   };
 
   return (
-    <Container size='sm' px='lg'>
+    <Container size='sm' px='lg' mb='xl'>
       <Paper withBorder shadow='md' p={30} radius='md'>
         <Title order={2} mb='xl'>
           Regular Rosters
@@ -659,7 +659,6 @@ export const RegularsPage = (): JSX.Element => {
           </Collapse>
         </Stack>
       )}
-      <Space h='xl' />
     </Container>
   );
 };

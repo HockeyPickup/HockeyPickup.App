@@ -261,7 +261,7 @@ export const AccountPage = (): JSX.Element => {
   }, [setTitle]);
 
   return (
-    <Container size='xl'>
+    <Container size='xl' mb='lg'>
       <Tabs
         variant='pills'
         orientation={isMobile ? 'horizontal' : 'vertical'}

@@ -13,7 +13,7 @@ export const SessionPage = (): JSX.Element => {
   }, [setTitle]);
 
   return (
-    <Container size='xl'>
+    <Container size='xl' mb='lg'>
       <SessionTable sessionId={parseInt(sessionId ?? '0')} />
     </Container>
   );
