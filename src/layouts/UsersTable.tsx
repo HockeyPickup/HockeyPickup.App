@@ -1,11 +1,11 @@
 import styles from '@/App.module.css';
+import { EmailList } from '@/components/EmailList';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { User } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_USERS } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { ActionIcon, Avatar, CopyButton, Group, Paper, Table, Text } from '@mantine/core';
-import { IconCheck, IconCopy } from '@tabler/icons-react';
+import { Avatar, Paper, Table, Text } from '@mantine/core';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AvatarService } from '../services/avatar';
@@ -98,19 +98,7 @@ export const UsersTable = (): JSX.Element => {
       <UsersTableComponent users={activeUsers} avatars={avatars} />
       {isAdmin() && (
         <>
-          <Group align='center' mt='md'>
-            <Text size='sm'>Emails:</Text>
-            <CopyButton value={getAllEmails(activeUsers)}>
-              {({ copied, copy }) => (
-                <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
-                  {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                </ActionIcon>
-              )}
-            </CopyButton>
-          </Group>
-          <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
-            {getAllEmails(activeUsers)}
-          </Text>
+          <EmailList getEmails={() => getAllEmails(activeUsers)} />
           <Text ta='left' mt='xs' mb='xs'>
             {inactiveUsers.length} Inactive Players
           </Text>

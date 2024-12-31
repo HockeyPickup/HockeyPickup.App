@@ -1,3 +1,4 @@
+import { EmailList } from '@/components/EmailList';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
 import { RegularSetSelect } from '@/components/RegularSetSelect';
@@ -16,9 +17,7 @@ import {
   Avatar,
   Button,
   Checkbox,
-  Collapse,
   Container,
-  CopyButton,
   Divider,
   Grid,
   Group,
@@ -36,7 +35,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconCopy, IconEdit, IconPencil } from '@tabler/icons-react';
+import { IconEdit, IconPencil } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -636,28 +635,7 @@ export const RegularsPage = (): JSX.Element => {
       </Paper>
       <Space h='sm' />
       {selectedPreset && selectedPresetData && !editingRegularSet && (
-        <Stack mt='xl'>
-          <Group align='center'>
-            <Button onClick={() => setShowEmails((prev) => !prev)}>
-              {showEmails ? 'Hide Emails' : 'Show Emails'}
-            </Button>
-          </Group>
-          <Collapse in={showEmails}>
-            <Group align='center'>
-              <Text size='sm'>Emails:</Text>
-              <CopyButton value={getAllEmails()}>
-                {({ copied, copy }) => (
-                  <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
-                    {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                  </ActionIcon>
-                )}
-              </CopyButton>
-            </Group>
-            <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
-              {getAllEmails()}
-            </Text>
-          </Collapse>
-        </Stack>
+        <EmailList getEmails={getAllEmails} />
       )}
     </Container>
   );

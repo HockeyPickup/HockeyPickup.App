@@ -3,8 +3,10 @@ import { SessionActivityLog } from '@/components/SessionActivityLog';
 import { SessionBuyingQueue } from '@/components/SessionBuyingQueue';
 import { SessionBuySells } from '@/components/SessionBuySells';
 import { SessionDetails } from '@/components/SessionDetails';
+import { SessionEmails } from '@/components/SessionEmails';
 import { SessionRoster } from '@/components/SessionRoster';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { useAuth } from '@/lib/auth';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
 import { Stack, Text } from '@mantine/core';
@@ -20,6 +22,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
     fetchPolicy: 'network-only',
   });
   const [session, setSession] = useState<SessionDetailedResponse | null>(null);
+  const { isAdmin } = useAuth();
 
   // Update session state when data changes
   useEffect(() => {
@@ -46,6 +49,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
         <SessionActivityLog session={session} />
       )}
       {session.BuySells && session.BuySells.length > 0 && <SessionBuySells session={session} />}
+      {isAdmin() && session && <SessionEmails session={session} />}
     </Stack>
   );
 };
