@@ -297,10 +297,8 @@ export const RegularsPage = (): JSX.Element => {
       const loadAvatars = async (): Promise<void> => {
         const newAvatars: Record<string, string> = {};
         for (const regular of teamRegulars) {
-          if (regular.User?.Email) {
-            const avatarUrl = await AvatarService.getAvatarUrl(regular.User.PhotoUrl ?? '');
-            newAvatars[regular.UserId] = avatarUrl;
-          }
+          const avatarUrl = await AvatarService.getAvatarUrl(regular.User?.PhotoUrl ?? '');
+          newAvatars[regular.UserId] = avatarUrl;
         }
         setAvatars(newAvatars);
       };

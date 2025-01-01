@@ -63,13 +63,11 @@ const PlayerCell = ({
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   useEffect(() => {
     const loadAvatar = async (): Promise<void> => {
-      if (player?.Email) {
-        const url = await AvatarService.getAvatarUrl(player?.PhotoUrl);
-        setAvatarUrl(url);
-      }
+      const url = await AvatarService.getAvatarUrl(player?.PhotoUrl);
+      setAvatarUrl(url);
     };
     loadAvatar();
-  }, [player?.Email]);
+  }, [player]);
 
   const handlePositionChange = async (newPosition: PositionString): Promise<void> => {
     setIsSaving(true);
