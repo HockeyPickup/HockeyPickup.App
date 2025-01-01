@@ -17,6 +17,7 @@ export const GET_USERS = gql`
       MobileLast4
       EmergencyName
       EmergencyPhone
+      PhotoUrl
       LockerRoom13
       DateCreated
       Roles
@@ -117,6 +118,7 @@ export const GET_SESSION = gql`
             MobileLast4
             EmergencyName
             EmergencyPhone
+            PhotoUrl
             LockerRoom13
             Rating
           }
@@ -206,6 +208,7 @@ export const GET_REGULARSETS = gql`
           MobileLast4
           EmergencyName
           EmergencyPhone
+          PhotoUrl
           LockerRoom13
           DateCreated
           Roles

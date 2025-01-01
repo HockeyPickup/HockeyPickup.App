@@ -1,3 +1,4 @@
+import { AvatarUpload } from '@/components/AvatarUpload';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
   AdminUserUpdateRequest,
@@ -45,22 +46,16 @@ const HeaderSection = ({
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const { user } = useAuth();
 
+  const refreshAvatar = async (): Promise<void> => {
+    if (profileUser?.PhotoUrl) {
+      const url = await AvatarService.getAvatarUrl(profileUser.PhotoUrl ?? '');
+      setAvatarUrl(url);
+    }
+  };
+
   useEffect(() => {
-    const loadAvatar = async (): Promise<void> => {
-      if (profileUser?.Email) {
-        const url = await AvatarService.getAvatarUrl(
-          profileUser.Email,
-          `${profileUser.FirstName} ${profileUser.LastName}`,
-          {
-            size: 80,
-            fallbackType: 'initials',
-          },
-        );
-        setAvatarUrl(url);
-      }
-    };
-    loadAvatar();
-  }, [profileUser?.Email]);
+    refreshAvatar();
+  }, [profileUser?.PhotoUrl]);
 
   if (!profileUser) return <Text>Player not found</Text>;
 
@@ -70,7 +65,7 @@ const HeaderSection = ({
         <Avatar
           src={avatarUrl}
           alt={`${profileUser.FirstName} ${profileUser.LastName}`}
-          size={80}
+          size={120}
           radius='xl'
         />
         <div>
@@ -135,11 +130,13 @@ const EditUserForm = ({
   onSave,
   isLoading,
   apiErrors,
+  onUploadSuccess,
 }: {
   profileUser: UserDetailedResponse;
   onSave: (_values: AdminUserUpdateRequest) => Promise<void>;
   isLoading: boolean;
   apiErrors: ErrorDetail[];
+  onUploadSuccess: () => Promise<void>;
 }): JSX.Element => {
   const form = useForm<AdminUserUpdateRequest>({
     initialValues: {
@@ -176,6 +173,7 @@ const EditUserForm = ({
       <Title size='xl'>Edit Player</Title>
       <form onSubmit={form.onSubmit(onSave)}>
         <Stack>
+          <AvatarUpload userId={profileUser.Id} onUploadSuccess={onUploadSuccess} />
           <TextInput
             label='First Name'
             placeholder='First name'
@@ -349,8 +347,15 @@ export const ProfilePage = (): JSX.Element => {
 
   if (loading) return <LoadingSpinner />;
 
+  const refreshProfile = async () => {
+    if (userId) {
+      const response = await getUserById(userId);
+      setProfileUser(response);
+    }
+  };
+
   return (
-    <Container size='xl' mb='lg'>
+    <Container size='xl' mb='lg' ml='sm'>
       <HeaderSection profileUser={profileUser} />
       {isAdmin() && !impersonationStatus?.IsImpersonating && user && user.Id !== userId && (
         <Button onClick={handleImpersonate}>Impersonate</Button>
@@ -359,7 +364,9 @@ export const ProfilePage = (): JSX.Element => {
         <Button onClick={handleRevertImpersonation}>Revert Impersonation</Button>
       )}{' '}
       {isAdmin() && (
-        <Button onClick={() => setIsEditing(!isEditing)}>{isEditing ? 'Cancel' : 'Edit'}</Button>
+        <Button onClick={() => setIsEditing(!isEditing)}>
+          {isEditing ? 'Cancel' : 'Admin Edit'}
+        </Button>
       )}
       {isEditing && profileUser && (
         <EditUserForm
@@ -367,6 +374,7 @@ export const ProfilePage = (): JSX.Element => {
           onSave={handleSaveUser}
           isLoading={isSaving}
           apiErrors={apiErrors}
+          onUploadSuccess={refreshProfile}
         />
       )}
     </Container>

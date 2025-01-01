@@ -102,6 +102,11 @@ export interface UserDetailedResponse {
   /** Indicates if user has Locker Room 13 access */
   LockerRoom13: boolean;
   /**
+   * Profile Photo Url
+   * @maxLength 256
+   */
+  PhotoUrl?: string | null;
+  /**
    * Date and time when lockout ends
    * @format date-time
    */
@@ -210,6 +215,7 @@ export type AspNetUser = IdentityUserOfString & {
   EmergencyName?: string | null;
   EmergencyPhone?: string | null;
   LockerRoom13?: boolean;
+  PhotoUrl?: string | null;
   /** @format date-time */
   DateCreated?: string;
   Roles?: AspNetRole[];
@@ -338,6 +344,7 @@ export interface RosterPlayer {
   Rating?: number;
   Preferred?: boolean;
   PreferredPlus?: boolean;
+  PhotoUrl?: string;
   /** @format int32 */
   LastBuySellId?: number | null;
   /** @format date-time */
@@ -606,6 +613,35 @@ export type SaveUserRequestEx = SaveUserRequest & {
    */
   Rating?: number | null;
 };
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfPhotoResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: PhotoResponse | null;
+};
+
+export interface PhotoResponse {
+  /**
+   * URL of the uploaded profile photo
+   * @format uri
+   * @minLength 1
+   */
+  PhotoUrl: string;
+  /**
+   * Date and time when the photo was last updated
+   * @format date-time
+   */
+  UpdateDateTime?: string;
+}
+
+export interface AdminPhotoDeleteRequest {
+  /**
+   * User identifier whose photo should be deleted
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+}
 
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfImpersonationResponse = ApiResponse & {
@@ -1045,6 +1081,12 @@ export interface RosterPlayer2 {
   Rating: number;
   /** Indicates if the player has preferred status */
   Preferred: boolean;
+  /**
+   * Profile Photo Url
+   * @minLength 1
+   * @maxLength 256
+   */
+  PhotoUrl: string;
   /** Indicates if the player has preferred plus status */
   PreferredPlus: boolean;
   /**
@@ -1431,6 +1473,11 @@ export interface User {
   EmergencyPhone?: string | null;
   /** Indicates if user has Locker Room 13 access */
   LockerRoom13: boolean;
+  /**
+   * Profile Photo Url
+   * @maxLength 256
+   */
+  PhotoUrl?: string | null;
   /**
    * Date and time when lockout ends
    * @format date-time

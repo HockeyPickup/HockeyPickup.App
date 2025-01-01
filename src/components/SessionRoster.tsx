@@ -64,14 +64,7 @@ const PlayerCell = ({
   useEffect(() => {
     const loadAvatar = async (): Promise<void> => {
       if (player?.Email) {
-        const url = await AvatarService.getAvatarUrl(
-          player.Email,
-          `${player.FirstName} ${player.LastName}`,
-          {
-            size: 24,
-            fallbackType: 'initials',
-          },
-        );
+        const url = await AvatarService.getAvatarUrl(player?.PhotoUrl);
         setAvatarUrl(url);
       }
     };

@@ -62,14 +62,7 @@ export const UsersTable = (): JSX.Element => {
       const newAvatars: Record<string, string> = {};
       for (const user of data?.UsersEx || []) {
         if (user.Email) {
-          const avatarUrl = await AvatarService.getAvatarUrl(
-            user.Email,
-            `${user.FirstName} ${user.LastName}`,
-            {
-              size: 40,
-              fallbackType: 'initials',
-            },
-          );
+          const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl);
           newAvatars[user.Id] = avatarUrl;
         }
       }

@@ -4,9 +4,6 @@ declare const __API_URL__: string;
 
 const api = axios.create({
   baseURL: __API_URL__,
-  headers: {
-    'Content-Type': 'application/json',
-  },
   withCredentials: true,
 });
 
@@ -18,6 +15,11 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Only set Content-Type: application/json if we're not sending FormData
+  if (!(config.data instanceof FormData)) {
+    config.headers['Content-Type'] = 'application/json';
+  }
+
   return config;
 });
 

@@ -1,7 +1,10 @@
 import styles from '@/App.module.css';
+import { AvatarUpload } from '@/components/AvatarUpload';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, useAuth } from '@/lib/auth';
+import { AvatarService } from '@/services/avatar';
 import {
+  Avatar,
   Button,
   Container,
   Paper,
@@ -122,7 +125,11 @@ const PasswordSection = (): JSX.Element => {
 const PreferencesSection = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
-  const { user } = useAuth();
+  const { setUser, user } = useAuth();
+
+  const refreshUser = async (): Promise<void> => {
+    await authService.refreshUser(setUser);
+  };
 
   const form = useForm<SaveUserRequest>({
     initialValues: {
@@ -183,6 +190,7 @@ const PreferencesSection = (): JSX.Element => {
       <Title size='xl'>Preferences</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
+          <AvatarUpload onUploadSuccess={refreshUser} />
           <TextInput
             label='First Name'
             placeholder='Your first name'
@@ -256,9 +264,22 @@ export const AccountPage = (): JSX.Element => {
   const { setTitle } = useTitle();
   const isMobile = useMediaQuery('(max-width: 48em)');
   const { user } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+
   useEffect(() => {
     setTitle('Account');
   }, [setTitle]);
+
+  const refreshAvatar = async (): Promise<void> => {
+    if (user?.PhotoUrl) {
+      const url = await AvatarService.getAvatarUrl(user.PhotoUrl ?? '');
+      setAvatarUrl(url);
+    }
+  };
+
+  useEffect(() => {
+    refreshAvatar();
+  }, [user?.PhotoUrl]);
 
   return (
     <Container size='xl' mb='lg'>
@@ -284,11 +305,21 @@ export const AccountPage = (): JSX.Element => {
           <PreferencesSection />
         </Tabs.Panel>
       </Tabs>
-      <Link to={`/profile/${user?.Id}`}>
-        <Button variant='outline' mt='xl'>
-          Profile
-        </Button>
-      </Link>
+      <Stack>
+        <Avatar
+          ml='sm'
+          mt='lg'
+          src={avatarUrl}
+          alt={`${user?.FirstName} ${user?.LastName}`}
+          size={120}
+          radius='sm'
+        />
+        <Link to={`/profile/${user?.Id}`}>
+          <Button variant='outline' mt={300} ml='sm'>
+            View Profile
+          </Button>
+        </Link>
+      </Stack>
     </Container>
   );
 };

@@ -25,14 +25,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     const updateAvatar = async (): Promise<void> => {
-      const avatarUrl = await AvatarService.getAvatarUrl(
-        user?.Email ?? '',
-        user ? `${user.FirstName} ${user.LastName}` : '',
-        {
-          size: 40,
-          fallbackType: 'initials',
-        },
-      );
+      const avatarUrl = await AvatarService.getAvatarUrl(user?.PhotoUrl ?? '');
       setAvatarSrc(avatarUrl);
     };
 
@@ -106,6 +99,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
                   radius='xl'
                   size='md'
                   className={`${styles.avatar} ${styles.noZoom}`}
+                  key={user?.PhotoUrl}
                 />
               </Link>
 

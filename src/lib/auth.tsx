@@ -4,6 +4,7 @@ import {
   ApiDataResponse1,
   ApiDataResponseOfAspNetUser,
   ApiDataResponseOfLoginResponse,
+  ApiDataResponseOfPhotoResponse,
   ApiResponse,
   ChangePasswordRequest,
   ConfirmEmailRequest,
@@ -93,6 +94,27 @@ const authService = {
   async confirmEmail(data: ConfirmEmailRequest): Promise<ApiResponse> {
     const response = await api.post('/Auth/confirm-email', data);
     console.debug('Confirm email response:', response);
+    return response.data;
+  },
+
+  async uploadProfileImage(file: File): Promise<ApiDataResponseOfPhotoResponse> {
+    const formData = new FormData();
+    formData.append('File', file);
+    const response = await api.post<ApiDataResponseOfPhotoResponse>('/Auth/upload-photo', formData);
+    return response.data;
+  },
+
+  async adminUploadProfileImage(
+    userId: string,
+    file: File,
+  ): Promise<ApiDataResponseOfPhotoResponse> {
+    const formData = new FormData();
+    formData.append('File', file);
+    formData.append('UserId', userId);
+    const response = await api.post<ApiDataResponseOfPhotoResponse>(
+      '/Auth/admin/upload-photo',
+      formData,
+    );
     return response.data;
   },
 

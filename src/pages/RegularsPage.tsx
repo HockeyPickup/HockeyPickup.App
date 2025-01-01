@@ -298,14 +298,7 @@ export const RegularsPage = (): JSX.Element => {
         const newAvatars: Record<string, string> = {};
         for (const regular of teamRegulars) {
           if (regular.User?.Email) {
-            const avatarUrl = await AvatarService.getAvatarUrl(
-              regular.User.Email,
-              `${regular.User.FirstName} ${regular.User.LastName}`,
-              {
-                size: 24,
-                fallbackType: 'initials',
-              },
-            );
+            const avatarUrl = await AvatarService.getAvatarUrl(regular.User.PhotoUrl ?? '');
             newAvatars[regular.UserId] = avatarUrl;
           }
         }
