@@ -47,15 +47,13 @@ const HeaderSection = ({
   const { user } = useAuth();
 
   const refreshAvatar = async (): Promise<void> => {
-    if (profileUser?.PhotoUrl) {
-      const url = await AvatarService.getAvatarUrl(profileUser.PhotoUrl ?? '');
-      setAvatarUrl(url);
-    }
+    const url = await AvatarService.getAvatarUrl(profileUser?.PhotoUrl ?? '');
+    setAvatarUrl(url);
   };
 
   useEffect(() => {
     refreshAvatar();
-  }, [profileUser?.PhotoUrl]);
+  }, [profileUser]);
 
   if (!profileUser) return <Text>Player not found</Text>;
 
