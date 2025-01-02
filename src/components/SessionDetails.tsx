@@ -37,11 +37,13 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
           <Text>{session.Note ?? ''}</Text>
         </Group>
         <Group>
-          <Text size='sm' fw={700}>
+          <Text fw={700}>
             Buy Window
-            {user?.PreferredPlus ? ' (Preferred Plus):' : user?.Preferred ? ' (Preferred):' : ':'}
-          </Text>
-          <Text>
+            {user?.PreferredPlus
+              ? ' (Preferred Plus): '
+              : user?.Preferred
+                ? ' (Preferred): '
+                : ': '}
             {moment
               .utc(
                 user?.PreferredPlus
