@@ -89,12 +89,14 @@ const HeaderSection = ({
                 {profileUser.PreferredPlus ? '✓' : '✗'}
               </Text>
             </Text>
-            <Text size='sm'>
-              Locker Room 13:{' '}
-              <Text span c={profileUser.LockerRoom13 ? 'green.6' : 'red.6'}>
-                {profileUser.LockerRoom13 ? '✓' : '✗'}
+            {profileUser.LockerRoom13 && (
+              <Text size='sm'>
+                Locker Room 13:{' '}
+                <Text span c={profileUser.LockerRoom13 ? 'green.6' : 'red.6'}>
+                  {profileUser.LockerRoom13 ? '✓' : '✗'}
+                </Text>
               </Text>
-            </Text>
+            )}
           </Group>
           <br />
           <Group>
