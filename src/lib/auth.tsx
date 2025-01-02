@@ -26,7 +26,7 @@ const userHelpers = {
     return user?.Roles?.includes('SubAdmin') ?? false;
   },
   canViewRatings: (user: UserDetailedResponse | null): boolean => {
-    return user?.Roles?.includes('Admin') ?? user?.Roles?.includes('SubAdmin') ?? false;
+    return user?.Roles?.includes('Admin') ?? (false || user?.Roles?.includes('SubAdmin')) ?? false;
   },
   isInRole: (user: UserDetailedResponse | null, role: string): boolean => {
     return user?.Roles?.includes(role) ?? false;
