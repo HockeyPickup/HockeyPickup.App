@@ -97,7 +97,7 @@ const PlayerCell = ({
         <Avatar
           src={avatarUrl}
           alt={`${player.FirstName} ${player.LastName}`}
-          size={24}
+          size={42}
           radius='xl'
         />
       </Link>

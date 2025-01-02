@@ -63,7 +63,7 @@ const HeaderSection = ({
         <Avatar
           src={avatarUrl}
           alt={`${profileUser.FirstName} ${profileUser.LastName}`}
-          size={120}
+          size={180}
           radius='xl'
         />
         <div>

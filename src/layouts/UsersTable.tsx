@@ -37,7 +37,7 @@ const UsersTableComponent = ({
                   src={avatars[user.Id]}
                   alt={`${user.FirstName} ${user.LastName}`}
                   radius='xl'
-                  size='md'
+                  size={36}
                 />
               </Link>
             </Table.Td>
