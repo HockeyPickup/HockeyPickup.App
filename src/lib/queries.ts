@@ -141,6 +141,7 @@ export const GET_SESSION = gql`
         CurrentPosition
         JoinedDateTime
         Rating
+        PhotoUrl
       }
       BuyingQueues {
         BuySellId

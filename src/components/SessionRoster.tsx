@@ -67,7 +67,7 @@ const PlayerCell = ({
       setAvatarUrl(url);
     };
     loadAvatar();
-  }, [player]);
+  }, [player?.PhotoUrl]);
 
   const handlePositionChange = async (newPosition: PositionString): Promise<void> => {
     setIsSaving(true);
