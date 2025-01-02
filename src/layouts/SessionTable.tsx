@@ -3,6 +3,7 @@ import { SessionActivityLog } from '@/components/SessionActivityLog';
 import { SessionBuyingQueue } from '@/components/SessionBuyingQueue';
 import { SessionBuySells } from '@/components/SessionBuySells';
 import { SessionDetails } from '@/components/SessionDetails';
+import { SessionDetailsBottom } from '@/components/SessionDetailsBottom';
 import { SessionEmails } from '@/components/SessionEmails';
 import { SessionRoster } from '@/components/SessionRoster';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
@@ -49,6 +50,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
         <SessionActivityLog session={session} />
       )}
       {session.BuySells && session.BuySells.length > 0 && <SessionBuySells session={session} />}
+      <SessionDetailsBottom session={session} />
       {isAdmin() && session && <SessionEmails session={session} />}
     </Stack>
   );

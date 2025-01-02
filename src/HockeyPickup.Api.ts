@@ -880,6 +880,21 @@ export type ApiDataResponseOfSessionDetailedResponse = ApiResponse & {
 };
 
 export type SessionDetailedResponse = SessionBasicResponse & {
+  /**
+   * Buy window for the session
+   * @format date-time
+   */
+  BuyWindow?: string;
+  /**
+   * Buy window for preferred users
+   * @format date-time
+   */
+  BuyWindowPreferred?: string;
+  /**
+   * Buy window for preferred plus users
+   * @format date-time
+   */
+  BuyWindowPreferredPlus?: string;
   /** Buy/sell transactions associated with the session */
   BuySells?: BuySellResponse[] | null;
   /** Activity logs associated with the session */

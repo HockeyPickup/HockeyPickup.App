@@ -37,42 +37,21 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
           <Text>{session.Note ?? ''}</Text>
         </Group>
         <Group>
-          <Text size='sm' fw={700} w={100} ta='right'>
-            Buy Window:
+          <Text size='sm' fw={700}>
+            Buy Window
+            {user?.PreferredPlus ? ' (Preferred Plus):' : user?.Preferred ? ' (Preferred):' : ':'}
           </Text>
           <Text>
             {moment
-              .utc(session.SessionDate)
-              .subtract(
+              .utc(
                 user?.PreferredPlus
-                  ? session.BuyDayMinimum
+                  ? session.BuyWindowPreferredPlus
                   : user?.Preferred
-                    ? session.BuyDayMinimum
-                    : (session.BuyDayMinimum ?? 6) - 1,
-                'days',
+                    ? session.BuyWindowPreferred
+                    : session.BuyWindow,
               )
-              .subtract(22, 'hours')
-              .subtract(user?.PreferredPlus ? (session.BuyDayMinimum ?? 6) - 1 : 0, 'minutes')
               .format('dddd, MM/DD/yyyy, HH:mm')}
-          </Text>
-        </Group>
-        <Group>
-          <Text size='sm' fw={700} w={100} ta='right'>
-            Created:
-          </Text>
-          <Text>{moment.utc(session.CreateDateTime).local().format('MM/DD/yyyy, HH:mm')}</Text>
-        </Group>
-        <Group>
-          <Text size='sm' fw={700} w={100} ta='right'>
-            Updated:
-          </Text>
-          <Text>{moment.utc(session.UpdateDateTime).local().format('MM/DD/yyyy, HH:mm')}</Text>
-        </Group>
-        <Group>
-          <Text size='sm' fw={700} w={100} ta='right'>
-            Cost:
-          </Text>
-          <Text>${session.Cost ?? ''}</Text>
+          </Text>{' '}
         </Group>
       </Stack>
     </Paper>

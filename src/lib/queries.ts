@@ -51,6 +51,9 @@ export const GET_SESSION = gql`
       SessionDate
       RegularSetId
       BuyDayMinimum
+      BuyWindow
+      BuyWindowPreferred
+      BuyWindowPreferredPlus
       Cost
       BuySells {
         BuySellId
