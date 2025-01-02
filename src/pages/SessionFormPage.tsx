@@ -76,7 +76,10 @@ const parseDateFromApi = (isoString: string): Date => {
 };
 
 export const SessionFormPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
+  useEffect(() => {
+    setPageInfo(isEditMode ? 'Edit Session' : 'Create Session');
+  }, [setPageInfo]);
   const navigate = useNavigate();
   const { sessionId } = useParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -127,10 +130,6 @@ export const SessionFormPage = (): JSX.Element => {
       }
     }
   }, [sessionData]);
-
-  useEffect(() => {
-    setTitle(isEditMode ? 'Edit Session' : 'Create Session');
-  }, [setTitle, isEditMode]);
 
   if (isEditMode && sessionLoading) {
     return <LoadingSpinner />;

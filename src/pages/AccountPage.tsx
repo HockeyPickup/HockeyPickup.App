@@ -279,13 +279,13 @@ const PreferencesSection = (): JSX.Element => {
 };
 
 export const AccountPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   const isMobile = useMediaQuery('(max-width: 48em)');
   const { user } = useAuth();
 
   useEffect(() => {
-    setTitle('Account');
-  }, [setTitle]);
+    setPageInfo('Account', 'Hockey Pickup Player Account');
+  }, [setPageInfo]);
 
   return (
     <Container size='xl' mb='lg'>

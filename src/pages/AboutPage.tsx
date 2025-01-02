@@ -5,11 +5,11 @@ import { Link } from 'react-router-dom';
 import { useTitle } from '../layouts/TitleContext';
 
 export const AboutPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
 
   useEffect(() => {
-    setTitle('About');
-  }, [setTitle]);
+    setPageInfo('About', 'About Hockey Pickup');
+  }, [setPageInfo]);
 
   return (
     <Container size='md' py='sm' ml='sm' mr='sm' mb='sm'>

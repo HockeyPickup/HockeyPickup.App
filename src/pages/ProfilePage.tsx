@@ -256,7 +256,7 @@ const EditUserForm = ({
 
 export const ProfilePage = (): JSX.Element => {
   const { userId } = useParams();
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   const { isAdmin, user, setUser } = useAuth();
   const [profileUser, setProfileUser] = useState<UserDetailedResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -331,7 +331,7 @@ export const ProfilePage = (): JSX.Element => {
   };
 
   useEffect(() => {
-    setTitle('Player Profile');
+    setPageInfo('Player Profile');
     getUserById(userId)
       .then((response) => {
         setProfileUser(response);
@@ -341,11 +341,11 @@ export const ProfilePage = (): JSX.Element => {
         setProfileUser(null);
         setLoading(false);
       });
-  }, [setTitle, userId]);
+  }, [setPageInfo, userId]);
 
   if (loading) return <LoadingSpinner />;
 
-  const refreshProfile = async () => {
+  const refreshProfile = async (): Promise<void> => {
     if (userId) {
       const response = await getUserById(userId);
       setProfileUser(response);

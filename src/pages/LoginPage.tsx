@@ -18,10 +18,10 @@ import { LoginRequest } from '../HockeyPickup.Api';
 import { authService, useAuth } from '../lib/auth';
 
 export const LoginPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Login');
-  }, [setTitle]);
+    setPageInfo('Login');
+  }, [setPageInfo]);
   const navigate = useNavigate();
   const { setUser, refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);

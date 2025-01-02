@@ -8,14 +8,14 @@ import { JSX, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const SessionsPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isAdmin = user?.Roles?.includes('Admin') ?? false;
 
   useEffect(() => {
-    setTitle('Sessions');
-  }, [setTitle]);
+    setPageInfo('Sessions', 'Hockey Pickup Sessions');
+  }, [setPageInfo]);
 
   useZoom(true);
 

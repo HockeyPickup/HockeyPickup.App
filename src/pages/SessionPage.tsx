@@ -6,12 +6,14 @@ import { useParams } from 'react-router-dom';
 
 export const SessionPage = (): JSX.Element => {
   const { sessionId } = useParams();
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
 
   useEffect(() => {
-    setTitle('Session Detail');
-  }, [setTitle]);
-
+    setPageInfo(
+      'Session Detail',
+      sessionId ? `Hockey Pickup session ${sessionId}` : 'Hockey Pickup session',
+    );
+  }, [sessionId, setPageInfo]);
   return (
     <Container size='xl' mb='lg'>
       <SessionTable sessionId={parseInt(sessionId ?? '0')} />

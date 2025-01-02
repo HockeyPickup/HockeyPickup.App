@@ -4,11 +4,11 @@ import { JSX, useEffect } from 'react';
 import { useTitle } from '../layouts/TitleContext';
 
 export const PrivacyPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
 
   useEffect(() => {
-    setTitle('Privacy');
-  }, [setTitle]);
+    setPageInfo('Privacy', 'Hockey Pickup Privacy');
+  }, [setPageInfo]);
 
   return (
     <Container size='md' py='sm' ml='sm' mr='sm' mb='sm'>

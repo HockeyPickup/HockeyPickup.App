@@ -5,10 +5,10 @@ import { FC, useEffect } from 'react';
 import ReactJson from 'react-json-view';
 
 export const VersionPage: FC = () => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Version');
-  }, [setTitle]);
+    setPageInfo('Version');
+  }, [setPageInfo]);
   return (
     <Container size='xs' px='xs' mb='xl'>
       <Group mt='md' mb='xs'>

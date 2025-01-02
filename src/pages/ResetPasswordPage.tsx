@@ -22,10 +22,10 @@ interface FormValues {
 }
 
 export const ResetPasswordPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Reset Password');
-  }, [setTitle]);
+    setPageInfo('Reset Password');
+  }, [setPageInfo]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState<boolean>(false);

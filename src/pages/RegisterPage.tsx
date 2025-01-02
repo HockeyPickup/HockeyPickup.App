@@ -18,10 +18,10 @@ import { ErrorDetail, RegisterRequest } from '../HockeyPickup.Api';
 import { authService } from '../lib/auth';
 
 export const RegisterPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Register');
-  }, [setTitle]);
+    setPageInfo('Register');
+  }, [setPageInfo]);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);

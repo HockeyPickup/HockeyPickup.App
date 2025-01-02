@@ -7,10 +7,10 @@ import type { ErrorDetail } from '../HockeyPickup.Api';
 import { authService } from '../lib/auth';
 
 export const ConfirmEmailPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Confirm Email');
-  }, [setTitle]);
+    setPageInfo('Confirm Email');
+  }, [setPageInfo]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);

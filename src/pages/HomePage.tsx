@@ -7,12 +7,12 @@ import { JSX, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export const HomePage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   const { user } = useAuth();
 
   useEffect(() => {
-    setTitle('Home');
-  }, [setTitle]);
+    setPageInfo('Home', 'Hockey Pickup Home');
+  }, [setPageInfo]);
 
   return (
     <Container size='xl' mb='lg'>

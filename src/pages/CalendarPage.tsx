@@ -4,11 +4,11 @@ import { JSX, useEffect } from 'react';
 import { useTitle } from '../layouts/TitleContext';
 
 export const CalendarPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
 
   useEffect(() => {
-    setTitle('Calendar');
-  }, [setTitle]);
+    setPageInfo('Calendar', 'Hockey Pickup Calendar');
+  }, [setPageInfo]);
 
   const copyToClipboard = async (inputId: string): Promise<void> => {
     try {

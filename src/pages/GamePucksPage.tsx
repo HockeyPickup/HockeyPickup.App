@@ -17,10 +17,10 @@ interface PhotoInfo {
 }
 
 export const GamePucksPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Game Pucks');
-  }, [setTitle]);
+    setPageInfo('Game Pucks', 'Hockey Pickup Game Pucks');
+  }, [setPageInfo]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

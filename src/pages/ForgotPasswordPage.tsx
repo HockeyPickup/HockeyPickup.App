@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../lib/auth';
 
 export const ForgotPasswordPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Forgot Password');
-  }, [setTitle]);
+    setPageInfo('Forgot Password');
+  }, [setPageInfo]);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

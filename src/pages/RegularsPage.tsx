@@ -127,7 +127,7 @@ const EditRegularSetForm = ({
 };
 
 export const RegularsPage = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   const { isAdmin, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
@@ -139,8 +139,8 @@ export const RegularsPage = (): JSX.Element => {
   );
 
   useEffect(() => {
-    setTitle('Regulars');
-  }, [setTitle]);
+    setPageInfo('Regulars', 'Hockey Pickup Regulars');
+  }, [setPageInfo]);
 
   if (loading) return <LoadingSpinner />;
 

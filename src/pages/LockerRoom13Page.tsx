@@ -4,10 +4,10 @@ import { Container } from '@mantine/core';
 import { JSX, useEffect } from 'react';
 
 export const LockerRoom13Page = (): JSX.Element => {
-  const { setTitle } = useTitle();
+  const { setPageInfo } = useTitle();
   useEffect(() => {
-    setTitle('Locker Room 13');
-  }, [setTitle]);
+    setPageInfo('Locker Room 13');
+  }, [setPageInfo]);
 
   return (
     <Container size='xl' mb='lg'>
