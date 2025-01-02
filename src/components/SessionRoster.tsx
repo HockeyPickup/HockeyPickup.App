@@ -97,7 +97,7 @@ const PlayerCell = ({
         <Avatar
           src={avatarUrl}
           alt={`${player.FirstName} ${player.LastName}`}
-          size={42}
+          size={36}
           radius='xl'
         />
       </Link>
@@ -118,7 +118,7 @@ const PlayerCell = ({
           player.Rating !== null &&
           `, ${player.Rating.toFixed(1)}`}
       </Text>
-      {isAdmin() && (
+      {isAdmin() && showRatings && (
         <Popover
           position='top'
           withArrow

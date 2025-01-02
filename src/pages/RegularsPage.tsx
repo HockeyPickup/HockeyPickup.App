@@ -380,7 +380,7 @@ export const RegularsPage = (): JSX.Element => {
               regular.User.Rating !== null &&
               `, ${regular.User.Rating.toFixed(1)}`}
           </Text>
-          {isAdmin() && (
+          {isAdmin() && showRatings && (
             <Popover
               position='top'
               withArrow
