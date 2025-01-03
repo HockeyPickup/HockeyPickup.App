@@ -222,3 +222,23 @@ export const GET_REGULARSETS = gql`
     }
   }
 `;
+
+export const GET_USERSTATS = gql`
+  query UserStats($UserId: String!) {
+    UserStats(UserId: $UserId) {
+      MemberSince
+      CurrentYearGamesPlayed
+      PriorYearGamesPlayed
+      CurrentYearBoughtTotal
+      PriorYearBoughtTotal
+      LastBoughtSessionDate
+      CurrentYearSoldTotal
+      PriorYearSoldTotal
+      LastSoldSessionDate
+      MostPlayedPosition
+      CurrentBuyRequests
+      WednesdayRegular
+      FridayRegular
+    }
+  }
+`;

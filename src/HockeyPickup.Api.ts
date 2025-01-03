@@ -1516,3 +1516,63 @@ export type ApiDataResponse1 = ApiResponse & {
   /** Response data payload of type T */
   Data?: any;
 };
+
+export interface UserStatsResponse {
+  /**
+   * Date when user became a member
+   * @format date-time
+   * @minLength 1
+   */
+  MemberSince: string;
+  /**
+   * Games played in current year
+   * @format int32
+   */
+  CurrentYearGamesPlayed: number;
+  /**
+   * Games played in prior year
+   * @format int32
+   */
+  PriorYearGamesPlayed: number;
+  /**
+   * Spots bought in current year
+   * @format int32
+   */
+  CurrentYearBoughtTotal: number;
+  /**
+   * Spots bought in prior year
+   * @format int32
+   */
+  PriorYearBoughtTotal: number;
+  /**
+   * Date of last bought session
+   * @format date-time
+   */
+  LastBoughtSessionDate?: string | null;
+  /**
+   * Spots sold in current year
+   * @format int32
+   */
+  CurrentYearSoldTotal: number;
+  /**
+   * Spots sold in prior year
+   * @format int32
+   */
+  PriorYearSoldTotal: number;
+  /**
+   * Date of last sold session
+   * @format date-time
+   */
+  LastSoldSessionDate?: string | null;
+  /** Most frequently played position */
+  MostPlayedPosition?: string | null;
+  /**
+   * Current active buy requests
+   * @format int32
+   */
+  CurrentBuyRequests: number;
+  /** Indicates if user is a regular for upcoming Wednesday sessions */
+  WednesdayRegular: boolean;
+  /** Indicates if user is a regular for upcoming Friday sessions */
+  FridayRegular: boolean;
+}

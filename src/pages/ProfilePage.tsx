@@ -11,6 +11,7 @@ import {
 } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, useAuth } from '@/lib/auth';
+import { GET_USERSTATS } from '@/lib/queries';
 import {
   getImpersonationStatus,
   getUserById,
@@ -18,6 +19,7 @@ import {
   revertImpersonation,
 } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
+import { useQuery } from '@apollo/client';
 import {
   Avatar,
   Button,
@@ -28,6 +30,7 @@ import {
   Paper,
   Select,
   Stack,
+  Table,
   Text,
   TextInput,
   Title,
@@ -45,6 +48,13 @@ const HeaderSection = ({
 }): JSX.Element => {
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const { user } = useAuth();
+
+  const { data: statsData } = useQuery(GET_USERSTATS, {
+    variables: { UserId: profileUser?.Id },
+    skip: !profileUser?.Id,
+  });
+
+  const stats = statsData?.UserStats;
 
   const refreshAvatar = async (): Promise<void> => {
     const url = await AvatarService.getAvatarUrl(profileUser?.PhotoUrl ?? '');
@@ -98,27 +108,63 @@ const HeaderSection = ({
               </Text>
             )}
           </Group>
-          <br />
-          <Group>
-            <Text size='sm'>
-              Player Since:{' '}
-              <Text span fw={500}>
-                {moment.utc(profileUser.DateCreated).local().format('MM/DD/yyyy')}
-              </Text>
-            </Text>
-            <Text size='sm'>
-              Sessions Played:{' '}
-              <Text span fw={500}>
-                999
-              </Text>
-            </Text>
-            <Text size='sm'>
-              Last Session:{' '}
-              <Text span fw={500}>
-                01/01/2030
-              </Text>
-            </Text>
-          </Group>
+          <Table mt='md' highlightOnHover>
+            <Table.Tbody>
+              <Table.Tr>
+                <Table.Td>Player Since</Table.Td>
+                <Table.Td>
+                  {moment
+                    .utc(stats?.MemberSince ?? profileUser.DateCreated)
+                    .local()
+                    .format('MM/DD/yyyy')}
+                </Table.Td>
+                <Table.Td>Most Played Position</Table.Td>
+                <Table.Td>{stats?.MostPlayedPosition ?? 'N/A'}</Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>Games This Year</Table.Td>
+                <Table.Td>{stats?.CurrentYearGamesPlayed ?? 0}</Table.Td>
+                <Table.Td>Games Last Year</Table.Td>
+                <Table.Td>{stats?.PriorYearGamesPlayed ?? 0}</Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>Bought This Year</Table.Td>
+                <Table.Td>{stats?.CurrentYearBoughtTotal ?? 0}</Table.Td>
+                <Table.Td>Bought Last Year</Table.Td>
+                <Table.Td>{stats?.PriorYearBoughtTotal ?? 0}</Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>Sold This Year</Table.Td>
+                <Table.Td>{stats?.CurrentYearSoldTotal ?? 0}</Table.Td>
+                <Table.Td>Sold Last Year</Table.Td>
+                <Table.Td>{stats?.PriorYearSoldTotal ?? 0}</Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>Last Bought Session</Table.Td>
+                <Table.Td>
+                  {stats?.LastBoughtSessionDate
+                    ? moment.utc(stats.LastBoughtSessionDate).local().format('MM/DD/yyyy')
+                    : 'N/A'}
+                </Table.Td>
+                <Table.Td>Last Sold Session</Table.Td>
+                <Table.Td>
+                  {stats?.LastSoldSessionDate
+                    ? moment.utc(stats.LastSoldSessionDate).local().format('MM/DD/yyyy')
+                    : 'N/A'}
+                </Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>Active Buy Requests</Table.Td>
+                <Table.Td>{stats?.CurrentBuyRequests ?? 0}</Table.Td>
+                <Table.Td>Regular Player</Table.Td>
+                <Table.Td>
+                  {[stats?.WednesdayRegular && 'Wednesday', stats?.FridayRegular && 'Friday']
+                    .filter(Boolean)
+                    .join(', ') || 'No'}
+                </Table.Td>
+              </Table.Tr>
+            </Table.Tbody>
+          </Table>{' '}
         </div>
       </Group>
     </Paper>
