@@ -1,5 +1,6 @@
 import { AvatarUpload } from '@/components/AvatarUpload';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useRatingsVisibility } from '@/components/RatingsToggle';
 import {
   AdminUserUpdateRequest,
   ErrorDetail,
@@ -50,7 +51,8 @@ const HeaderSection = ({
   profileUser: UserDetailedResponse | null;
 }): JSX.Element => {
   const [avatarUrl, setAvatarUrl] = useState<string>('');
-  const { user } = useAuth();
+  const { user, canViewRatings } = useAuth();
+  const { showRatings } = useRatingsVisibility();
 
   const { data: statsData } = useQuery(GET_USERSTATS, {
     variables: { UserId: profileUser?.Id },
@@ -142,6 +144,14 @@ const HeaderSection = ({
                   .join(', ') || 'No'}
               </Text>
             </Group>
+            {showRatings && canViewRatings && (
+              <Group gap={5}>
+                <Text size='sm' fw={500} w={150} ta='right'>
+                  Rating:
+                </Text>
+                <Text size='lg'>{profileUser?.Rating ?? 'N/A'}</Text>
+              </Group>
+            )}
           </Stack>
         </Card>{' '}
       </Group>
@@ -378,6 +388,7 @@ export const ProfilePage = (): JSX.Element => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
+  const { showRatings } = useRatingsVisibility();
 
   const fetchImpersonationStatus = async (): Promise<void> => {
     const status: ImpersonationStatusResponse | null = await getImpersonationStatus();
@@ -469,13 +480,15 @@ export const ProfilePage = (): JSX.Element => {
   return (
     <Container size='xl' mb='lg' ml='sm'>
       <HeaderSection profileUser={profileUser} />
-      {isAdmin() && !impersonationStatus?.IsImpersonating && user && user.Id !== userId && (
-        <Button onClick={handleImpersonate}>Impersonate</Button>
-      )}
+      {isAdmin() &&
+        showRatings &&
+        !impersonationStatus?.IsImpersonating &&
+        user &&
+        user.Id !== userId && <Button onClick={handleImpersonate}>Impersonate</Button>}
       {impersonationStatus?.IsImpersonating && user && user.Id === userId && (
         <Button onClick={handleRevertImpersonation}>Revert Impersonation</Button>
       )}{' '}
-      {isAdmin() && (
+      {isAdmin() && showRatings && (
         <Button onClick={() => setIsEditing(!isEditing)}>
           {isEditing ? 'Cancel' : 'Admin Edit'}
         </Button>
