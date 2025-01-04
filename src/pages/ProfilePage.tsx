@@ -124,16 +124,14 @@ const HeaderSection = ({
                   .format('MM/DD/yyyy')}
               </Text>
             </Group>
-            {profileUser?.PositionPreference && (
-              <Group gap={5}>
-                <Text size='sm' fw={500} w={150} ta='right'>
-                  Position Preference:
-                </Text>
-                <Text size='lg'>
-                  {PositionPreference[profileUser.PositionPreference ?? PositionPreference.TBD]}
-                </Text>
-              </Group>
-            )}
+            <Group gap={5}>
+              <Text size='sm' fw={500} w={150} ta='right'>
+                Position Preference:
+              </Text>
+              <Text size='lg'>
+                {PositionPreference[profileUser.PositionPreference ?? PositionPreference.TBD]}
+              </Text>
+            </Group>
             <Group gap={5}>
               <Text size='sm' fw={500} w={150} ta='right'>
                 Regular Player:
