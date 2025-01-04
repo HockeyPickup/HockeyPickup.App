@@ -6,6 +6,7 @@ import {
   ImpersonationResponse,
   ImpersonationStatusResponse,
   NotificationPreference,
+  PositionPreference,
   RevertImpersonationResponse,
   UserDetailedResponse,
 } from '@/HockeyPickup.Api';
@@ -113,7 +114,7 @@ const HeaderSection = ({
         >
           <Stack gap={5}>
             <Group gap={5}>
-              <Text size='sm' fw={500} w={120} ta='right'>
+              <Text size='sm' fw={500} w={150} ta='right'>
                 Player Since:
               </Text>
               <Text size='lg'>
@@ -123,16 +124,18 @@ const HeaderSection = ({
                   .format('MM/DD/yyyy')}
               </Text>
             </Group>
-            {stats?.MostPlayedPosition && (
+            {profileUser?.PositionPreference && (
               <Group gap={5}>
-                <Text size='sm' fw={500} w={120} ta='right'>
-                  Position:
+                <Text size='sm' fw={500} w={150} ta='right'>
+                  Position Preference:
                 </Text>
-                <Text size='lg'>{stats.MostPlayedPosition}</Text>
+                <Text size='lg'>
+                  {PositionPreference[profileUser.PositionPreference ?? PositionPreference.TBD]}
+                </Text>
               </Group>
             )}
             <Group gap={5}>
-              <Text size='sm' fw={500} w={120} ta='right'>
+              <Text size='sm' fw={500} w={150} ta='right'>
                 Regular Player:
               </Text>
               <Text size='lg'>
@@ -239,6 +242,7 @@ const EditUserForm = ({
       EmergencyName: profileUser.EmergencyName ?? '',
       EmergencyPhone: profileUser.EmergencyPhone ?? '',
       NotificationPreference: profileUser.NotificationPreference ?? NotificationPreference.None,
+      PositionPreference: profileUser.PositionPreference ?? PositionPreference.TBD,
       Active: profileUser.Active,
       Preferred: profileUser.Preferred,
       PreferredPlus: profileUser.PreferredPlus,
@@ -312,6 +316,22 @@ const EditUserForm = ({
               form.setFieldValue(
                 'NotificationPreference',
                 value ? (parseInt(value) as NotificationPreference) : null,
+              )
+            }
+          />
+          <Select
+            label='Position Preference'
+            data={[
+              { value: PositionPreference.TBD.toString(), label: 'TBD' },
+              { value: PositionPreference.Forward.toString(), label: 'Forward' },
+              { value: PositionPreference.Defense.toString(), label: 'Defense' },
+              { value: PositionPreference.Goalie.toString(), label: 'Goalie' },
+            ]}
+            value={form.values.PositionPreference?.toString()}
+            onChange={(value) =>
+              form.setFieldValue(
+                'PositionPreference',
+                value ? (parseInt(value) as PositionPreference) : null,
               )
             }
           />

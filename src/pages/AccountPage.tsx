@@ -25,6 +25,7 @@ import {
   ChangePasswordRequest,
   ErrorDetail,
   NotificationPreference,
+  PositionPreference,
   SaveUserRequest,
 } from '../HockeyPickup.Api';
 
@@ -151,6 +152,7 @@ const PreferencesSection = (): JSX.Element => {
       EmergencyName: user?.EmergencyName ?? '',
       EmergencyPhone: user?.EmergencyPhone ?? '',
       NotificationPreference: user?.NotificationPreference ?? NotificationPreference.None,
+      PositionPreference: user?.PositionPreference ?? PositionPreference.TBD,
     },
     validate: {
       FirstName: (value) => (!value ? 'First name is required' : null),
@@ -259,7 +261,23 @@ const PreferencesSection = (): JSX.Element => {
                 value ? (parseInt(value) as NotificationPreference) : null,
               )
             }
-          />{' '}
+          />
+          <Select
+            label='Position Preference'
+            data={[
+              { value: PositionPreference.TBD.toString(), label: 'TBD' },
+              { value: PositionPreference.Forward.toString(), label: 'Forward' },
+              { value: PositionPreference.Defense.toString(), label: 'Defense' },
+              { value: PositionPreference.Goalie.toString(), label: 'Goalie' },
+            ]}
+            value={form.values.PositionPreference?.toString()}
+            onChange={(value) =>
+              form.setFieldValue(
+                'PositionPreference',
+                value ? (parseInt(value) as PositionPreference) : null,
+              )
+            }
+          />
           {apiErrors.length > 0 && (
             <Stack gap='xs'>
               {apiErrors.map((error, index) => (

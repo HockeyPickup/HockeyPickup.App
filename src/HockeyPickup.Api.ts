@@ -76,6 +76,8 @@ export interface UserDetailedResponse {
   PreferredPlus: boolean;
   /** User's notification preferences */
   NotificationPreference?: NotificationPreference | null;
+  /** User's position preferences */
+  PositionPreference?: PositionPreference | null;
   /**
    * User's Venmo account
    * @maxLength 255
@@ -129,6 +131,13 @@ export enum NotificationPreference {
   None = 0,
   All = 1,
   OnlyMyBuySell = 2,
+}
+
+export enum PositionPreference {
+  TBD = 0,
+  Forward = 1,
+  Defense = 2,
+  Goalie = 3,
 }
 
 /** Generic API response wrapper */
@@ -204,6 +213,8 @@ export type AspNetUser = IdentityUserOfString & {
   LastName?: string | null;
   /** @format int32 */
   NotificationPreference?: number;
+  /** @format int32 */
+  PositionPreference?: number;
   PayPalEmail?: string | null;
   Active?: boolean;
   Preferred?: boolean;
@@ -585,6 +596,8 @@ export interface SaveUserRequest {
   EmergencyPhone?: string | null;
   /** User's notification preference setting */
   NotificationPreference?: NotificationPreference | null;
+  /** User's position preference setting */
+  PositionPreference?: PositionPreference | null;
 }
 
 export type AdminUserUpdateRequest = SaveUserRequestEx & {
@@ -1443,6 +1456,13 @@ export interface User {
    * @max 2147483647
    */
   NotificationPreference: number;
+  /**
+   * User's position preferences
+   * @format int32
+   * @min 0
+   * @max 2147483647
+   */
+  PositionPreference: number;
   /**
    * User's PayPal email address
    * @format email

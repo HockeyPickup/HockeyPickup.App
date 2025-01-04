@@ -13,6 +13,7 @@ export const GET_USERS = gql`
       Preferred
       PreferredPlus
       NotificationPreference
+      PositionPreference
       VenmoAccount
       MobileLast4
       EmergencyName
@@ -117,6 +118,7 @@ export const GET_SESSION = gql`
             Preferred
             PreferredPlus
             NotificationPreference
+            PositionPreference
             VenmoAccount
             MobileLast4
             EmergencyName
@@ -208,6 +210,7 @@ export const GET_REGULARSETS = gql`
           Preferred
           PreferredPlus
           NotificationPreference
+          PositionPreference
           VenmoAccount
           MobileLast4
           EmergencyName
