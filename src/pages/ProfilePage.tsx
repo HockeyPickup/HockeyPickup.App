@@ -22,15 +22,17 @@ import { AvatarService } from '@/services/avatar';
 import { useQuery } from '@apollo/client';
 import {
   Avatar,
+  Badge,
   Button,
+  Card,
   Checkbox,
   Container,
+  Grid,
   Group,
   NumberInput,
   Paper,
   Select,
   Stack,
-  Table,
   Text,
   TextInput,
   Title,
@@ -67,107 +69,149 @@ const HeaderSection = ({
 
   if (!profileUser) return <Text>Player not found</Text>;
 
+  const currentYear = moment().year();
+  const lastYear = currentYear - 1;
+
   return (
-    <Paper withBorder p='md' mb='lg' bg='var(--mantine-color-dark-7)'>
-      <Group>
-        <Avatar
-          src={avatarUrl}
-          alt={`${profileUser.FirstName} ${profileUser.LastName}`}
-          size={180}
-          radius='xl'
-        />
-        <div>
-          <Title order={2}>
-            {profileUser.FirstName} {profileUser.LastName} {profileUser.Id === user?.Id && '(Me)'}
-          </Title>
-          <Group mt='md'>
-            <Text size='sm'>
-              Active:{' '}
-              <Text span c={profileUser.Active ? 'green.6' : 'red.6'}>
-                {profileUser.Active ? '✓' : '✗'}
+    <Card
+      shadow='sm'
+      p='lg'
+      radius='md'
+      withBorder
+      style={{
+        maxWidth: 800,
+        background:
+          'linear-gradient(45deg, var(--mantine-color-dark-7), var(--mantine-color-dark-6))',
+        border: '2px solid var(--mantine-color-dark-4)',
+      }}
+    >
+      {/* Header Section */}
+      <Group justify='space-between' mb='md'>
+        <Group>
+          <Avatar src={avatarUrl} size={120} radius='md' />
+          <div>
+            <Title order={2} mb={5}>
+              {profileUser.FirstName} {profileUser.LastName}
+              {profileUser.Id === user?.Id && ' (Me)'}
+            </Title>
+            <Group gap={5}>
+              {profileUser.Active && <Badge color='green'>Active</Badge>}
+              {profileUser.Preferred && <Badge color='blue'>Preferred</Badge>}
+              {profileUser.PreferredPlus && <Badge color='violet'>Preferred+</Badge>}
+              {profileUser.LockerRoom13 && <Badge color='yellow'>LR13</Badge>}
+            </Group>
+          </div>
+        </Group>
+        <Card
+          p='md'
+          radius='md'
+          style={{
+            background: 'var(--mantine-color-dark-6)',
+            border: '1px solid var(--mantine-color-dark-4)',
+            width: '100%',
+          }}
+        >
+          <Stack gap={5}>
+            <Group gap={5}>
+              <Text size='sm' fw={500} w={120} ta='right'>
+                Player Since:
               </Text>
-            </Text>
-            <Text size='sm'>
-              Preferred:{' '}
-              <Text span c={profileUser.Preferred ? 'green.6' : 'red.6'}>
-                {profileUser.Preferred ? '✓' : '✗'}
+              <Text size='lg'>
+                {moment
+                  .utc(stats?.MemberSince ?? profileUser.DateCreated)
+                  .local()
+                  .format('MM/DD/yyyy')}
               </Text>
-            </Text>
-            <Text size='sm'>
-              Preferred Plus:{' '}
-              <Text span c={profileUser.PreferredPlus ? 'green.6' : 'red.6'}>
-                {profileUser.PreferredPlus ? '✓' : '✗'}
-              </Text>
-            </Text>
-            {profileUser.LockerRoom13 && (
-              <Text size='sm'>
-                Locker Room 13:{' '}
-                <Text span c={profileUser.LockerRoom13 ? 'green.6' : 'red.6'}>
-                  {profileUser.LockerRoom13 ? '✓' : '✗'}
+            </Group>
+            {stats?.MostPlayedPosition && (
+              <Group gap={5}>
+                <Text size='sm' fw={500} w={120} ta='right'>
+                  Position:
                 </Text>
-              </Text>
+                <Text size='lg'>{stats.MostPlayedPosition}</Text>
+              </Group>
             )}
-          </Group>
-          <Table mt='md' highlightOnHover>
-            <Table.Tbody>
-              <Table.Tr>
-                <Table.Td>Player Since</Table.Td>
-                <Table.Td>
-                  {moment
-                    .utc(stats?.MemberSince ?? profileUser.DateCreated)
-                    .local()
-                    .format('MM/DD/yyyy')}
-                </Table.Td>
-                <Table.Td>Most Played Position</Table.Td>
-                <Table.Td>{stats?.MostPlayedPosition ?? 'N/A'}</Table.Td>
-              </Table.Tr>
-              <Table.Tr>
-                <Table.Td>Games This Year</Table.Td>
-                <Table.Td>{stats?.CurrentYearGamesPlayed ?? 0}</Table.Td>
-                <Table.Td>Games Last Year</Table.Td>
-                <Table.Td>{stats?.PriorYearGamesPlayed ?? 0}</Table.Td>
-              </Table.Tr>
-              <Table.Tr>
-                <Table.Td>Bought This Year</Table.Td>
-                <Table.Td>{stats?.CurrentYearBoughtTotal ?? 0}</Table.Td>
-                <Table.Td>Bought Last Year</Table.Td>
-                <Table.Td>{stats?.PriorYearBoughtTotal ?? 0}</Table.Td>
-              </Table.Tr>
-              <Table.Tr>
-                <Table.Td>Sold This Year</Table.Td>
-                <Table.Td>{stats?.CurrentYearSoldTotal ?? 0}</Table.Td>
-                <Table.Td>Sold Last Year</Table.Td>
-                <Table.Td>{stats?.PriorYearSoldTotal ?? 0}</Table.Td>
-              </Table.Tr>
-              <Table.Tr>
-                <Table.Td>Last Bought Session</Table.Td>
-                <Table.Td>
-                  {stats?.LastBoughtSessionDate
-                    ? moment.utc(stats.LastBoughtSessionDate).local().format('MM/DD/yyyy')
-                    : 'N/A'}
-                </Table.Td>
-                <Table.Td>Last Sold Session</Table.Td>
-                <Table.Td>
-                  {stats?.LastSoldSessionDate
-                    ? moment.utc(stats.LastSoldSessionDate).local().format('MM/DD/yyyy')
-                    : 'N/A'}
-                </Table.Td>
-              </Table.Tr>
-              <Table.Tr>
-                <Table.Td>Active Buy Requests</Table.Td>
-                <Table.Td>{stats?.CurrentBuyRequests ?? 0}</Table.Td>
-                <Table.Td>Regular Player</Table.Td>
-                <Table.Td>
-                  {[stats?.WednesdayRegular && 'Wednesday', stats?.FridayRegular && 'Friday']
-                    .filter(Boolean)
-                    .join(', ') || 'No'}
-                </Table.Td>
-              </Table.Tr>
-            </Table.Tbody>
-          </Table>{' '}
-        </div>
+            <Group gap={5}>
+              <Text size='sm' fw={500} w={120} ta='right'>
+                Regular Player:
+              </Text>
+              <Text size='lg'>
+                {[stats?.WednesdayRegular && 'Wednesday', stats?.FridayRegular && 'Friday']
+                  .filter(Boolean)
+                  .join(', ') || 'No'}
+              </Text>
+            </Group>
+          </Stack>
+        </Card>{' '}
       </Group>
-    </Paper>
+
+      {/* Stats Grid */}
+      <Grid grow gutter='xl'>
+        <Grid.Col span={6}>
+          <Stack gap='xs'>
+            <Title order={4} c='dimmed'>
+              Games Played
+            </Title>
+            <Group justify='space-between'>
+              <Text>{currentYear}:</Text>
+              <Text fw={700} size='xl'>
+                {stats?.CurrentYearGamesPlayed ?? 0}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{lastYear}:</Text>
+              <Text fw={700} size='xl'>
+                {stats?.PriorYearGamesPlayed ?? 0}
+              </Text>
+            </Group>
+          </Stack>
+        </Grid.Col>
+
+        <Grid.Col span={6}>
+          <Stack gap='xs'>
+            <Title order={4} c='dimmed'>
+              Transactions
+            </Title>
+            <Group justify='space-between'>
+              <Text>{currentYear} Bought:</Text>
+              <Text fw={700}>{stats?.CurrentYearBoughtTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{currentYear} Sold:</Text>
+              <Text fw={700}>{stats?.CurrentYearSoldTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{lastYear} Bought:</Text>
+              <Text fw={700}>{stats?.PriorYearBoughtTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{lastYear} Sold:</Text>
+              <Text fw={700}>{stats?.PriorYearSoldTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>Open Buy Requests:</Text>
+              <Text fw={700}>{stats?.CurrentBuyRequests ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>Last Bought:</Text>
+              <Text fw={700}>
+                {stats?.LastBoughtSessionDate
+                  ? moment.utc(stats.LastBoughtSessionDate).local().format('MM/DD/yyyy')
+                  : 'N/A'}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>Last Sold:</Text>
+              <Text fw={700}>
+                {stats?.LastSoldSessionDate
+                  ? moment.utc(stats.LastSoldSessionDate).local().format('MM/DD/yyyy')
+                  : 'N/A'}
+              </Text>
+            </Group>
+          </Stack>
+        </Grid.Col>
+      </Grid>
+    </Card>
   );
 };
 
