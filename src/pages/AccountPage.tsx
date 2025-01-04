@@ -163,7 +163,11 @@ const PreferencesSection = (): JSX.Element => {
       },
       MobileLast4: (value) => (value ? (/^\d{4}$/.test(value) ? null : 'Must be 4 digits') : null),
       EmergencyPhone: (value) =>
-        value ? (/^\+?[\d\s-]{10,}$/.test(value) ? null : 'Invalid phone number') : null,
+        value
+          ? /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$/.test(value)
+            ? null
+            : 'Invalid phone number'
+          : null,
     },
   });
 
