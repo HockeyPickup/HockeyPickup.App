@@ -153,12 +153,20 @@ const PreferencesSection = (): JSX.Element => {
       MobileLast4: user?.MobileLast4 ?? '',
       EmergencyName: user?.EmergencyName ?? '',
       EmergencyPhone: user?.EmergencyPhone ?? '',
+      JerseyNumber: user?.JerseyNumber ?? 0,
       NotificationPreference: user?.NotificationPreference ?? NotificationPreference.None,
       PositionPreference: user?.PositionPreference ?? PositionPreference.TBD,
     },
     validate: {
       FirstName: (value) => (!value ? 'First name is required' : null),
       LastName: (value) => (!value ? 'Last name is required' : null),
+      JerseyNumber: (value) => {
+        if (value === null || value === undefined) return null;
+        const num = Number(value);
+        if (!Number.isInteger(num)) return 'Must be a whole number';
+        if (num < 0 || num > 98) return 'Must be between 0 and 98';
+        return null;
+      },
       PayPalEmail: (value) => {
         if (!value) return 'PayPal email is required';
         return /^\S+@\S+$/.test(value) ? null : 'Invalid email format';
@@ -180,6 +188,7 @@ const PreferencesSection = (): JSX.Element => {
     try {
       const response = await authService.saveUser(values);
       if (response.Success) {
+        await refreshUser();
         notifications.show({
           position: 'top-center',
           autoClose: 5000,
@@ -227,6 +236,12 @@ const PreferencesSection = (): JSX.Element => {
             label='Last Name'
             placeholder='Your last name'
             {...form.getInputProps('LastName')}
+          />
+          <TextInput
+            label='Jersey Number'
+            placeholder='0'
+            maxLength={2}
+            {...form.getInputProps('JerseyNumber')}
           />
           <TextInput
             label='PayPal Email'
@@ -294,7 +309,7 @@ const PreferencesSection = (): JSX.Element => {
               ))}
             </Stack>
           )}
-          <Button type='submit' fullWidth mt='xl' loading={isLoading}>
+          <Button type='submit' fullWidth loading={isLoading}>
             Save Preferences
           </Button>
         </Stack>
@@ -313,7 +328,7 @@ export const AccountPage = (): JSX.Element => {
   }, [setPageInfo]);
 
   return (
-    <Container size='xl' mb='lg'>
+    <Container size='xl' mb={70}>
       <Link to={`/profile/${user?.Id}`}>
         <Button variant='outline' mb='md'>
           View Profile

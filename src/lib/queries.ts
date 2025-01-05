@@ -18,6 +18,7 @@ export const GET_USERS = gql`
       MobileLast4
       EmergencyName
       EmergencyPhone
+      JerseyNumber
       PhotoUrl
       LockerRoom13
       DateCreated
@@ -123,6 +124,7 @@ export const GET_SESSION = gql`
             MobileLast4
             EmergencyName
             EmergencyPhone
+            JerseyNumber
             PhotoUrl
             LockerRoom13
             Rating
@@ -215,6 +217,7 @@ export const GET_REGULARSETS = gql`
           MobileLast4
           EmergencyName
           EmergencyPhone
+          JerseyNumber
           PhotoUrl
           LockerRoom13
           DateCreated

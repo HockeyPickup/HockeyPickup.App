@@ -41,7 +41,10 @@ const UsersTableComponent = ({
                 />
               </Link>
             </Table.Td>
-            <Table.Td>{`${user.FirstName} ${user.LastName}`}</Table.Td>
+            <Table.Td>
+              {`${user.FirstName} ${user.LastName}`}
+              {user.JerseyNumber !== 0 && ` #${user.JerseyNumber}`}
+            </Table.Td>
             <Table.Td>{user.Email}</Table.Td>
             <Table.Td>{user.PayPalEmail}</Table.Td>
             <Table.Td>{user.VenmoAccount}</Table.Td>

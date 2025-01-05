@@ -42,7 +42,10 @@ const GoalieTableComponent = ({
                     radius='xl'
                     size={96}
                   />
-                  <Text size='lg'>{`${goalie.FirstName} ${goalie.LastName}`}</Text>
+                  <Text size='lg'>
+                    {`${goalie.FirstName} ${goalie.LastName}`}
+                    {goalie.JerseyNumber !== 0 && ` #${goalie.JerseyNumber}`}
+                  </Text>
                 </div>
               </Link>
             </Table.Td>

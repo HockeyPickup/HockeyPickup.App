@@ -98,6 +98,7 @@ const HeaderSection = ({
             <Title order={2} mb={5}>
               {profileUser.FirstName} {profileUser.LastName}
               {profileUser.Id === user?.Id && ' (Me)'}
+              {profileUser.JerseyNumber !== 0 && ` #${profileUser.JerseyNumber}`}
             </Title>
             <Group gap={5}>
               {profileUser.Active && <Badge color='green'>Active</Badge>}
@@ -260,6 +261,7 @@ const EditUserForm = ({
       MobileLast4: profileUser.MobileLast4 ?? '',
       EmergencyName: profileUser.EmergencyName ?? '',
       EmergencyPhone: profileUser.EmergencyPhone ?? '',
+      JerseyNumber: profileUser.JerseyNumber ?? 0,
       NotificationPreference: profileUser.NotificationPreference ?? NotificationPreference.None,
       PositionPreference: profileUser.PositionPreference ?? PositionPreference.TBD,
       Active: profileUser.Active,
@@ -271,6 +273,13 @@ const EditUserForm = ({
     validate: {
       FirstName: (value) => (!value ? 'First name is required' : null),
       LastName: (value) => (!value ? 'Last name is required' : null),
+      JerseyNumber: (value) => {
+        if (value === null || value === undefined) return null;
+        const num = Number(value);
+        if (!Number.isInteger(num)) return 'Must be a whole number';
+        if (num < 0 || num > 98) return 'Must be between 0 and 98';
+        return null;
+      },
       PayPalEmail: (value) => {
         if (!value) return 'PayPal email is required';
         return /^\S+@\S+$/.test(value) ? null : 'Invalid email format';
@@ -286,7 +295,7 @@ const EditUserForm = ({
   });
 
   return (
-    <Paper withBorder shadow='md' p={30} radius='md' style={{ maxWidth: 420 }}>
+    <Paper withBorder shadow='md' p={30} mb='xl' radius='md' style={{ maxWidth: 420 }}>
       <Title size='xl'>Edit Player</Title>
       <form onSubmit={form.onSubmit(onSave)}>
         <Stack>
@@ -300,6 +309,12 @@ const EditUserForm = ({
             label='Last Name'
             placeholder='Last name'
             {...form.getInputProps('LastName')}
+          />
+          <TextInput
+            label='Jersey Number'
+            placeholder='0'
+            maxLength={2}
+            {...form.getInputProps('JerseyNumber')}
           />
           <TextInput
             label='PayPal Email'
@@ -379,7 +394,6 @@ const EditUserForm = ({
               ))}
             </Stack>
           )}
-
           <Button type='submit' mb='md' fullWidth loading={isLoading}>
             Save Player
           </Button>

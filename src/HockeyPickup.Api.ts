@@ -101,6 +101,13 @@ export interface UserDetailedResponse {
    * @maxLength 20
    */
   EmergencyPhone?: string | null;
+  /**
+   * Jersey Number
+   * @format int32
+   * @min 0
+   * @max 98
+   */
+  JerseyNumber: number;
   /** Indicates if user has Locker Room 13 access */
   LockerRoom13: boolean;
   /**
@@ -225,6 +232,8 @@ export type AspNetUser = IdentityUserOfString & {
   PreferredPlus?: boolean;
   EmergencyName?: string | null;
   EmergencyPhone?: string | null;
+  /** @format int32 */
+  JerseyNumber?: number;
   LockerRoom13?: boolean;
   PhotoUrl?: string | null;
   /** @format date-time */
@@ -594,6 +603,13 @@ export interface SaveUserRequest {
    * @maxLength 20
    */
   EmergencyPhone?: string | null;
+  /**
+   * Jersey Number
+   * @format int32
+   * @min 0
+   * @max 98
+   */
+  JerseyNumber: number;
   /** User's notification preference setting */
   NotificationPreference?: NotificationPreference | null;
   /** User's position preference setting */
@@ -1506,6 +1522,13 @@ export interface User {
    * @maxLength 20
    */
   EmergencyPhone?: string | null;
+  /**
+   * Jersey Number
+   * @format int32
+   * @min 0
+   * @max 98
+   */
+  JerseyNumber: number;
   /** Indicates if user has Locker Room 13 access */
   LockerRoom13: boolean;
   /**
