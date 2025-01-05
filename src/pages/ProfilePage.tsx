@@ -391,13 +391,14 @@ const EditUserForm = ({
 export const ProfilePage = (): JSX.Element => {
   const { userId } = useParams();
   const { setPageInfo } = useTitle();
-  const { isAdmin, user, setUser } = useAuth();
+  const { isAdmin, isSubAdmin, user, setUser } = useAuth();
   const [profileUser, setProfileUser] = useState<UserDetailedResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [impersonationStatus, setImpersonationStatus] = useState<ImpersonationStatusResponse>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
+  const [showEmergencyInfo, setShowEmergencyInfo] = useState<boolean>(false);
   const { showRatings } = useRatingsVisibility();
 
   const fetchImpersonationStatus = async (): Promise<void> => {
@@ -488,20 +489,51 @@ export const ProfilePage = (): JSX.Element => {
   };
 
   return (
-    <Container size='xl' mb='lg' ml='sm'>
+    <Container size='xl' mb={50} ml='sm'>
       <HeaderSection profileUser={profileUser} />
-      {isAdmin() &&
-        showRatings &&
-        !impersonationStatus?.IsImpersonating &&
-        user &&
-        user.Id !== userId && <Button onClick={handleImpersonate}>Impersonate</Button>}
-      {impersonationStatus?.IsImpersonating && user && user.Id === userId && (
-        <Button onClick={handleRevertImpersonation}>Revert Impersonation</Button>
-      )}{' '}
-      {isAdmin() && showRatings && (
-        <Button onClick={() => setIsEditing(!isEditing)}>
-          {isEditing ? 'Cancel' : 'Admin Edit'}
-        </Button>
+      <Group gap='xs'>
+        {(isAdmin() || isSubAdmin()) && showRatings && (
+          <>
+            <Button
+              size='xs'
+              variant='light'
+              onClick={() => setShowEmergencyInfo(!showEmergencyInfo)}
+            >
+              {showEmergencyInfo ? 'Hide' : 'Show'} Emergency Info
+            </Button>
+          </>
+        )}
+        {isAdmin() &&
+          showRatings &&
+          !impersonationStatus?.IsImpersonating &&
+          user &&
+          user.Id !== userId && (
+            <Button size='xs' variant='light' onClick={handleImpersonate}>
+              Impersonate
+            </Button>
+          )}
+        {impersonationStatus?.IsImpersonating && user && user.Id === userId && (
+          <Button size='xs' variant='light' onClick={handleRevertImpersonation}>
+            Revert Impersonation
+          </Button>
+        )}
+        {isAdmin() && showRatings && (
+          <Button size='xs' variant='light' onClick={() => setIsEditing(!isEditing)}>
+            {isEditing ? 'Cancel' : 'Admin Edit'}
+          </Button>
+        )}
+      </Group>{' '}
+      {showEmergencyInfo && profileUser && (
+        <Paper p='xs' mt='xs' withBorder>
+          <Stack>
+            <Group>
+              <Text fw={500}>Emergency Contact: {profileUser.EmergencyName ?? 'Not provided'}</Text>
+            </Group>
+            <Group>
+              <Text fw={500}>Emergency Phone: {profileUser.EmergencyPhone ?? 'Not provided'}</Text>
+            </Group>
+          </Stack>
+        </Paper>
       )}
       {isEditing && profileUser && (
         <EditUserForm

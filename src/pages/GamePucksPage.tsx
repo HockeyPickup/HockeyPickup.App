@@ -102,7 +102,7 @@ export const GamePucksPage = (): JSX.Element => {
       {isLoading && <LoadingSpinner />}
       <Box mb='md' ml='md' mr='md' mt='md'>
         <TextInput
-          placeholder='Search by name...'
+          placeholder='Search...'
           value={searchQuery}
           onChange={(event) => handleSearch(event.currentTarget.value)}
           rightSection={
