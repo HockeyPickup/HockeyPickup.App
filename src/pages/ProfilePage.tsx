@@ -43,7 +43,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const HeaderSection = ({
   profileUser,
@@ -53,6 +53,7 @@ const HeaderSection = ({
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const { user, canViewRatings } = useAuth();
   const { showRatings } = useRatingsVisibility();
+  const navigate = useNavigate();
 
   const { data: statsData } = useQuery(GET_USERSTATS, {
     variables: { UserId: profileUser?.Id },
@@ -102,6 +103,15 @@ const HeaderSection = ({
               {profileUser.Preferred && <Badge color='blue'>Preferred</Badge>}
               {profileUser.PreferredPlus && <Badge color='violet'>Preferred+</Badge>}
               {profileUser.LockerRoom13 && <Badge color='yellow'>LR13</Badge>}
+              <Badge
+                color='cyan'
+                style={{ cursor: 'pointer' }}
+                onClick={() =>
+                  navigate(`/game-pucks?search=${profileUser.FirstName} ${profileUser.LastName}`)
+                }
+              >
+                Game Pucks
+              </Badge>
             </Group>
           </div>
         </Group>
@@ -158,7 +168,7 @@ const HeaderSection = ({
 
       {/* Stats Grid */}
       <Grid grow gutter='xl'>
-        <Grid.Col span={6}>
+        <Grid.Col span={{ base: 5 }}>
           <Stack gap='xs'>
             <Title order={4} c='dimmed'>
               Games Played
@@ -178,7 +188,7 @@ const HeaderSection = ({
           </Stack>
         </Grid.Col>
 
-        <Grid.Col span={6}>
+        <Grid.Col span={{ base: 7 }}>
           <Stack gap='xs'>
             <Title order={4} c='dimmed'>
               Transactions

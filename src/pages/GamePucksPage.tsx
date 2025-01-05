@@ -1,7 +1,9 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useTitle } from '@/layouts/TitleContext';
-import { Box, Container } from '@mantine/core';
+import { ActionIcon, Box, Container, Text, TextInput } from '@mantine/core';
+import { IconX } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 interface FlickrPhoto {
   id: string;
@@ -18,15 +20,25 @@ interface PhotoInfo {
 
 export const GamePucksPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '');
+  const [isLoading, setIsLoading] = useState(true);
+  const [photos, setPhotos] = useState<
+    Array<{
+      photo: FlickrPhoto;
+      photoInfo: PhotoInfo;
+      createdDate: Date;
+    }>
+  >([]);
+
   useEffect(() => {
     setPageInfo('Game Pucks', 'Hockey Pickup Game Pucks');
   }, [setPageInfo]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const apiKey = '80ce3a61ed9e788c8e4e31641582fc0a';
     const flickrAlbumId = '72177720312370541';
-    const flickrUrl = `https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${flickrAlbumId}&format=json&nojsoncallback=1&sort=date-posted-desc`;
+    const flickrUrl = `https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${flickrAlbumId}&format=json&nojsoncallback=1`;
 
     const photoPromises: Promise<{
       photo: FlickrPhoto;
@@ -37,6 +49,12 @@ export const GamePucksPage = (): JSX.Element => {
     fetch(flickrUrl)
       .then((response) => response.json())
       .then((data) => {
+        // Add error handling
+        if (!data.photoset?.photo) {
+          console.error('Failed to fetch photos:', data);
+          setIsLoading(false);
+          return;
+        }
         const photos = data.photoset.photo;
 
         photos.forEach((photo: FlickrPhoto) => {
@@ -57,39 +75,48 @@ export const GamePucksPage = (): JSX.Element => {
         Promise.all(photoPromises).then((photoData) => {
           photoData.sort((a, b) => a.createdDate.getTime() - b.createdDate.getTime());
           photoData.reverse();
-
-          const flickrAlbum = document.getElementById('flickrAlbum');
-          if (!flickrAlbum) return;
-
-          for (const { photo, photoInfo } of photoData) {
-            const owner = photoInfo.owner.username;
-            const title = photoInfo.title._content;
-            const imgUrl = `https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg`;
-
-            const aElement = document.createElement('a');
-            aElement.href = `https://www.flickr.com/photos/${owner}/${photo.id}`;
-            aElement.target = '_blank';
-
-            const imgElement = document.createElement('img');
-            imgElement.src = imgUrl;
-
-            const captionElement = document.createElement('p');
-            captionElement.textContent = title;
-
-            aElement.appendChild(imgElement);
-            aElement.appendChild(captionElement);
-
-            flickrAlbum.appendChild(aElement);
-
-            setIsLoading(false);
-          }
+          setPhotos(photoData);
+          setIsLoading(false);
         });
       });
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []);
+
+  useEffect(() => {
+    const search = searchParams.get('search');
+    if (search) {
+      setSearchQuery(search);
+    }
+  }, [searchParams]);
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setSearchParams(value ? { search: value } : {});
+  };
+
+  const filteredPhotos = photos.filter((photoData) =>
+    photoData.photoInfo.title._content.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   return (
     <Container size='xl' mb='lg'>
       {isLoading && <LoadingSpinner />}
+      <Box mb='md' ml='md' mr='md' mt='md'>
+        <TextInput
+          placeholder='Search by name...'
+          value={searchQuery}
+          onChange={(event) => handleSearch(event.currentTarget.value)}
+          rightSection={
+            searchQuery ? (
+              <ActionIcon onClick={() => handleSearch('')} variant='subtle' color='gray' size='sm'>
+                <IconX size={16} stroke={1.5} color='#868E96' />
+              </ActionIcon>
+            ) : null
+          }
+        />
+        <Text size='sm' mt='xs' color='dimmed'>
+          {filteredPhotos.length} {filteredPhotos.length === 1 ? 'Result' : 'Results'}
+        </Text>
+      </Box>
       <Box>
         <div
           id='flickrAlbum'
@@ -101,7 +128,22 @@ export const GamePucksPage = (): JSX.Element => {
             maxWidth: '1200px',
             margin: '20px auto',
           }}
-        />
+        >
+          {filteredPhotos.map(({ photo, photoInfo }) => (
+            <a
+              key={photo.id}
+              href={`https://www.flickr.com/photos/${photoInfo.owner.username}/${photo.id}`}
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              <img
+                src={`https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg`}
+                alt={photoInfo.title._content}
+              />
+              <p>{photoInfo.title._content}</p>
+            </a>
+          ))}
+        </div>
         <style>
           {`
             #flickrAlbum a,
@@ -110,9 +152,9 @@ export const GamePucksPage = (): JSX.Element => {
             #flickrAlbum a:hover,
             #flickrAlbum a:active {
               flex: 0 0 auto;
-              width: 100%; /* Changed from calc(33.33% - 10px) to 100% */
-              max-width: 600px; /* Added max-width for larger screens */
-              min-width: auto; /* Changed from 300px to auto */
+              width: 100%;
+              max-width: 600px;
+              min-width: auto;
               text-decoration: none !important;
               color: inherit;
               transition: transform 0.2s ease-in-out;
@@ -146,7 +188,7 @@ export const GamePucksPage = (): JSX.Element => {
               color: #666;
             }
           `}
-        </style>{' '}
+        </style>
       </Box>
     </Container>
   );
