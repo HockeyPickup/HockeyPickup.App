@@ -2,6 +2,7 @@ import styles from '@/App.module.css';
 import { AvatarUpload } from '@/components/AvatarUpload';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, useAuth } from '@/lib/auth';
+import { ApiError } from '@/lib/error';
 import { AvatarService } from '@/services/avatar';
 import {
   Avatar,
@@ -68,10 +69,11 @@ const PasswordSection = (): JSX.Element => {
       } else if (response.Errors) {
         setApiErrors(response.Errors);
       }
-    } catch (error: any) {
-      console.error('Password change failed:', error.response?.data.Errors);
-      if (error.response?.data?.Errors) {
-        setApiErrors(error.response.data.Errors);
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      console.error('Password change failed:', apiError.response?.data?.Errors);
+      if (apiError.response?.data?.Errors) {
+        setApiErrors(apiError.response.data.Errors);
       } else {
         setApiErrors([{ Message: 'An unexpected error occurred while changing your password' }]);
       }
@@ -189,10 +191,11 @@ const PreferencesSection = (): JSX.Element => {
       } else if (response.Errors) {
         setApiErrors(response.Errors);
       }
-    } catch (error: any) {
-      console.error('Save preferences failed:', error.response?.data.Errors);
-      if (error.response?.data?.Errors) {
-        setApiErrors(error.response.data.Errors);
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      console.error('Save preferences failed:', apiError.response?.data?.Errors);
+      if (apiError.response?.data?.Errors) {
+        setApiErrors(apiError.response.data.Errors);
       } else {
         setApiErrors([{ Message: 'An unexpected error occurred while saving preferences' }]);
       }

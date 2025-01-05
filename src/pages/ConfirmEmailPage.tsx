@@ -1,4 +1,5 @@
 import { useTitle } from '@/layouts/TitleContext';
+import { ApiError } from '@/lib/error';
 import { Button, Container, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { JSX, useEffect, useState } from 'react';
@@ -58,12 +59,13 @@ export const ConfirmEmailPage = (): JSX.Element => {
         } else if (response.Errors) {
           setApiErrors(response.Errors);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!mounted) return; // Skip if component unmounted
 
-        console.error('Email confirmation failed:', error.response?.data.Errors);
-        if (error.response?.data?.Errors) {
-          setApiErrors(error.response.data.Errors);
+        const apiError = error as ApiError;
+        console.error('Email confirmation failed:', apiError.response?.data?.Errors);
+        if (apiError.response?.data?.Errors) {
+          setApiErrors(apiError.response.data.Errors);
         } else {
           setApiErrors([{ Message: 'An unexpected error occurred during email confirmation' }]);
         }

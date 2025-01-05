@@ -1,4 +1,5 @@
 import { useTitle } from '@/layouts/TitleContext';
+import { ApiError } from '@/lib/error';
 import {
   Alert,
   Anchor,
@@ -65,10 +66,11 @@ export const ResetPasswordPage = (): JSX.Element => {
       await authService.resetPassword(resetRequest);
       setIsSubmitted(true);
       setTimeout(() => navigate('/login'), 3000);
-    } catch (error: any) {
-      console.error('Password reset failed:', error);
-      if (error.response?.data?.Errors) {
-        setApiErrors(error.response.data.Errors);
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      console.error('Password Reset failed:', apiError.response?.data?.Errors);
+      if (apiError.response?.data?.Errors) {
+        setApiErrors(apiError.response.data.Errors);
       } else {
         setApiErrors([{ Message: 'An unexpected error occurred during password reset' }]);
       }
