@@ -154,7 +154,7 @@ const HeaderSection = ({
                   .join(', ') || 'No'}
               </Text>
             </Group>
-            {showRatings && canViewRatings && (
+            {showRatings && canViewRatings() && (
               <Group gap={5}>
                 <Text size='sm' fw={500} w={150} ta='right'>
                   Rating:

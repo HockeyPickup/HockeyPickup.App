@@ -88,7 +88,7 @@ export const GamePucksPage = (): JSX.Element => {
     }
   }, [searchParams]);
 
-  const handleSearch = (value: string) => {
+  const handleSearch = (value: string): void => {
     setSearchQuery(value);
     setSearchParams(value ? { search: value } : {});
   };
