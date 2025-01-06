@@ -3,7 +3,11 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "web",
-      "site": "https://app.hockeypickup.com"
+      "site": "https://app.hockeypickup.com",
+      "details": {
+        "manifestPath": "/manifest.json",
+        "paths": ["/*"]
+      }
     }
   }
 ]

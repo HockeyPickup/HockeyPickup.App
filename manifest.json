@@ -31,7 +31,25 @@
   "url_handlers": [
     {
       "origin": "https://app.hockeypickup.com",
-      "patterns": ["https://app.hockeypickup.com/*"]
+      "patterns": [
+        "https://app.hockeypickup.com/*",
+        "https://app.hockeypickup.com/account/*",
+        "https://app.hockeypickup.com/sessions/*",
+        "https://app.hockeypickup.com/session/*",
+        "https://app.hockeypickup.com/players/*",
+        "https://app.hockeypickup.com/game-pucks/*",
+        "https://app.hockeypickup.com/regulars/*",
+        "https://app.hockeypickup.com/login/*",
+        "https://app.hockeypickup.com/register/*",
+        "https://app.hockeypickup.com/about/*",
+        "https://app.hockeypickup.com/confirm-email/*",
+        "https://app.hockeypickup.com/privacy/*",
+        "https://app.hockeypickup.com/reset-password/*",
+        "https://app.hockeypickup.com/version/*",
+        "https://app.hockeypickup.com/profile/*",
+        "https://app.hockeypickup.com/calendar/*",
+        "https://app.hockeypickup.com/goalie-lounge/*"
+      ]
     }
   ],
   "capture_links": "existing_client_event",
