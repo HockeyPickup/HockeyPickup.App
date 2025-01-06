@@ -10,7 +10,20 @@
     }
   ],
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#7cb6e3",
-  "theme_color": "#3f4593"
+  "theme_color": "#3f4593",
+  "protocol_handlers": [
+    {
+      "protocol": "web+hockeypickup",
+      "url": "/%s"
+    }
+  ],
+  "capture_links": "existing_client_event",
+  "url_handlers": [
+    {
+      "origin": "https://app.hockeypickup.com"
+    }
+  ]
 }
