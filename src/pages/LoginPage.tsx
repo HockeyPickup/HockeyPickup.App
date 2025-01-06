@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { JSX, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LoginRequest } from '../HockeyPickup.Api';
 import { authService, useAuth } from '../lib/auth';
 
@@ -25,6 +25,8 @@ export const LoginPage = (): JSX.Element => {
   const navigate = useNavigate();
   const { setUser, refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
 
   const form = useForm<LoginRequest>({
     initialValues: {
@@ -44,7 +46,7 @@ export const LoginPage = (): JSX.Element => {
       if (response.Success && response.Data) {
         setUser(response.Data.UserDetailedResponse);
         await refreshUser(); // Refresh user data after login
-        navigate('/');
+        navigate(from); // Navigate to the stored path
       }
     } catch (error) {
       console.error('Login failed:', error);

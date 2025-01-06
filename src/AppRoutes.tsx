@@ -1,5 +1,5 @@
 import { JSX } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
 import { useAuth } from './lib/auth';
 import { AboutPage } from './pages/AboutPage';
@@ -29,13 +29,14 @@ type ProtectedRouteProps = {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps): JSX.Element => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   // Wait for auth to initialize before making a decision
   if (isLoading) {
     return <div>Loading...</div>; // Or a proper loading component
   }
 
-  return user ? children : <Navigate to='/login' />;
+  return user ? children : <Navigate to='/login' state={{ from: location }} replace />;
 };
 
 const AppRoutes = (): JSX.Element => {
