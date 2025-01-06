@@ -28,10 +28,12 @@
       "url": "/%s"
     }
   ],
-  "capture_links": "existing_client_event",
   "url_handlers": [
     {
-      "origin": "https://app.hockeypickup.com"
+      "origin": "https://app.hockeypickup.com",
+      "patterns": ["https://app.hockeypickup.com/*"]
     }
-  ]
+  ],
+  "capture_links": "existing_client_event",
+  "id": "com.hockeypickup.app"
 }
