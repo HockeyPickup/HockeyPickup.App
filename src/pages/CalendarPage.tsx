@@ -1,22 +1,58 @@
 /* eslint-disable react/no-unescaped-entities */
-import { Container, Group, Title } from '@mantine/core';
-import { JSX, useEffect } from 'react';
+import { useAuth } from '@/lib/auth';
+import { getCalendarUrl, rebuildCalendar } from '@/lib/calendar';
+import { Button, Container, Group, Text, Title } from '@mantine/core';
+import { JSX, useEffect, useState } from 'react';
 import { useTitle } from '../layouts/TitleContext';
 
 export const CalendarPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
+  const [calendarUrl, setCalendarUrl] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [rebuildMessage, setRebuildMessage] = useState<string>('');
+  const { isAdmin } = useAuth();
+
+  const copyToClipboard = (elementId: string): void => {
+    const element = document.getElementById(elementId) as HTMLInputElement;
+    if (element) {
+      element.select();
+      navigator.clipboard.writeText(element.value);
+    }
+  };
 
   useEffect(() => {
     setPageInfo('Calendar', 'Hockey Pickup Calendar');
+
+    const fetchCalendarUrl = async (): Promise<void> => {
+      try {
+        const response = await getCalendarUrl();
+        setCalendarUrl(response.Data as string);
+      } catch (err) {
+        console.error('Failed to fetch calendar URL:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCalendarUrl();
   }, [setPageInfo]);
 
-  const copyToClipboard = async (inputId: string): Promise<void> => {
+  if (isLoading) {
+    return (
+      <Container size='md' py='xs'>
+        <Text>Loading calendar information...</Text>
+      </Container>
+    );
+  }
+
+  const handleRebuildCalendar = async (): Promise<void> => {
     try {
-      const input = document.getElementById(inputId) as HTMLInputElement;
-      await navigator.clipboard.writeText(input.value);
-      alert('Calendar subscription link copied to clipboard!');
+      const response = await rebuildCalendar();
+      console.info('Calendar rebuilt successfully:', response);
+      setRebuildMessage('Calendar rebuilt successfully!');
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('Failed to rebuild calendar:', err);
+      setRebuildMessage('Failed to rebuild calendar. Please try again.');
     }
   };
 
@@ -47,31 +83,19 @@ export const CalendarPage = (): JSX.Element => {
         <li>Select "From URL" from the drop-down menu.</li>
         <li>In the "URL of calendar" field, paste the following URL:</li>
       </ol>
-      <input
-        type='text'
-        id='gmailLink'
-        value='https://hockeypickup.com/hockey_pickup.ics'
-        readOnly
-        style={inputStyle}
-      />
+      <input type='text' id='gmailLink' value={calendarUrl} readOnly style={inputStyle} />
       <button onClick={() => copyToClipboard('gmailLink')}>Copy URL</button>
       <p>Click / Tap "Add Calendar" to add the subscription..</p>
       <h3>Apple Calendar:</h3>
       <h4>Automatic</h4>
-      <a href='webcal://hockeypickup.com/hockey_pickup.ics'>Tap Here</a>
+      <a href={calendarUrl.replace(/^(http|https):\/\//, 'webcal://')}>Tap Here</a>
       <h4>Manual</h4>
       <ol>
         <li>Open Apple Calendar on your device.</li>
         <li>Go to "File" &gt; "Add Calendar / New Calendar Subscription."</li>
         <li>In the "Calendar URL" field, paste the following URL:</li>
       </ol>
-      <input
-        type='text'
-        id='appleLink'
-        value='https://hockeypickup.com/hockey_pickup.ics'
-        readOnly
-        style={inputStyle}
-      />
+      <input type='text' id='appleLink' value={calendarUrl} readOnly style={inputStyle} />
       <button onClick={() => copyToClipboard('gmailLink')}>Copy URL</button>
       <p>Click / Tap "Subscribe" to add the subscription.</p>
       <h3>Outlook Calendar:</h3>
@@ -80,15 +104,19 @@ export const CalendarPage = (): JSX.Element => {
         <li>In the ribbon at the top, click "Add Calendar" &gt; "From Internet."</li>
         <li>In the "Link to the calendar" field, paste the following URL:</li>
       </ol>
-      <input
-        type='text'
-        id='outlookLink'
-        value='https://hockeypickup.com/hockey_pickup.ics'
-        readOnly
-        style={inputStyle}
-      />
+      <input type='text' id='outlookLink' value={calendarUrl} readOnly style={inputStyle} />
       <button onClick={() => copyToClipboard('gmailLink')}>Copy URL</button>
       <p>Click / Tap "OK" to add the subscription.</p>
+      {isAdmin() && (
+        <Group mt='xl' mb='xl'>
+          <Button onClick={handleRebuildCalendar} color='blue'>
+            Regenerate Calendar
+          </Button>
+          {rebuildMessage && (
+            <Text c={rebuildMessage.includes('success') ? 'green' : 'red'}>{rebuildMessage}</Text>
+          )}
+        </Group>
+      )}
     </Container>
   );
 };
