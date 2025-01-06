@@ -673,6 +673,12 @@ export interface AdminPhotoDeleteRequest {
 }
 
 /** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfString = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: string | null;
+};
+
+/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfImpersonationResponse = ApiResponse & {
   /** Response data payload of type T */
   Data?: ImpersonationResponse | null;
