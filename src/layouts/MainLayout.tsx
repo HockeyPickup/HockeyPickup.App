@@ -7,6 +7,7 @@ import { FC, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService, useAuth } from '../lib/auth';
 import { AvatarService } from '../services/avatar';
+import { ShareButton } from './ShareButton';
 import { useTitle } from './TitleContext';
 
 export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -88,6 +89,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
               <Link to='/' className={styles.logo}>
                 <img src='/static/JB_Puck_Logo.png' alt='Hockey Pickup' height={40} />
               </Link>
+              <ShareButton />
             </Group>
             <Text className={`${styles.pageTitle} ${styles.noZoom}`}>{title}</Text>
             {/* Right section with avatar and burger menu */}
