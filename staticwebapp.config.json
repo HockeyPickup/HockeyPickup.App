@@ -9,6 +9,13 @@
       }
     },
     {
+      "route": "/.well-known/apple-app-site-association",
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store"
+      }
+    },
+    {
       "route": "/.well-known/*",
       "headers": {
         "Content-Type": "application/json"

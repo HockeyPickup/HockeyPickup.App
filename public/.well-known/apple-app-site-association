@@ -1,0 +1,39 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "com.hockeypickup.app",
+        "paths": [
+          "*",
+          "/session/*",
+          "/players/*",
+          "/game-pucks/*"
+        ],
+        "components": [
+          {
+            "/": "*",
+            "comment": "Matches any URL"
+          },
+          {
+            "/": "/session/*",
+            "comment": "Matches any session URL"
+          },
+          {
+            "/": "/players/*",
+            "comment": "Matches any players URL"
+          },
+          {
+            "/": "/profile/*",
+            "comment": "Matches any player profile URL"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "com.hockeypickup.app"
+    ]
+  }
+}
