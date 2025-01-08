@@ -35,6 +35,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.3",
     "graphql": "^16.10.0",
+    "graphql-ws": "^5.16.0",
     "md5": "^2.3.0",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.46",

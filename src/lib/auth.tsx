@@ -18,6 +18,8 @@ import {
 import api from '../services/api';
 import { userService } from '../services/user';
 
+export const TOKEN_KEY = 'auth_token';
+
 const userHelpers = {
   isAdmin: (user: UserDetailedResponse | null): boolean => {
     return user?.Roles?.includes('Admin') ?? false;
@@ -41,7 +43,7 @@ const authService = {
     try {
       const response = await api.post<ApiDataResponseOfLoginResponse>('/Auth/login', data);
       if (response.data.Data?.Token) {
-        localStorage.setItem('auth_token', response.data.Data?.Token);
+        localStorage.setItem(TOKEN_KEY, response.data.Data?.Token);
         await authService.refreshUser(authService.setUser); // Pass setUser to refreshUser
         return response.data;
       } else {
@@ -55,7 +57,7 @@ const authService = {
 
   async logout(): Promise<void> {
     await api.post('/Auth/logout');
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem(TOKEN_KEY);
   },
 
   async register(data: RegisterRequest): Promise<ApiDataResponseOfAspNetUser> {
@@ -121,14 +123,14 @@ const authService = {
   },
 
   async refreshUser(setUser: (_user: UserDetailedResponse | null) => void): Promise<void> {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       try {
         const currentUser = await userService.getCurrentUser();
         setUser(currentUser);
       } catch (error) {
         console.error('Failed to refresh user data:', error);
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem(TOKEN_KEY);
       }
     }
   },
@@ -156,14 +158,14 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }): JSX.Ele
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem(TOKEN_KEY);
       if (token) {
         try {
           const currentUser = await userService.getCurrentUser();
           setUser(currentUser);
         } catch (error) {
           console.error('Failed to restore auth state:', error);
-          localStorage.removeItem('auth_token');
+          localStorage.removeItem(TOKEN_KEY);
         }
       }
       setIsLoading(false);

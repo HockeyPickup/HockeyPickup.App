@@ -248,3 +248,127 @@ export const GET_USERSTATS = gql`
     }
   }
 `;
+
+export const SESSION_UPDATED = gql`
+  subscription SessionUpdated($SessionId: Int!) {
+    SessionUpdated(SessionId: $SessionId) {
+      SessionId
+      CreateDateTime
+      UpdateDateTime
+      Note
+      SessionDate
+      RegularSetId
+      BuyDayMinimum
+      BuyWindow
+      BuyWindowPreferred
+      BuyWindowPreferredPlus
+      Cost
+      BuySells {
+        BuySellId
+        BuyerUserId
+        SellerUserId
+        SellerNote
+        BuyerNote
+        PaymentSent
+        PaymentReceived
+        CreateDateTime
+        TeamAssignment
+        Buyer {
+          Id
+          UserName
+          Email
+          FirstName
+          LastName
+          Rating
+        }
+        Seller {
+          Id
+          UserName
+          Email
+          FirstName
+          LastName
+          Rating
+        }
+      }
+      ActivityLogs {
+        ActivityLogId
+        UserId
+        CreateDateTime
+        Activity
+        User {
+          Id
+          UserName
+          Email
+          FirstName
+          LastName
+        }
+      }
+      RegularSet {
+        RegularSetId
+        Description
+        DayOfWeek
+        CreateDateTime
+        Archived
+        Regulars {
+          RegularSetId
+          UserId
+          TeamAssignment
+          PositionPreference
+          User {
+            Id
+            UserName
+            Email
+            PayPalEmail
+            FirstName
+            LastName
+            Active
+            Preferred
+            PreferredPlus
+            NotificationPreference
+            PositionPreference
+            VenmoAccount
+            MobileLast4
+            EmergencyName
+            EmergencyPhone
+            JerseyNumber
+            PhotoUrl
+            LockerRoom13
+            Rating
+          }
+        }
+      }
+      CurrentRosters {
+        SessionRosterId
+        UserId
+        Email
+        FirstName
+        LastName
+        TeamAssignment
+        IsPlaying
+        IsRegular
+        PlayerStatus
+        Preferred
+        PreferredPlus
+        LastBuySellId
+        Position
+        CurrentPosition
+        JoinedDateTime
+        Rating
+        PhotoUrl
+      }
+      BuyingQueues {
+        BuySellId
+        SessionId
+        BuyerName
+        SellerName
+        TeamAssignment
+        TransactionStatus
+        QueueStatus
+        PaymentSent
+        PaymentReceived
+        BuyerNote
+        SellerNote
+      }
+    }
+  }
+`;

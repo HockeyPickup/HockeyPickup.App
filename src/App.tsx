@@ -15,7 +15,7 @@ import { TitleProvider } from './layouts/TitleContext';
 import { VersionChecker } from './layouts/VersionChecker';
 import { AuthProvider, useAuth } from './lib/auth';
 import { theme } from './lib/theme';
-import { apolloClient } from './services/graphql';
+import { apolloClient } from './services/api';
 
 // Configure query client with default options
 const queryClient = new QueryClient({

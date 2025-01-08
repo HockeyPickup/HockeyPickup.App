@@ -8,8 +8,8 @@ import { SessionEmails } from '@/components/SessionEmails';
 import { SessionRoster } from '@/components/SessionRoster';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
-import { GET_SESSION } from '@/lib/queries';
-import { useQuery } from '@apollo/client';
+import { GET_SESSION, SESSION_UPDATED } from '@/lib/queries';
+import { useQuery, useSubscription } from '@apollo/client';
 import { Stack, Text } from '@mantine/core';
 import { JSX, useEffect, useState } from 'react';
 
@@ -22,6 +22,17 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
     variables: { SessionId: sessionId },
     fetchPolicy: 'network-only',
   });
+
+  useSubscription(SESSION_UPDATED, {
+    variables: { SessionId: sessionId },
+    onData: ({ data }) => {
+      console.debug('Session update received:', data?.data?.SessionUpdated);
+      if (data?.data?.SessionUpdated) {
+        setSession(data.data.SessionUpdated);
+      }
+    },
+  });
+
   const [session, setSession] = useState<SessionDetailedResponse | null>(null);
   const { isAdmin } = useAuth();
 

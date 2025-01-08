@@ -12,7 +12,7 @@ import {
   UserDetailedResponse,
 } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
-import { authService, useAuth } from '@/lib/auth';
+import { authService, TOKEN_KEY, useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/error';
 import { GET_USERSTATS } from '@/lib/queries';
 import {
@@ -432,7 +432,7 @@ export const ProfilePage = (): JSX.Element => {
 
     const response: ImpersonationResponse | null = await impersonateUser(userId);
     if (response && response.Token) {
-      localStorage.setItem('auth_token', response.Token);
+      localStorage.setItem(TOKEN_KEY, response.Token);
       await authService.refreshUser(setUser);
       fetchImpersonationStatus();
     }
@@ -441,7 +441,7 @@ export const ProfilePage = (): JSX.Element => {
   const handleRevertImpersonation = async (): Promise<void> => {
     const response: RevertImpersonationResponse | null = await revertImpersonation();
     if (response && response.Token) {
-      localStorage.setItem('auth_token', response.Token);
+      localStorage.setItem(TOKEN_KEY, response.Token);
       await authService.refreshUser(setUser);
       fetchImpersonationStatus();
     }
