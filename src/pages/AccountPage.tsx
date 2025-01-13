@@ -8,6 +8,7 @@ import {
   Avatar,
   Button,
   Container,
+  Group,
   Paper,
   PasswordInput,
   Select,
@@ -18,8 +19,8 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconLock, IconSettings, IconWallet } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -30,8 +31,29 @@ import {
   SaveUserRequest,
 } from '../HockeyPickup.Api';
 
-const PaymentsSection = (): JSX.Element => <Text>Payments Due / Received</Text>;
+const PaymentsSection = (): JSX.Element => (
+  <Stack gap='xl'>
+    <Paper withBorder shadow='md' p='xl' radius='md'>
+      <Stack gap='md'>
+        <Title order={2}>Payments Due</Title>
+        {/* Add your payments due table/list here */}
+        <Text size='sm' c='dimmed'>
+          No payments due
+        </Text>
+      </Stack>
+    </Paper>
 
+    <Paper withBorder shadow='md' p='xl' radius='md'>
+      <Stack gap='md'>
+        <Title order={2}>Payment History</Title>
+        {/* Add your payment history table/list here */}
+        <Text size='sm' c='dimmed'>
+          No previous payments
+        </Text>
+      </Stack>
+    </Paper>
+  </Stack>
+);
 const PasswordSection = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
@@ -320,41 +342,71 @@ const PreferencesSection = (): JSX.Element => {
 
 export const AccountPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
-  const isMobile = useMediaQuery('(max-width: 48em)');
   const { user } = useAuth();
 
   useEffect(() => {
     setPageInfo('Account', 'Hockey Pickup Player Account');
   }, [setPageInfo]);
 
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  useEffect(() => {
+    const loadAvatar = async (): Promise<void> => {
+      const url = await AvatarService.getAvatarUrl(user?.PhotoUrl ?? '');
+      setAvatarUrl(url);
+    };
+    loadAvatar();
+  }, [user?.PhotoUrl]);
+
   return (
     <Container size='xl' mb={70}>
-      <Link to={`/profile/${user?.Id}`}>
-        <Button variant='outline' mb='md'>
-          View Profile
-        </Button>
-      </Link>
-      <Tabs
-        variant='pills'
-        orientation={isMobile ? 'horizontal' : 'vertical'}
-        defaultValue='payments'
-        classNames={{ root: styles.accountTabs }}
-      >
-        <Tabs.List w={isMobile ? '100%' : 200} mb={isMobile ? 'md' : 0}>
-          <Tabs.Tab value='payments'>Payments Due / Received</Tabs.Tab>
-          <Tabs.Tab value='password'>Change Password</Tabs.Tab>
-          <Tabs.Tab value='preferences'>Preferences</Tabs.Tab>
-        </Tabs.List>
+      <Paper withBorder shadow='sm' radius='md' p='md' mb='xl'>
+        <Group justify='space-between' align='center'>
+          <Group>
+            <Avatar
+              src={avatarUrl}
+              size='lg'
+              radius='xl'
+              alt={`${user?.FirstName} ${user?.LastName}`}
+            />
+            <Stack gap={0}>
+              <Text size='lg' fw={500}>{`${user?.FirstName} ${user?.LastName}`}</Text>
+              <Text size='sm' c='dimmed'>
+                {user?.Email}
+              </Text>
+            </Stack>
+          </Group>
+          <Link to={`/profile/${user?.Id}`}>
+            <Button variant='light'>View Player Profile</Button>
+          </Link>
+        </Group>
+      </Paper>
 
-        <Tabs.Panel value='payments' pl={isMobile ? 0 : 'xl'}>
-          <PaymentsSection />
-        </Tabs.Panel>
-        <Tabs.Panel value='password' pl={isMobile ? 0 : 'xl'}>
-          <PasswordSection />
-        </Tabs.Panel>
-        <Tabs.Panel value='preferences' pl={isMobile ? 0 : 'xl'}>
-          <PreferencesSection />
-        </Tabs.Panel>
+      <Tabs variant='outline' defaultValue='payments' classNames={{ root: styles.accountTabs }}>
+        <Paper withBorder shadow='sm' radius='md' mb='xl'>
+          <Tabs.List grow>
+            <Tabs.Tab value='payments' leftSection={<IconWallet size={16} />}>
+              Payments
+            </Tabs.Tab>
+            <Tabs.Tab value='preferences' leftSection={<IconSettings size={16} />}>
+              Preferences
+            </Tabs.Tab>
+            <Tabs.Tab value='password' leftSection={<IconLock size={16} />}>
+              Security
+            </Tabs.Tab>
+          </Tabs.List>
+        </Paper>
+
+        <div style={{ padding: '20px 0' }}>
+          <Tabs.Panel value='payments'>
+            <PaymentsSection />
+          </Tabs.Panel>
+          <Tabs.Panel value='preferences'>
+            <PreferencesSection />
+          </Tabs.Panel>
+          <Tabs.Panel value='password'>
+            <PasswordSection />
+          </Tabs.Panel>
+        </div>
       </Tabs>
     </Container>
   );

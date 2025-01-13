@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const SessionsPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const { showRatings } = useRatingsVisibility();
 
