@@ -2,11 +2,11 @@ import { EmailList } from '@/components/EmailList';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
 import { RegularSetSelect } from '@/components/RegularSetSelect';
-import { RegularDetailedResponse, RegularSetDetailedResponse } from '@/HockeyPickup.Api';
+import { RegularDetailedResponse, RegularSetDetailedResponse, User } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
 import { getPositionString, positionMap, PositionString } from '@/lib/position';
-import { GET_REGULARSETS } from '@/lib/queries';
+import { GET_REGULARSETS, GET_USERS } from '@/lib/queries';
 import { regularService } from '@/lib/regular';
 import { Team, TEAM_LABELS } from '@/lib/team';
 import { AvatarService } from '@/services/avatar';
@@ -23,6 +23,7 @@ import {
   Group,
   Image,
   LoadingOverlay,
+  Modal,
   Paper,
   Popover,
   Radio,
@@ -134,6 +135,7 @@ export const RegularsPage = (): JSX.Element => {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [editingRegularSet, setEditingRegularSet] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [addModalOpened, setAddModalOpened] = useState(false);
 
   const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
@@ -643,6 +645,111 @@ export const RegularsPage = (): JSX.Element => {
     });
   };
 
+  const AddRegularModal = ({
+    opened,
+    onClose,
+    regularSetId,
+    existingRegulars,
+  }: {
+    opened: boolean;
+    onClose: () => void;
+    regularSetId: number;
+    existingRegulars: RegularDetailedResponse[];
+  }): JSX.Element => {
+    const [loading, setLoading] = useState(false);
+    const form = useForm({
+      initialValues: {
+        userId: '',
+        position: positionMap.Forward.toString(),
+        team: Team.Light.toString(),
+      },
+    });
+
+    const { data: allUsers } = useQuery(GET_USERS); // Use existing GET_USERS query
+
+    const availableUsers =
+      allUsers?.UsersEx?.filter(
+        (user: User) =>
+          user.Active && // Only active users
+          !existingRegulars.some((regular) => regular.UserId === user.Id),
+      ).sort((a: User, b: User) => (a.FirstName ?? '').localeCompare(b.FirstName ?? '')) ?? [];
+
+    const handleSubmit = async (values: typeof form.values): Promise<void> => {
+      setLoading(true);
+      try {
+        await regularService.addRegular({
+          RegularSetId: regularSetId,
+          UserId: values.userId,
+          PositionPreference: parseInt(values.position),
+          TeamAssignment: parseInt(values.team),
+        });
+
+        await refetch();
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Success',
+          message: 'Player added to regular set',
+          color: 'green',
+        });
+        onClose();
+      } catch (error) {
+        console.error('Failed to add regular:', error);
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Error',
+          message: 'Failed to add player to regular set',
+          color: 'red',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <Modal opened={opened} onClose={onClose} title='Add Regular Player' centered>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack>
+            <Select
+              label='Player'
+              placeholder='Select player'
+              data={availableUsers.map((user: User) => ({
+                value: user.Id,
+                label: `${user.FirstName} ${user.LastName}`,
+              }))}
+              searchable
+              {...form.getInputProps('userId')}
+            />
+            <Radio.Group label='Position' {...form.getInputProps('position')}>
+              <Stack>
+                <Radio value={positionMap.Defense.toString()} label='Defense' />
+                <Radio value={positionMap.Forward.toString()} label='Forward' />
+                <Radio value={positionMap.TBD.toString()} label='TBD' />
+              </Stack>
+            </Radio.Group>
+            <Radio.Group label='Team' {...form.getInputProps('team')}>
+              <Stack>
+                <Radio value={Team.Light.toString()} label='Rockets (Light)' />
+                <Radio value={Team.Dark.toString()} label='Beauties (Dark)' />
+              </Stack>
+            </Radio.Group>
+            <Group justify='flex-end' mt='md'>
+              <Button variant='outline' onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type='submit' loading={loading}>
+                Add Player
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+    );
+  };
+
   return (
     <Container size='sm' px='lg' mb='xl'>
       <Paper withBorder shadow='md' p={30} radius='md'>
@@ -661,7 +768,7 @@ export const RegularsPage = (): JSX.Element => {
               </Stack>
             </Group>
 
-            {isAdmin() && selectedPreset && (
+            {isAdmin() && selectedPreset && showRatings && (
               <Group>
                 <Button color='red' onClick={handleDelete}>
                   <Group gap='xs'>
@@ -720,8 +827,23 @@ export const RegularsPage = (): JSX.Element => {
         </Stack>
       </Paper>
       <Space h='sm' />
+      {selectedPreset && selectedPresetData && !editingRegularSet && showRatings && (
+        <>
+          <Button onClick={() => setAddModalOpened(true)} mb='md'>
+            Add Regular Player
+          </Button>
+          <AddRegularModal
+            opened={addModalOpened}
+            onClose={() => setAddModalOpened(false)}
+            regularSetId={parseInt(selectedPreset)}
+            existingRegulars={selectedPresetData.Regulars ?? []}
+          />
+        </>
+      )}
       {selectedPreset && selectedPresetData && !editingRegularSet && (
-        <EmailList getEmails={getAllEmails} />
+        <>
+          <EmailList getEmails={getAllEmails} />
+        </>
       )}
     </Container>
   );
