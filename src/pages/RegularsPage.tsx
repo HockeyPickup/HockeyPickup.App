@@ -34,8 +34,9 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconEdit, IconPencil } from '@tabler/icons-react';
+import { IconEdit, IconPencil, IconTrash } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -553,6 +554,51 @@ export const RegularsPage = (): JSX.Element => {
     }
   };
 
+  const handleDelete = async (): Promise<void> => {
+    if (!selectedPreset) return;
+
+    modals.openConfirmModal({
+      title: 'Delete Regular Set',
+      centered: true,
+      children: (
+        <Text size='sm'>
+          Are you sure you want to delete this regular set? This action cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        try {
+          await regularService.deleteRegularSet(parseInt(selectedPreset));
+          await refetch();
+          setSelectedPreset(null);
+
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Success',
+            message: 'Regular set deleted successfully',
+            color: 'green',
+          });
+        } catch (error) {
+          console.error('Failed to delete regular set:', error);
+          const errorMessage =
+            (error as { response?: { data: { Message: string } } }).response?.data?.Message ??
+            'Failed to delete regular set';
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Error',
+            message: errorMessage,
+            color: 'red',
+          });
+        }
+      },
+    });
+  };
+
   return (
     <Container size='sm' px='lg' mb='xl'>
       <Paper withBorder shadow='md' p={30} radius='md'>
@@ -573,6 +619,12 @@ export const RegularsPage = (): JSX.Element => {
 
             {isAdmin() && selectedPreset && (
               <Group>
+                <Button color='red' onClick={handleDelete}>
+                  <Group gap='xs'>
+                    <IconTrash size={16} />
+                    <span>Delete</span>
+                  </Group>
+                </Button>
                 <Button onClick={handleDuplicate}>Duplicate</Button>
                 <Button variant='outline' onClick={() => setEditingRegularSet(true)}>
                   <Group gap='xs'>

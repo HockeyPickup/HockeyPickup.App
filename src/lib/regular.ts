@@ -66,4 +66,10 @@ export const regularService = {
     console.info(response);
     return response.data;
   },
+
+  async deleteRegularSet(regularSetId: number): Promise<string> {
+    const response = await api.delete<string>(`/Regular/delete-regular-set/${regularSetId}`);
+    console.info(response);
+    return response.data;
+  },
 };
