@@ -5,6 +5,7 @@ import { IconPencil } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionDetailsProps {
   session: SessionDetailedResponse;
@@ -13,6 +14,7 @@ interface SessionDetailsProps {
 export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const showRatings = useRatingsVisibility();
 
   return (
     <Paper shadow='sm' p='md'>
@@ -22,7 +24,7 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
             <Title order={3}>
               {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
             </Title>
-            {isAdmin() && (
+            {isAdmin() && showRatings && (
               <ActionIcon
                 variant='subtle'
                 onClick={() => navigate(`/sessions/${session.SessionId}/edit`)}
