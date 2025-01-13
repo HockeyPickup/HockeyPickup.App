@@ -1,5 +1,6 @@
 import {
   ApiDataResponseOfRegularSetDetailedResponse,
+  ApiResponse,
   DuplicateRegularSetRequest,
   UpdateRegularPositionRequest,
   UpdateRegularSetRequest,
@@ -67,8 +68,8 @@ export const regularService = {
     return response.data;
   },
 
-  async deleteRegularSet(regularSetId: number): Promise<string> {
-    const response = await api.delete<string>(`/Regular/delete-regular-set/${regularSetId}`);
+  async deleteRegularSet(regularSetId: number): Promise<ApiResponse> {
+    const response = await api.delete<ApiResponse>(`/Regular/delete-regular-set/${regularSetId}`);
     console.info(response);
     return response.data;
   },
