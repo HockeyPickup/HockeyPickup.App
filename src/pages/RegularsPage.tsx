@@ -362,6 +362,39 @@ export const RegularsPage = (): JSX.Element => {
         }
       };
 
+      const handleDeleteRegular = async (): Promise<void> => {
+        setIsSaving(true);
+        try {
+          if (!selectedPreset) return;
+          await regularService.deleteRegular(parseInt(selectedPreset), regular.UserId);
+          await refetch();
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Success',
+            message: `${regular.User?.FirstName} ${regular.User?.LastName} removed from regular set`,
+            color: 'green',
+          });
+        } catch (error) {
+          console.error('Failed to delete regular:', error);
+          const errorMessage =
+            (error as { response?: { data: { Message: string } } }).response?.data?.Message ??
+            'Failed to remove regular from regular set';
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Error',
+            message: errorMessage,
+            color: 'red',
+          });
+        } finally {
+          setIsSaving(false);
+          setEditingPlayer(false);
+        }
+      };
+
       return (
         <Group gap={2} mb={10}>
           <Link to={`/profile/${regular.UserId}`}>
@@ -449,7 +482,18 @@ export const RegularsPage = (): JSX.Element => {
                           disabled={isSaving}
                         />
                       </Stack>
-                    </Radio.Group>{' '}
+                    </Radio.Group>
+                    <Button
+                      color='red'
+                      variant='outline'
+                      onClick={handleDeleteRegular}
+                      disabled={isSaving}
+                    >
+                      <Group gap='xs'>
+                        <IconTrash size={16} />
+                        <span>Remove from Regular Set</span>
+                      </Group>
+                    </Button>
                   </Stack>
                 </Paper>
               </Popover.Dropdown>

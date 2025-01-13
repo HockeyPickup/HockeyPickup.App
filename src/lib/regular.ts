@@ -1,4 +1,5 @@
 import {
+  AddRegularRequest,
   ApiDataResponseOfRegularSetDetailedResponse,
   ApiResponse,
   DuplicateRegularSetRequest,
@@ -71,6 +72,27 @@ export const regularService = {
   async deleteRegularSet(regularSetId: number): Promise<ApiResponse> {
     const response = await api.delete<ApiResponse>(`/Regular/delete-regular-set/${regularSetId}`);
     console.info(response);
+    return response.data;
+  },
+
+  async addRegular(
+    request: AddRegularRequest,
+  ): Promise<ApiDataResponseOfRegularSetDetailedResponse> {
+    const response = await api.post<ApiDataResponseOfRegularSetDetailedResponse>(
+      '/Regular/add-regular',
+      request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async deleteRegular(
+    regularSetId: number,
+    userId: string,
+  ): Promise<ApiDataResponseOfRegularSetDetailedResponse> {
+    const response = await api.delete<ApiDataResponseOfRegularSetDetailedResponse>(
+      `/Regular/delete-regular/${regularSetId}/${userId}`,
+    );
     return response.data;
   },
 };

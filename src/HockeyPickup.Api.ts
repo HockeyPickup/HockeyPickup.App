@@ -908,6 +908,36 @@ export interface UpdateRegularTeamRequest {
   NewTeamAssignment: number;
 }
 
+export interface AddRegularRequest {
+  /**
+   * Regular set identifier
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  RegularSetId: number;
+  /**
+   * User identifier
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+  /**
+   * Team assignment (1 for Light, 2 for Dark)
+   * @format int32
+   * @min 1
+   * @max 2
+   */
+  TeamAssignment: number;
+  /**
+   * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  PositionPreference: number;
+}
+
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfSessionDetailedResponse = ApiResponse & {
   /** Response data payload of type T */
