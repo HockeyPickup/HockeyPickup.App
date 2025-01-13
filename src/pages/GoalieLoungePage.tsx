@@ -16,13 +16,15 @@ const UpcomingGames = ({
   goalie: User;
   sessions: Session[];
 }): JSX.Element => {
-  const goalieFullName = `${goalie.FirstName} ${goalie.LastName}`;
+  const goalieFirstThree = (goalie.FirstName ?? '').slice(0, 3).toLowerCase();
+  const goalieLastThree = (goalie.LastName ?? '').slice(0, 3).toLowerCase();
   const upcomingSessions = sessions
     .filter(
       (session) =>
-        session.Note?.includes(goalieFullName) &&
         session.SessionDate &&
-        moment(session.SessionDate.replace('Z', '')).isAfter(moment()),
+        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
+        session.Note?.toLowerCase().includes(goalieFirstThree) &&
+        session.Note?.toLowerCase().includes(goalieLastThree),
     )
     .sort((a: Session, b: Session) => {
       if (!a.SessionDate || !b.SessionDate) return 0;
@@ -69,21 +71,29 @@ const GoalieTableComponent = ({
 }): JSX.Element => {
   // Sort goalies by number of upcoming games
   const sortedGoalies = [...goalies].sort((a, b) => {
+    const aFirstThree = (a.FirstName ?? '').slice(0, 3).toLowerCase();
+    const aLastThree = (a.LastName ?? '').slice(0, 3).toLowerCase();
+    const bFirstThree = (b.FirstName ?? '').slice(0, 3).toLowerCase();
+    const bLastThree = (b.LastName ?? '').slice(0, 3).toLowerCase();
+
     const aGames = sessions.filter(
       (session) =>
-        session.Note?.includes(`${a.FirstName} ${a.LastName}`) &&
         session.SessionDate &&
-        moment(session.SessionDate.replace('Z', '')).isAfter(moment()),
+        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
+        session.Note?.toLowerCase().includes(aFirstThree) &&
+        session.Note?.toLowerCase().includes(aLastThree),
     ).length;
+
     const bGames = sessions.filter(
       (session) =>
-        session.Note?.includes(`${b.FirstName} ${b.LastName}`) &&
         session.SessionDate &&
-        moment(session.SessionDate.replace('Z', '')).isAfter(moment()),
+        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
+        session.Note?.toLowerCase().includes(bFirstThree) &&
+        session.Note?.toLowerCase().includes(bLastThree),
     ).length;
+
     return bGames - aGames; // Sort descending
   });
-
   return (
     <Table striped mb='xl'>
       <Table.Tbody>
