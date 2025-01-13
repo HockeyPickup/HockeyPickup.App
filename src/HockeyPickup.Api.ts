@@ -938,6 +938,21 @@ export interface AddRegularRequest {
   PositionPreference: number;
 }
 
+export interface CreateRegularSetRequest {
+  /**
+   * Description of the regular set
+   * @minLength 1
+   */
+  Description: string;
+  /**
+   * Day of the week (0 = Sunday, 6 = Saturday)
+   * @format int32
+   * @min 0
+   * @max 6
+   */
+  DayOfWeek: number;
+}
+
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfSessionDetailedResponse = ApiResponse & {
   /** Response data payload of type T */

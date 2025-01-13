@@ -37,7 +37,7 @@ import {
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconEdit, IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -128,6 +128,80 @@ const EditRegularSetForm = ({
   );
 };
 
+const NewRegularSetForm = ({
+  onSave,
+  onCancel,
+}: {
+  onSave: () => void;
+  onCancel: () => void;
+}): JSX.Element => {
+  const form = useForm({
+    initialValues: {
+      description: '',
+      dayOfWeek: 0,
+      archived: false,
+    },
+  });
+
+  const handleSubmit = async (values: typeof form.values): Promise<void> => {
+    try {
+      await regularService.createRegularSet({
+        Description: values.description,
+        DayOfWeek: values.dayOfWeek,
+      });
+
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Success',
+        message: 'Regular set created successfully',
+        color: 'green',
+      });
+
+      onSave();
+    } catch (error) {
+      console.error('Failed to create regular set:', error);
+      const errorMessage =
+        (error as { response?: { data: { Message: string } } }).response?.data?.Message ??
+        'Failed to create regular set';
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      });
+    }
+  };
+
+  return (
+    <form onSubmit={form.onSubmit(handleSubmit)}>
+      <Stack>
+        <TextInput
+          label='Description'
+          placeholder='Enter description'
+          {...form.getInputProps('description')}
+        />
+        <Select
+          label='Day of Week'
+          placeholder='Select day'
+          data={editDayOptions}
+          value={form.values.dayOfWeek.toString()}
+          onChange={(value) => form.setFieldValue('dayOfWeek', parseInt(value ?? '0'))}
+        />
+        <Group justify='flex-end'>
+          <Button variant='outline' onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type='submit'>Save</Button>
+        </Group>
+      </Stack>
+    </form>
+  );
+};
+
 export const RegularsPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
   const { isAdmin, canViewRatings } = useAuth();
@@ -136,6 +210,7 @@ export const RegularsPage = (): JSX.Element => {
   const [editingRegularSet, setEditingRegularSet] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState(false);
   const [addModalOpened, setAddModalOpened] = useState(false);
+  const [creatingRegularSet, setCreatingRegularSet] = useState(false);
 
   const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
     GET_REGULARSETS,
@@ -753,9 +828,17 @@ export const RegularsPage = (): JSX.Element => {
   return (
     <Container size='sm' px='lg' mb='xl'>
       <Paper withBorder shadow='md' p={30} radius='md'>
-        <Title order={2} mb='xl'>
-          Regular Rosters
-        </Title>
+        <Group justify='space-between' mb='xl'>
+          <Title order={2}>Regular Rosters</Title>
+          {isAdmin() && showRatings && (
+            <Button onClick={() => setCreatingRegularSet(true)}>
+              <Group gap='xs'>
+                <IconPlus size={16} />
+                <span>New Regular Set</span>
+              </Group>
+            </Button>
+          )}
+        </Group>
         <Stack>
           <Stack style={{ flex: 1 }} gap='xs'>
             <Group align='flex-start'>
@@ -792,6 +875,14 @@ export const RegularsPage = (): JSX.Element => {
               regularSet={selectedPresetData}
               onSave={handleEditComplete}
               onCancel={() => setEditingRegularSet(false)}
+            />
+          ) : creatingRegularSet ? (
+            <NewRegularSetForm
+              onSave={async () => {
+                setCreatingRegularSet(false);
+                await refetch();
+              }}
+              onCancel={() => setCreatingRegularSet(false)}
             />
           ) : (
             selectedPreset && (
