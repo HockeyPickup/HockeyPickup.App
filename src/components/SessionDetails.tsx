@@ -14,7 +14,7 @@ interface SessionDetailsProps {
 export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const showRatings = useRatingsVisibility();
+  const { showRatings } = useRatingsVisibility();
 
   return (
     <Paper shadow='sm' p='md'>
