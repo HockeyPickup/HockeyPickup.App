@@ -128,6 +128,13 @@ export const GET_SESSION = gql`
             PhotoUrl
             LockerRoom13
             Rating
+            PaymentMethods {
+              UserPaymentMethodId
+              MethodType
+              Identifier
+              PreferenceOrder
+              IsActive
+            }
           }
         }
       }
@@ -223,6 +230,13 @@ export const GET_REGULARSETS = gql`
           DateCreated
           Roles
           Rating
+          PaymentMethods {
+            UserPaymentMethodId
+            MethodType
+            Identifier
+            PreferenceOrder
+            IsActive
+          }
         }
       }
     }
@@ -334,6 +348,13 @@ export const SESSION_UPDATED = gql`
             PhotoUrl
             LockerRoom13
             Rating
+            PaymentMethods {
+              UserPaymentMethodId
+              MethodType
+              Identifier
+              PreferenceOrder
+              IsActive
+            }
           }
         }
       }

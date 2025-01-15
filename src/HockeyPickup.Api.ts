@@ -132,6 +132,8 @@ export interface UserDetailedResponse {
    * @max 10
    */
   Rating: number;
+  /** User's payment methods */
+  PaymentMethods?: UserPaymentMethodResponse[] | null;
 }
 
 export enum NotificationPreference {
@@ -145,6 +147,36 @@ export enum PositionPreference {
   Forward = 1,
   Defense = 2,
   Goalie = 3,
+}
+
+export interface UserPaymentMethodResponse {
+  /**
+   * Unique identifier for the payment method
+   * @format int32
+   */
+  UserPaymentMethodId: number;
+  /** Type of payment method */
+  MethodType: PaymentMethodType;
+  /**
+   * Payment identifier (email, username, etc.)
+   * @minLength 1
+   */
+  Identifier: string;
+  /**
+   * Order of preference for this payment method
+   * @format int32
+   */
+  PreferenceOrder: number;
+  /** Whether this payment method is currently active */
+  IsActive: boolean;
+}
+
+export enum PaymentMethodType {
+  PayPal = 1,
+  Venmo = 2,
+  CashApp = 3,
+  Zelle = 4,
+  Bitcoin = 5,
 }
 
 /** Generic API response wrapper */
@@ -243,21 +275,17 @@ export type AspNetUser = IdentityUserOfString & {
   SellerTransactions?: BuySell[] | null;
   ActivityLogs?: ActivityLog[] | null;
   Regulars?: Regular[] | null;
+  PaymentMethods?: UserPaymentMethod[];
 };
 
 export type AspNetRole = IdentityRoleOfString & {
   Users?: AspNetUser[];
 };
 
-/** Represents a role in the identity system */
 export interface IdentityRoleOfString {
-  /** Gets or sets the primary key for this role. */
   Id?: string | null;
-  /** Gets or sets the name for this role. */
   Name?: string | null;
-  /** Gets or sets the normalized name for this role. */
   NormalizedName?: string | null;
-  /** A random value that should change whenever a role is persisted to the store */
   ConcurrencyStamp?: string | null;
 }
 
@@ -391,43 +419,47 @@ export interface BuyingQueue {
   SellerNote?: string | null;
 }
 
-/** Represents a user in the identity system */
+export interface UserPaymentMethod {
+  /** @format int32 */
+  UserPaymentMethodId?: number;
+  /**
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+  MethodType: PaymentMethodType;
+  /**
+   * @minLength 1
+   * @maxLength 256
+   */
+  Identifier: string;
+  /** @format int32 */
+  PreferenceOrder: number;
+  IsActive: boolean;
+  /** @format date-time */
+  CreatedAt?: string;
+  /** @format date-time */
+  UpdatedAt?: string | null;
+  User?: AspNetUser;
+}
+
 export interface IdentityUserOfString {
-  /** Gets or sets the primary key for this user. */
   Id?: string | null;
-  /** Gets or sets the user name for this user. */
   UserName?: string | null;
-  /** Gets or sets the normalized user name for this user. */
   NormalizedUserName?: string | null;
-  /** Gets or sets the email address for this user. */
   Email?: string | null;
-  /** Gets or sets the normalized email address for this user. */
   NormalizedEmail?: string | null;
-  /** Gets or sets a flag indicating if a user has confirmed their email address. */
   EmailConfirmed?: boolean;
-  /** Gets or sets a salted and hashed representation of the password for this user. */
   PasswordHash?: string | null;
-  /** A random value that must change whenever a users credentials change (password changed, login removed) */
   SecurityStamp?: string | null;
-  /** A random value that must change whenever a user is persisted to the store */
   ConcurrencyStamp?: string | null;
-  /** Gets or sets a telephone number for the user. */
   PhoneNumber?: string | null;
-  /** Gets or sets a flag indicating if a user has confirmed their telephone address. */
   PhoneNumberConfirmed?: boolean;
-  /** Gets or sets a flag indicating if two factor authentication is enabled for this user. */
   TwoFactorEnabled?: boolean;
-  /**
-   * Gets or sets the date and time, in UTC, when any user lockout ends.
-   * @format date-time
-   */
+  /** @format date-time */
   LockoutEnd?: string | null;
-  /** Gets or sets a flag indicating if the user could be locked out. */
   LockoutEnabled?: boolean;
-  /**
-   * Gets or sets the number of failed login attempts for the current user.
-   * @format int32
-   */
+  /** @format int32 */
   AccessFailedCount?: number;
 }
 
@@ -1383,6 +1415,38 @@ export interface UpdateRosterTeamRequest {
    */
   NewTeamAssignment: number;
 }
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: UserPaymentMethodResponse | null;
+};
+
+export interface UserPaymentMethodRequest {
+  /** Type of payment method */
+  MethodType: PaymentMethodType;
+  /**
+   * Payment identifier (email, username, etc.)
+   * @minLength 1
+   * @maxLength 256
+   */
+  Identifier: string;
+  /**
+   * Order of preference for this payment method
+   * @format int32
+   * @min 1
+   * @max 100
+   */
+  PreferenceOrder: number;
+  /** Whether this payment method is active */
+  IsActive?: boolean;
+}
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfIEnumerableOfUserPaymentMethodResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: UserPaymentMethodResponse[] | null;
+};
 
 export interface LockerRoom13Players {
   /**

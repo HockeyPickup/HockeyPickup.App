@@ -3,16 +3,23 @@ import { AvatarUpload } from '@/components/AvatarUpload';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/error';
+import { userPaymentService } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
 import {
+  ActionIcon,
   Avatar,
+  Badge,
   Button,
   Container,
   Group,
+  Modal,
+  NumberInput,
   Paper,
   PasswordInput,
   Select,
   Stack,
+  Switch,
+  Table,
   Tabs,
   Text,
   TextInput,
@@ -20,19 +27,316 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconLock, IconSettings, IconWallet } from '@tabler/icons-react';
+import {
+  IconEdit,
+  IconLock,
+  IconPlus,
+  IconSettings,
+  IconTrash,
+  IconWallet,
+} from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ChangePasswordRequest,
   ErrorDetail,
   NotificationPreference,
+  PaymentMethodType,
   PositionPreference,
   SaveUserRequest,
+  UserPaymentMethodRequest,
+  UserPaymentMethodResponse,
 } from '../HockeyPickup.Api';
+
+const PaymentMethodModal = ({
+  opened,
+  onClose,
+  initialValues,
+  onSubmit,
+}: {
+  opened: boolean;
+  onClose: () => void;
+  initialValues?: UserPaymentMethodResponse; // Changed from UserPaymentMethodRequest
+  onSubmit: (_values: UserPaymentMethodRequest) => Promise<void>;
+}): JSX.Element => {
+  const form = useForm<UserPaymentMethodRequest>({
+    initialValues: initialValues ?? {
+      MethodType: PaymentMethodType.PayPal,
+      Identifier: '',
+      PreferenceOrder: 1,
+      IsActive: true,
+    },
+  });
+
+  // Reset form when modal opens/closes or initialValues change
+  useEffect(() => {
+    if (initialValues) {
+      form.setValues({
+        MethodType: initialValues.MethodType,
+        Identifier: initialValues.Identifier,
+        PreferenceOrder: initialValues.PreferenceOrder,
+        IsActive: initialValues.IsActive,
+      });
+    } else {
+      form.reset();
+    }
+  }, [opened, initialValues]);
+
+  return (
+    <Modal opened={opened} onClose={onClose} title='Payment Method' size='md'>
+      <form onSubmit={form.onSubmit(onSubmit)}>
+        <Stack>
+          <Select
+            label='Payment Type'
+            data={[
+              { value: PaymentMethodType.PayPal.toString(), label: 'PayPal' },
+              { value: PaymentMethodType.Venmo.toString(), label: 'Venmo' },
+              { value: PaymentMethodType.CashApp.toString(), label: 'Cash App' },
+              { value: PaymentMethodType.Zelle.toString(), label: 'Zelle' },
+              { value: PaymentMethodType.Bitcoin.toString(), label: 'Bitcoin' },
+            ]}
+            value={form.values.MethodType.toString()}
+            onChange={(value) =>
+              form.setFieldValue(
+                'MethodType',
+                value ? (parseInt(value) as PaymentMethodType) : PaymentMethodType.PayPal,
+              )
+            }
+          />
+          <TextInput
+            label='Identifier'
+            placeholder='Email or username'
+            {...form.getInputProps('Identifier')}
+          />
+          <NumberInput
+            label='Preference Order'
+            min={1}
+            max={100}
+            {...form.getInputProps('PreferenceOrder')}
+          />
+          <Switch label='Active' {...form.getInputProps('IsActive', { type: 'checkbox' })} />
+          <Group justify='flex-end'>
+            <Button variant='default' onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type='submit'>Save</Button>
+          </Group>
+        </Stack>
+      </form>
+    </Modal>
+  );
+};
+
+const PaymentMethodsSection = (): JSX.Element => {
+  const { user } = useAuth();
+  const [paymentMethods, setPaymentMethods] = useState<UserPaymentMethodResponse[]>([]);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [editingMethod, setEditingMethod] = useState<UserPaymentMethodResponse | null>(null);
+
+  const loadPaymentMethods = async (): Promise<void> => {
+    if (!user?.Id) return;
+    const methods = await userPaymentService.getPaymentMethods(user.Id);
+    if (methods) {
+      setPaymentMethods(methods.sort((a, b) => a.PreferenceOrder - b.PreferenceOrder));
+    }
+  };
+
+  useEffect(() => {
+    loadPaymentMethods();
+  }, [user?.Id]);
+
+  const handleSubmit = async (values: UserPaymentMethodRequest): Promise<void> => {
+    if (!user?.Id) return;
+
+    try {
+      let response;
+      if (editingMethod) {
+        response = await userPaymentService.updatePaymentMethod(
+          user.Id,
+          editingMethod.UserPaymentMethodId,
+          values,
+        );
+      } else {
+        response = await userPaymentService.addPaymentMethod(user.Id, values);
+      }
+
+      if (response?.Success) {
+        await loadPaymentMethods();
+        setModalOpened(false);
+        setEditingMethod(null);
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Success',
+          message:
+            response.Message ??
+            `Payment method ${editingMethod ? 'updated' : 'added'} successfully`,
+          color: 'green',
+        });
+      } else {
+        const errorMessage = response?.Errors?.[0]?.Message ?? 'Failed to save payment method';
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Error',
+          message: errorMessage,
+          color: 'red',
+        });
+      }
+    } catch (error) {
+      console.error('Error saving payment method:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'An unexpected error occurred while saving the payment method',
+        color: 'red',
+      });
+    }
+  };
+
+  const handleDelete = async (methodId: number): Promise<void> => {
+    if (!user?.Id) return;
+
+    if (window.confirm('Are you sure you want to delete this payment method?')) {
+      try {
+        const response = await userPaymentService.deletePaymentMethod(user.Id, methodId);
+
+        if (response?.Success) {
+          await loadPaymentMethods();
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Success',
+            message: response.Message ?? 'Payment method deleted successfully',
+            color: 'green',
+          });
+        } else {
+          const errorMessage = response?.Errors?.[0]?.Message ?? 'Failed to delete payment method';
+          notifications.show({
+            position: 'top-center',
+            autoClose: 5000,
+            style: { marginTop: '60px' },
+            title: 'Error',
+            message: errorMessage,
+            color: 'red',
+          });
+        }
+      } catch (error) {
+        console.error('Error deleting payment method:', error);
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Error',
+          message: 'An unexpected error occurred while deleting the payment method',
+          color: 'red',
+        });
+      }
+    }
+  };
+  const getMethodTypeLabel = (type: PaymentMethodType): string => {
+    const labels: Record<PaymentMethodType, string> = {
+      [PaymentMethodType.PayPal]: 'PayPal',
+      [PaymentMethodType.Venmo]: 'Venmo',
+      [PaymentMethodType.CashApp]: 'Cash App',
+      [PaymentMethodType.Zelle]: 'Zelle',
+      [PaymentMethodType.Bitcoin]: 'Bitcoin',
+    };
+    return labels[type];
+  };
+
+  return (
+    <Paper withBorder shadow='md' p='xl' radius='md'>
+      <Stack gap='md'>
+        <Group justify='space-between'>
+          <Title order={2}>Payment Methods</Title>
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={() => {
+              setEditingMethod(null);
+              setModalOpened(true);
+            }}
+          >
+            Add Method
+          </Button>
+        </Group>
+
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Type</Table.Th>
+              <Table.Th>Identifier</Table.Th>
+              <Table.Th>Order</Table.Th>
+              <Table.Th>Status</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {paymentMethods.map((method) => (
+              <Table.Tr key={method.UserPaymentMethodId}>
+                <Table.Td>{getMethodTypeLabel(method.MethodType)}</Table.Td>
+                <Table.Td>{method.Identifier}</Table.Td>
+                <Table.Td>{method.PreferenceOrder}</Table.Td>
+                <Table.Td>
+                  <Badge color={method.IsActive ? 'green' : 'gray'}>
+                    {method.IsActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                </Table.Td>
+                <Table.Td>
+                  <Group gap='xs'>
+                    <ActionIcon
+                      variant='subtle'
+                      onClick={() => {
+                        setEditingMethod(method);
+                        setModalOpened(true);
+                      }}
+                    >
+                      <IconEdit size={16} />
+                    </ActionIcon>
+                    <ActionIcon
+                      variant='subtle'
+                      color='red'
+                      onClick={() => handleDelete(method.UserPaymentMethodId)}
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Group>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+            {paymentMethods.length === 0 && (
+              <Table.Tr>
+                <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
+                  <Text c='dimmed'>No payment methods configured</Text>
+                </Table.Td>
+              </Table.Tr>
+            )}
+          </Table.Tbody>
+        </Table>
+
+        <PaymentMethodModal
+          opened={modalOpened}
+          onClose={() => {
+            setModalOpened(false);
+            setEditingMethod(null);
+          }}
+          initialValues={editingMethod ?? undefined}
+          onSubmit={handleSubmit}
+        />
+      </Stack>
+    </Paper>
+  );
+};
 
 const PaymentsSection = (): JSX.Element => (
   <Stack gap='xl'>
+    <PaymentMethodsSection />
+
     <Paper withBorder shadow='md' p='xl' radius='md'>
       <Stack gap='md'>
         <Title order={2}>Payments Due</Title>
