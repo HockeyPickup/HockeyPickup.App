@@ -82,6 +82,22 @@ const PaymentMethodModal = ({
     }
   }, [opened, initialValues]);
 
+  const getFieldLabels = (
+    methodType: PaymentMethodType,
+  ): { label: string; placeholder: string } => {
+    const labels: Record<PaymentMethodType, { label: string; placeholder: string }> = {
+      [PaymentMethodType.PayPal]: { label: 'PayPal Email', placeholder: 'Email address' },
+      [PaymentMethodType.Venmo]: { label: 'Venmo Identifier', placeholder: 'Venmo Name' },
+      [PaymentMethodType.CashApp]: {
+        label: 'CashApp Email or Phone',
+        placeholder: 'Email or Phone',
+      },
+      [PaymentMethodType.Zelle]: { label: 'Zelle Email or Phone', placeholder: 'Email or Phone' },
+      [PaymentMethodType.Bitcoin]: { label: 'Bitcoin Address', placeholder: 'Receiving Address' },
+    };
+    return labels[methodType];
+  };
+
   return (
     <Modal opened={opened} onClose={onClose} title='Payment Method' size='md'>
       <form onSubmit={form.onSubmit(onSubmit)}>
@@ -104,8 +120,8 @@ const PaymentMethodModal = ({
             }
           />
           <TextInput
-            label='Identifier'
-            placeholder='Email or username'
+            label={getFieldLabels(form.values.MethodType).label}
+            placeholder={getFieldLabels(form.values.MethodType).placeholder}
             {...form.getInputProps('Identifier')}
           />
           <NumberInput
