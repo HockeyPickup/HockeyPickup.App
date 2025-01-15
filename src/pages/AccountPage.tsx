@@ -5,6 +5,7 @@ import { authService, useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/error';
 import { userPaymentService } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import {
   ActionIcon,
   Avatar,
@@ -29,6 +30,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import {
   IconEdit,
+  IconGripVertical,
   IconLock,
   IconPlus,
   IconSettings,
@@ -148,6 +150,56 @@ const PaymentMethodsSection = (): JSX.Element => {
   const [paymentMethods, setPaymentMethods] = useState<UserPaymentMethodResponse[]>([]);
   const [modalOpened, setModalOpened] = useState(false);
   const [editingMethod, setEditingMethod] = useState<UserPaymentMethodResponse | null>(null);
+
+  const handleDragEnd = async (result: DropResult): Promise<void> => {
+    if (!result.destination || !user?.Id) return;
+
+    const newOrder = Array.from(paymentMethods);
+    const [reorderedItem] = newOrder.splice(result.source.index, 1);
+    newOrder.splice(result.destination.index, 0, reorderedItem);
+
+    // Update preference orders
+    const updates = newOrder.map((method, index) => ({
+      ...method,
+      PreferenceOrder: index + 1,
+    }));
+
+    setPaymentMethods(updates);
+
+    try {
+      await Promise.all(
+        updates.map((method) =>
+          userPaymentService.updatePaymentMethod(user.Id, method.UserPaymentMethodId, {
+            MethodType: method.MethodType,
+            Identifier: method.Identifier,
+            PreferenceOrder: method.PreferenceOrder,
+            IsActive: method.IsActive,
+          }),
+        ),
+      );
+
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Success',
+        message: 'Payment method order updated successfully',
+        color: 'green',
+      });
+    } catch (error) {
+      console.error('Error updating payment method order:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to update payment method order',
+        color: 'red',
+      });
+      // Reload original order
+      await loadPaymentMethods();
+    }
+  };
 
   const loadPaymentMethods = async (): Promise<void> => {
     if (!user?.Id) return;
@@ -282,58 +334,90 @@ const PaymentMethodsSection = (): JSX.Element => {
           </Button>
         </Group>
 
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Type</Table.Th>
-              <Table.Th>Identifier</Table.Th>
-              <Table.Th>Order</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {paymentMethods.map((method) => (
-              <Table.Tr key={method.UserPaymentMethodId}>
-                <Table.Td>{getMethodTypeLabel(method.MethodType)}</Table.Td>
-                <Table.Td>{method.Identifier}</Table.Td>
-                <Table.Td>{method.PreferenceOrder}</Table.Td>
-                <Table.Td>
-                  <Badge color={method.IsActive ? 'green' : 'gray'}>
-                    {method.IsActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap='xs'>
-                    <ActionIcon
-                      variant='subtle'
-                      onClick={() => {
-                        setEditingMethod(method);
-                        setModalOpened(true);
-                      }}
-                    >
-                      <IconEdit size={16} />
-                    </ActionIcon>
-                    <ActionIcon
-                      variant='subtle'
-                      color='red'
-                      onClick={() => handleDelete(method.UserPaymentMethodId)}
-                    >
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-            {paymentMethods.length === 0 && (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Table>
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
-                  <Text c='dimmed'>No payment methods configured</Text>
-                </Table.Td>
+                <Table.Th />
+                <Table.Th>Type</Table.Th>
+                <Table.Th>Identifier</Table.Th>
+                <Table.Th>Order</Table.Th>
+                <Table.Th>Status</Table.Th>
+                <Table.Th>Actions</Table.Th>
               </Table.Tr>
-            )}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Droppable droppableId='payment-methods'>
+              {(provided) => (
+                <Table.Tbody {...provided.droppableProps} ref={provided.innerRef}>
+                  {paymentMethods.map((method, index) => (
+                    <Draggable
+                      key={method.UserPaymentMethodId}
+                      draggableId={method.UserPaymentMethodId.toString()}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <Table.Tr
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          style={{
+                            ...provided.draggableProps.style,
+                            opacity: snapshot.isDragging ? 0.5 : 1,
+                          }}
+                        >
+                          <Table.Td>
+                            <ActionIcon
+                              variant='subtle'
+                              {...provided.dragHandleProps}
+                              style={{ cursor: 'grab' }}
+                            >
+                              <IconGripVertical size={16} />
+                            </ActionIcon>
+                          </Table.Td>
+                          <Table.Td>{getMethodTypeLabel(method.MethodType)}</Table.Td>
+                          <Table.Td>{method.Identifier}</Table.Td>
+                          <Table.Td>{method.PreferenceOrder}</Table.Td>
+                          <Table.Td>
+                            <Badge color={method.IsActive ? 'green' : 'gray'}>
+                              {method.IsActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </Table.Td>
+                          <Table.Td>
+                            <Group gap='xs'>
+                              <ActionIcon
+                                variant='subtle'
+                                onClick={() => {
+                                  setEditingMethod(method);
+                                  setModalOpened(true);
+                                }}
+                              >
+                                <IconEdit size={16} />
+                              </ActionIcon>
+                              <ActionIcon
+                                variant='subtle'
+                                color='red'
+                                onClick={() => handleDelete(method.UserPaymentMethodId)}
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Group>
+                          </Table.Td>
+                        </Table.Tr>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                  {paymentMethods.length === 0 && (
+                    <Table.Tr>
+                      <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
+                        <Text c='dimmed'>No payment methods configured</Text>
+                      </Table.Td>
+                    </Table.Tr>
+                  )}
+                </Table.Tbody>
+              )}
+            </Droppable>
+          </Table>
+        </DragDropContext>
 
         <PaymentMethodModal
           opened={modalOpened}
