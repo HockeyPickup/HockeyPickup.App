@@ -9,7 +9,6 @@ import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea
 import {
   ActionIcon,
   Avatar,
-  Badge,
   Button,
   Container,
   Group,
@@ -29,6 +28,7 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import {
+  IconCheck,
   IconEdit,
   IconGripVertical,
   IconLock,
@@ -36,6 +36,7 @@ import {
   IconSettings,
   IconTrash,
   IconWallet,
+  IconX,
 } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -319,8 +320,8 @@ const PaymentMethodsSection = (): JSX.Element => {
   };
 
   return (
-    <Paper withBorder shadow='md' p='xl' radius='md'>
-      <Stack gap='md'>
+    <Paper withBorder shadow='md' p='md' radius='md'>
+      <Stack gap='sm'>
         <Group justify='space-between'>
           <Title order={2}>Payment Methods</Title>
           <Button
@@ -330,22 +331,21 @@ const PaymentMethodsSection = (): JSX.Element => {
               setModalOpened(true);
             }}
           >
-            Add Method
+            Add
           </Button>
         </Group>
-
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Table>
+          <Table horizontalSpacing='xs' verticalSpacing='xs'>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th />
-                <Table.Th>Type</Table.Th>
-                <Table.Th>Identifier</Table.Th>
-                <Table.Th>Order</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Actions</Table.Th>
+                <Table.Th style={{ width: 10, padding: '8px' }} />
+                <Table.Th style={{ width: 10 }}>#</Table.Th>
+                <Table.Th style={{ width: 40 }}>Type</Table.Th>
+                <Table.Th style={{ width: 40 }}>ID</Table.Th>
+                <Table.Th style={{ width: 40 }}>On</Table.Th>{' '}
+                <Table.Th style={{ width: 40, textAlign: 'right' }}>Actions</Table.Th>
               </Table.Tr>
-            </Table.Thead>
+            </Table.Thead>{' '}
             <Droppable droppableId='payment-methods'>
               {(provided) => (
                 <Table.Tbody {...provided.droppableProps} ref={provided.innerRef}>
@@ -364,8 +364,9 @@ const PaymentMethodsSection = (): JSX.Element => {
                             opacity: snapshot.isDragging ? 0.5 : 1,
                           }}
                         >
-                          <Table.Td>
+                          <Table.Td style={{ padding: '8px' }}>
                             <ActionIcon
+                              size='sm'
                               variant='subtle'
                               {...provided.dragHandleProps}
                               style={{ cursor: 'grab' }}
@@ -373,17 +374,33 @@ const PaymentMethodsSection = (): JSX.Element => {
                               <IconGripVertical size={16} />
                             </ActionIcon>
                           </Table.Td>
-                          <Table.Td>{getMethodTypeLabel(method.MethodType)}</Table.Td>
-                          <Table.Td>{method.Identifier}</Table.Td>
-                          <Table.Td>{method.PreferenceOrder}</Table.Td>
                           <Table.Td>
-                            <Badge color={method.IsActive ? 'green' : 'gray'}>
-                              {method.IsActive ? 'Active' : 'Inactive'}
-                            </Badge>
+                            <Text size='sm'>{method.PreferenceOrder}</Text>
                           </Table.Td>
                           <Table.Td>
-                            <Group gap='xs'>
+                            <Text size='sm'>{getMethodTypeLabel(method.MethodType)}</Text>
+                          </Table.Td>
+                          <Table.Td
+                            style={{
+                              maxWidth: '100px',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            <Text size='sm'>{method.Identifier}</Text>
+                          </Table.Td>
+                          <Table.Td>
+                            {method.IsActive ? (
+                              <IconCheck size={16} color='green' stroke={2.5} />
+                            ) : (
+                              <IconX size={16} color='red' stroke={2.5} />
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            <Group gap={4} justify='flex-end'>
                               <ActionIcon
+                                size='sm'
                                 variant='subtle'
                                 onClick={() => {
                                   setEditingMethod(method);
@@ -393,6 +410,7 @@ const PaymentMethodsSection = (): JSX.Element => {
                                 <IconEdit size={16} />
                               </ActionIcon>
                               <ActionIcon
+                                size='sm'
                                 variant='subtle'
                                 color='red'
                                 onClick={() => handleDelete(method.UserPaymentMethodId)}
@@ -409,7 +427,9 @@ const PaymentMethodsSection = (): JSX.Element => {
                   {paymentMethods.length === 0 && (
                     <Table.Tr>
                       <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
-                        <Text c='dimmed'>No payment methods configured</Text>
+                        <Text size='sm' c='dimmed'>
+                          No payment methods
+                        </Text>
                       </Table.Td>
                     </Table.Tr>
                   )}
