@@ -6,7 +6,6 @@ export const GET_USERS = gql`
       Id
       UserName
       Email
-      PayPalEmail
       FirstName
       LastName
       Active
@@ -14,8 +13,6 @@ export const GET_USERS = gql`
       PreferredPlus
       NotificationPreference
       PositionPreference
-      VenmoAccount
-      MobileLast4
       EmergencyName
       EmergencyPhone
       JerseyNumber
@@ -112,7 +109,6 @@ export const GET_SESSION = gql`
             Id
             UserName
             Email
-            PayPalEmail
             FirstName
             LastName
             Active
@@ -120,8 +116,6 @@ export const GET_SESSION = gql`
             PreferredPlus
             NotificationPreference
             PositionPreference
-            VenmoAccount
-            MobileLast4
             EmergencyName
             EmergencyPhone
             JerseyNumber
@@ -212,7 +206,6 @@ export const GET_REGULARSETS = gql`
           Id
           UserName
           Email
-          PayPalEmail
           FirstName
           LastName
           Active
@@ -220,8 +213,6 @@ export const GET_REGULARSETS = gql`
           PreferredPlus
           NotificationPreference
           PositionPreference
-          VenmoAccount
-          MobileLast4
           EmergencyName
           EmergencyPhone
           JerseyNumber
@@ -332,7 +323,6 @@ export const SESSION_UPDATED = gql`
             Id
             UserName
             Email
-            PayPalEmail
             FirstName
             LastName
             Active
@@ -340,8 +330,6 @@ export const SESSION_UPDATED = gql`
             PreferredPlus
             NotificationPreference
             PositionPreference
-            VenmoAccount
-            MobileLast4
             EmergencyName
             EmergencyPhone
             JerseyNumber

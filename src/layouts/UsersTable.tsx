@@ -24,8 +24,6 @@ const UsersTableComponent = ({
           <Table.Th>&nbsp;</Table.Th>
           <Table.Th>Name</Table.Th>
           <Table.Th>Email</Table.Th>
-          <Table.Th>PayPal Email</Table.Th>
-          <Table.Th>Venmo Account</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -46,8 +44,6 @@ const UsersTableComponent = ({
               {user.JerseyNumber !== 0 && ` #${user.JerseyNumber}`}
             </Table.Td>
             <Table.Td>{user.Email}</Table.Td>
-            <Table.Td>{user.PayPalEmail}</Table.Td>
-            <Table.Td>{user.VenmoAccount}</Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>

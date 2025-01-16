@@ -52,13 +52,6 @@ export interface UserDetailedResponse {
    */
   Email?: string | null;
   /**
-   * User's PayPal email address
-   * @format email
-   * @minLength 1
-   * @maxLength 256
-   */
-  PayPalEmail: string;
-  /**
    * First name of the user
    * @maxLength 256
    */
@@ -78,18 +71,6 @@ export interface UserDetailedResponse {
   NotificationPreference?: NotificationPreference | null;
   /** User's position preferences */
   PositionPreference?: PositionPreference | null;
-  /**
-   * User's Venmo account
-   * @maxLength 255
-   * @pattern ^[^\\\./:\@\*\?\"<>\|]{1}[^\\/:\@\*\?\"<>\|]{0,254}$
-   */
-  VenmoAccount?: string | null;
-  /**
-   * Last 4 digits of mobile number
-   * @maxLength 4
-   * @pattern ^(\d{4})$
-   */
-  MobileLast4?: string | null;
   /**
    * Emergency contact name
    * @maxLength 256
@@ -254,11 +235,8 @@ export type AspNetUser = IdentityUserOfString & {
   NotificationPreference?: number;
   /** @format int32 */
   PositionPreference?: number;
-  PayPalEmail?: string | null;
   Active?: boolean;
   Preferred?: boolean;
-  VenmoAccount?: string | null;
-  MobileLast4?: string | null;
   /** @format decimal */
   Rating?: number;
   PreferredPlus?: boolean;
@@ -605,25 +583,6 @@ export interface SaveUserRequest {
    * @maxLength 256
    */
   LastName?: string | null;
-  /**
-   * PayPal email address for payments
-   * @format email
-   * @maxLength 256
-   */
-  PayPalEmail?: string | null;
-  /**
-   * Venmo Account
-   * Venmo account name for payments
-   * @maxLength 255
-   * @pattern ^[^\\\./:\@\*\?\"<>\|]{1}[^\\/:\@\*\?\"<>\|]{0,254}$
-   */
-  VenmoAccount?: string | null;
-  /**
-   * Last 4 digits of mobile number
-   * @maxLength 4
-   * @pattern ^(\d{4})$
-   */
-  MobileLast4?: string | null;
   /**
    * Emergency contact name
    * @maxLength 256
@@ -1594,29 +1553,10 @@ export interface User {
    * @max 2147483647
    */
   PositionPreference: number;
-  /**
-   * User's PayPal email address
-   * @format email
-   * @minLength 1
-   * @maxLength 256
-   */
-  PayPalEmail: string;
   /** Indicates if user account is active */
   Active: boolean;
   /** Indicates if user has preferred status */
   Preferred: boolean;
-  /**
-   * User's Venmo account
-   * @maxLength 255
-   * @pattern ^[^\\\./:\@\*\?\"<>\|]{1}[^\\/:\@\*\?\"<>\|]{0,254}$
-   */
-  VenmoAccount?: string | null;
-  /**
-   * Last 4 digits of mobile number
-   * @maxLength 4
-   * @pattern ^(\d{4})$
-   */
-  MobileLast4?: string | null;
   /**
    * User's rating
    * @format decimal

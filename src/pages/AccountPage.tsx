@@ -594,9 +594,6 @@ const PreferencesSection = (): JSX.Element => {
     initialValues: {
       FirstName: user?.FirstName ?? '',
       LastName: user?.LastName ?? '',
-      PayPalEmail: user?.PayPalEmail ?? '',
-      VenmoAccount: user?.VenmoAccount ?? '',
-      MobileLast4: user?.MobileLast4 ?? '',
       EmergencyName: user?.EmergencyName ?? '',
       EmergencyPhone: user?.EmergencyPhone ?? '',
       JerseyNumber: user?.JerseyNumber ?? 0,
@@ -613,11 +610,6 @@ const PreferencesSection = (): JSX.Element => {
         if (num < 0 || num > 98) return 'Must be between 0 and 98';
         return null;
       },
-      PayPalEmail: (value) => {
-        if (!value) return 'PayPal email is required';
-        return /^\S+@\S+$/.test(value) ? null : 'Invalid email format';
-      },
-      MobileLast4: (value) => (value ? (/^\d{4}$/.test(value) ? null : 'Must be 4 digits') : null),
       EmergencyPhone: (value) =>
         value
           ? /^\+?1?\s*\(?[0-9]{3}\)?[-\s.]*[0-9]{3}[-\s.]*[0-9]{4}$/.test(value)
@@ -688,22 +680,6 @@ const PreferencesSection = (): JSX.Element => {
             placeholder='0'
             maxLength={2}
             {...form.getInputProps('JerseyNumber')}
-          />
-          <TextInput
-            label='PayPal Email'
-            placeholder='email@example.com'
-            {...form.getInputProps('PayPalEmail')}
-          />
-          <TextInput
-            label='Venmo Account'
-            placeholder='@username'
-            {...form.getInputProps('VenmoAccount')}
-          />
-          <TextInput
-            label='Mobile Last 4 Digits'
-            placeholder='1234'
-            maxLength={4}
-            {...form.getInputProps('MobileLast4')}
           />
           <TextInput
             label='Emergency Contact Name'

@@ -256,9 +256,6 @@ const EditUserForm = ({
       UserId: profileUser.Id,
       FirstName: profileUser.FirstName ?? '',
       LastName: profileUser.LastName ?? '',
-      PayPalEmail: profileUser.PayPalEmail ?? '',
-      VenmoAccount: profileUser.VenmoAccount ?? '',
-      MobileLast4: profileUser.MobileLast4 ?? '',
       EmergencyName: profileUser.EmergencyName ?? '',
       EmergencyPhone: profileUser.EmergencyPhone ?? '',
       JerseyNumber: profileUser.JerseyNumber ?? 0,
@@ -280,11 +277,6 @@ const EditUserForm = ({
         if (num < 0 || num > 98) return 'Must be between 0 and 98';
         return null;
       },
-      PayPalEmail: (value) => {
-        if (!value) return 'PayPal email is required';
-        return /^\S+@\S+$/.test(value) ? null : 'Invalid email format';
-      },
-      MobileLast4: (value) => (value ? (/^\d{4}$/.test(value) ? null : 'Must be 4 digits') : null),
       EmergencyPhone: (value) =>
         value
           ? /^\+?1?\s*\(?[0-9]{3}\)?[-\s.]*[0-9]{3}[-\s.]*[0-9]{4}$/.test(value)
@@ -315,22 +307,6 @@ const EditUserForm = ({
             placeholder='0'
             maxLength={2}
             {...form.getInputProps('JerseyNumber')}
-          />
-          <TextInput
-            label='PayPal Email'
-            placeholder='email@example.com'
-            {...form.getInputProps('PayPalEmail')}
-          />
-          <TextInput
-            label='Venmo Account'
-            placeholder='@username'
-            {...form.getInputProps('VenmoAccount')}
-          />
-          <TextInput
-            label='Mobile Last 4 Digits'
-            placeholder='1234'
-            maxLength={4}
-            {...form.getInputProps('MobileLast4')}
           />
           <TextInput
             label='Emergency Contact Name'
