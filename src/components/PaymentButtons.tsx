@@ -126,7 +126,11 @@ export const PaymentButtons = ({
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={<Title order={3}>Pay {user.FirstName}</Title>}
+        title={
+          <Title order={3}>
+            Pay {user.FirstName} {user.LastName}
+          </Title>
+        }
       >
         <Stack>
           <form>
@@ -141,7 +145,10 @@ export const PaymentButtons = ({
           </form>
 
           <Title order={4} mt='md'>
-            Payment Methods (in order of preference)
+            Payment Methods
+            <Text span size='xs' c='dimmed' ml={4} fw={400}>
+              (in order of preference)
+            </Text>
           </Title>
           <Group>
             {user.PaymentMethods?.map((method) => {
