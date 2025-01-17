@@ -1658,6 +1658,21 @@ export interface UserStatsResponse {
    */
   PriorYearSoldTotal: number;
   /**
+   * Games played two years ago
+   * @format int32
+   */
+  TwoYearsAgoGamesPlayed: number;
+  /**
+   * Spots bought two years ago
+   * @format int32
+   */
+  TwoYearsAgoBoughtTotal: number;
+  /**
+   * Spots sold two years ago
+   * @format int32
+   */
+  TwoYearsAgoSoldTotal: number;
+  /**
    * Date of last sold session
    * @format date-time
    */

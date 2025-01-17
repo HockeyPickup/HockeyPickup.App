@@ -250,6 +250,9 @@ export const GET_USERSTATS = gql`
       CurrentBuyRequests
       WednesdayRegular
       FridayRegular
+      TwoYearsAgoSoldTotal
+      TwoYearsAgoBoughtTotal
+      TwoYearsAgoGamesPlayed
     }
   }
 `;

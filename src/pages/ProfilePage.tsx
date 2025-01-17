@@ -11,6 +11,7 @@ import {
   PositionPreference,
   RevertImpersonationResponse,
   UserDetailedResponse,
+  UserStatsResponse,
 } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, TOKEN_KEY, useAuth } from '@/lib/auth';
@@ -31,6 +32,7 @@ import {
   Card,
   Checkbox,
   Container,
+  Divider,
   Grid,
   Group,
   NumberInput,
@@ -62,7 +64,7 @@ const HeaderSection = ({
     skip: !profileUser?.Id,
   });
 
-  const stats = statsData?.UserStats;
+  const stats: UserStatsResponse = statsData?.UserStats;
 
   const refreshAvatar = async (): Promise<void> => {
     const url = await AvatarService.getAvatarUrl(profileUser?.PhotoUrl ?? '');
@@ -77,6 +79,7 @@ const HeaderSection = ({
 
   const currentYear = moment().year();
   const lastYear = currentYear - 1;
+  const twoYear = currentYear - 2;
 
   return (
     <Card
@@ -171,7 +174,7 @@ const HeaderSection = ({
       </Group>
 
       {/* Stats Grid */}
-      <Grid grow gutter='xl'>
+      <Grid grow gutter='sm'>
         <Grid.Col span={{ base: 5 }}>
           <Stack gap='xs'>
             <Title order={4} c='dimmed'>
@@ -187,6 +190,12 @@ const HeaderSection = ({
               <Text>{lastYear}:</Text>
               <Text fw={700} size='xl'>
                 {stats?.PriorYearGamesPlayed ?? 0}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{twoYear}:</Text>
+              <Text fw={700} size='xl'>
+                {stats?.TwoYearsAgoGamesPlayed ?? 0}
               </Text>
             </Group>
           </Stack>
@@ -214,20 +223,31 @@ const HeaderSection = ({
               <Text fw={700}>{stats?.PriorYearSoldTotal ?? 0}</Text>
             </Group>
             <Group justify='space-between'>
-              <Text>Open Buy Requests:</Text>
-              <Text fw={700}>{stats?.CurrentBuyRequests ?? 0}</Text>
+              <Text>{twoYear} Bought:</Text>
+              <Text fw={700}>{stats?.TwoYearsAgoBoughtTotal ?? 0}</Text>
             </Group>
             <Group justify='space-between'>
-              <Text>Last Bought:</Text>
-              <Text fw={700}>
+              <Text>{twoYear} Sold:</Text>
+              <Text fw={700}>{stats?.TwoYearsAgoSoldTotal ?? 0}</Text>
+            </Group>
+            <Divider size='md' />
+            <Group justify='space-between'>
+              <Text size='sm'>Open Buy Requests:</Text>
+              <Text size='sm' fw={700}>
+                {stats?.CurrentBuyRequests ?? 0}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text size='sm'>Last Bought:</Text>
+              <Text size='sm' fw={700}>
                 {stats?.LastBoughtSessionDate
                   ? moment.utc(stats.LastBoughtSessionDate).local().format('MM/DD/yyyy')
                   : 'N/A'}
               </Text>
             </Group>
             <Group justify='space-between'>
-              <Text>Last Sold:</Text>
-              <Text fw={700}>
+              <Text size='sm'>Last Sold:</Text>
+              <Text size='sm' fw={700}>
                 {stats?.LastSoldSessionDate
                   ? moment.utc(stats.LastSoldSessionDate).local().format('MM/DD/yyyy')
                   : 'N/A'}
