@@ -241,7 +241,7 @@ const HeaderSection = ({
               <Text size='sm'>Last Bought:</Text>
               <Text size='sm' fw={700}>
                 {stats?.LastBoughtSessionDate
-                  ? moment.utc(stats.LastBoughtSessionDate).local().format('MM/DD/yyyy')
+                  ? moment.utc(stats.LastBoughtSessionDate).format('MM/DD/yyyy')
                   : 'N/A'}
               </Text>
             </Group>
@@ -249,7 +249,7 @@ const HeaderSection = ({
               <Text size='sm'>Last Sold:</Text>
               <Text size='sm' fw={700}>
                 {stats?.LastSoldSessionDate
-                  ? moment.utc(stats.LastSoldSessionDate).local().format('MM/DD/yyyy')
+                  ? moment.utc(stats.LastSoldSessionDate).format('MM/DD/yyyy')
                   : 'N/A'}
               </Text>
             </Group>
