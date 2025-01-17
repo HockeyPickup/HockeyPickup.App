@@ -39,6 +39,9 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
+import { BsCreditCard2Front } from 'react-icons/bs';
+import { FaBitcoin, FaPaypal } from 'react-icons/fa';
+import { SiCashapp, SiVenmo } from 'react-icons/si';
 import { Link } from 'react-router-dom';
 import {
   ChangePasswordRequest,
@@ -50,6 +53,14 @@ import {
   UserPaymentMethodRequest,
   UserPaymentMethodResponse,
 } from '../HockeyPickup.Api';
+
+const PAYMENT_METHODS = {
+  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: 'PayPal' },
+  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: 'Venmo' },
+  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
+  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
+  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
+};
 
 const PaymentMethodModal = ({
   opened,
@@ -114,6 +125,19 @@ const PaymentMethodModal = ({
               { value: PaymentMethodType.Zelle.toString(), label: 'Zelle' },
               { value: PaymentMethodType.Bitcoin.toString(), label: 'Bitcoin' },
             ]}
+            renderOption={({ option }) => {
+              const Icon = PAYMENT_METHODS[parseInt(option.value) as PaymentMethodType].icon;
+              return (
+                <Group gap='sm'>
+                  <Icon size={16} />
+                  <span>{option.label}</span>
+                </Group>
+              );
+            }}
+            leftSection={((): JSX.Element => {
+              const Icon = PAYMENT_METHODS[form.values.MethodType].icon;
+              return <Icon size={16} />;
+            })()}
             value={form.values.MethodType.toString()}
             onChange={(value) =>
               form.setFieldValue(
@@ -308,6 +332,7 @@ const PaymentMethodsSection = (): JSX.Element => {
       }
     }
   };
+
   const getMethodTypeLabel = (type: PaymentMethodType): string => {
     const labels: Record<PaymentMethodType, string> = {
       [PaymentMethodType.PayPal]: 'PayPal',
@@ -378,7 +403,13 @@ const PaymentMethodsSection = (): JSX.Element => {
                             <Text size='sm'>{method.PreferenceOrder}</Text>
                           </Table.Td>
                           <Table.Td>
-                            <Text size='sm'>{getMethodTypeLabel(method.MethodType)}</Text>
+                            <Group gap='xs' align='center'>
+                              {((): JSX.Element => {
+                                const { icon: Icon } = PAYMENT_METHODS[method.MethodType];
+                                return <Icon size={16} />;
+                              })()}
+                              <Text size='xs'>{getMethodTypeLabel(method.MethodType)}</Text>
+                            </Group>
                           </Table.Td>
                           <Table.Td
                             style={{
