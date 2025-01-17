@@ -1,5 +1,6 @@
 import { AvatarUpload } from '@/components/AvatarUpload';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PaymentButtons } from '@/components/PaymentButtons';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
 import {
   AdminUserUpdateRequest,
@@ -114,6 +115,7 @@ const HeaderSection = ({
               >
                 Game Pucks
               </Badge>
+              {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}{' '}
             </Group>
           </div>
         </Group>

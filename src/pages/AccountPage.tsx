@@ -92,8 +92,8 @@ const PaymentMethodModal = ({
       [PaymentMethodType.PayPal]: { label: 'PayPal Email', placeholder: 'Email address' },
       [PaymentMethodType.Venmo]: { label: 'Venmo Identifier', placeholder: 'Venmo Name' },
       [PaymentMethodType.CashApp]: {
-        label: 'CashApp Email or Phone',
-        placeholder: 'Email or Phone',
+        label: 'Cash App CashTag',
+        placeholder: 'CashTag',
       },
       [PaymentMethodType.Zelle]: { label: 'Zelle Email or Phone', placeholder: 'Email or Phone' },
       [PaymentMethodType.Bitcoin]: { label: 'Bitcoin Address', placeholder: 'Receiving Address' },
