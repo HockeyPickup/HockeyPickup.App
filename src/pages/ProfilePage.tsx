@@ -16,6 +16,7 @@ import {
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, TOKEN_KEY, useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/error';
+import { YOUTUBE_NAME_OVERRIDES } from '@/lib/overrides';
 import { GET_USERSTATS } from '@/lib/queries';
 import {
   getImpersonationStatus,
@@ -45,6 +46,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { IconExternalLink } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -117,6 +119,22 @@ const HeaderSection = ({
                 }
               >
                 Game Pucks
+              </Badge>
+              <Badge
+                color='red'
+                style={{ cursor: 'pointer' }}
+                component='a'
+                href={`https://www.youtube.com/@pickupicehockey/search?query=${
+                  YOUTUBE_NAME_OVERRIDES[`${profileUser.FirstName} ${profileUser.LastName}`] ??
+                  profileUser.LastName
+                }`}
+                target='_blank'
+              >
+                Videos{' '}
+                <IconExternalLink
+                  size={12}
+                  style={{ marginLeft: 2, verticalAlign: 'middle', marginBottom: 4 }}
+                />
               </Badge>
               {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}{' '}
             </Group>
