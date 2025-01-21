@@ -24,6 +24,7 @@ import {
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { modals } from '@mantine/modals'; // Add this import at the top with other imports
 import { notifications } from '@mantine/notifications';
 import { IconCalendar, IconCash, IconClock, IconNotes } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
@@ -134,6 +135,50 @@ export const SessionFormPage = (): JSX.Element => {
   if (isEditMode && sessionLoading) {
     return <LoadingSpinner />;
   }
+
+  const handleDelete = async (): Promise<void> => {
+    setIsLoading(true);
+    try {
+      const response = await sessionService.deleteSession(parseInt(sessionId!));
+      if (response.Success) {
+        notifications.show({
+          position: 'top-center',
+          autoClose: 5000,
+          style: { marginTop: '60px' },
+          title: 'Success',
+          message: 'Session deleted successfully',
+          color: 'green',
+        });
+        navigate('/sessions');
+      } else if (response.Errors) {
+        setApiErrors(response.Errors);
+      }
+    } catch (error: unknown) {
+      console.error('Session deletion failed:', error);
+      if (isApiErrorResponse(error)) {
+        setApiErrors(error.response.data.Errors);
+      } else {
+        setApiErrors([{ Message: 'Failed to delete session. Please try again.' }]);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const openDeleteModal = (): void => {
+    modals.openConfirmModal({
+      title: 'Delete Session',
+      centered: true,
+      children: (
+        <Text size='sm'>
+          Are you sure you want to delete this session? This action cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: handleDelete,
+    });
+  };
 
   const handleSubmit = async (values: SessionFormValues): Promise<void> => {
     setIsLoading(true);
@@ -251,6 +296,11 @@ export const SessionFormPage = (): JSX.Element => {
               <Button type='submit' loading={isLoading}>
                 {isEditMode ? 'Update Session' : 'Create Session'}
               </Button>
+              {isEditMode && (
+                <Button color='red' onClick={openDeleteModal} loading={isLoading}>
+                  Delete Session
+                </Button>
+              )}
             </Group>
           </Stack>
         </form>

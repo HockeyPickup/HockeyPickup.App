@@ -1376,6 +1376,12 @@ export interface UpdateRosterTeamRequest {
 }
 
 /** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfBoolean = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: boolean;
+};
+
+/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
   /** Response data payload of type T */
   Data?: UserPaymentMethodResponse | null;

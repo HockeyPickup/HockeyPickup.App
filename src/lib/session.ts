@@ -1,4 +1,5 @@
 import {
+  ApiDataResponseOfBoolean,
   ApiDataResponseOfSessionDetailedResponse,
   CreateSessionRequest,
   UpdateRosterPositionRequest,
@@ -47,6 +48,14 @@ export const sessionService = {
     const response = await api.post<ApiDataResponseOfSessionDetailedResponse>(
       '/Session/create-session',
       request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async deleteSession(sessionId: number): Promise<ApiDataResponseOfBoolean> {
+    const response = await api.delete<ApiDataResponseOfBoolean>(
+      `/Session/delete-session/${sessionId}`,
     );
     console.info(response);
     return response.data;
