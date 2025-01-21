@@ -321,7 +321,7 @@ const PaymentMethodsSection = (): JSX.Element => {
             autoClose: 5000,
             style: { marginTop: '60px' },
             title: 'Success',
-            message: response.Message ?? 'Payment method deleted successfully',
+            message: 'Payment method deleted successfully',
             color: 'green',
           });
         } else {
