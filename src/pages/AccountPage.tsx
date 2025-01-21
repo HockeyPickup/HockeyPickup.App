@@ -29,6 +29,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import {
   IconCheck,
+  IconCreditCard,
   IconEdit,
   IconGripVertical,
   IconLock,
@@ -60,6 +61,13 @@ const PAYMENT_METHODS = {
   [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
   [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
   [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
+};
+
+const getPaymentMethodInfo = (
+  methodType: PaymentMethodType,
+): { icon: React.ComponentType; label: string } => {
+  const defaultInfo = { icon: IconCreditCard, label: 'Unknown Method' };
+  return PAYMENT_METHODS[methodType] || defaultInfo;
 };
 
 const PaymentMethodModal = ({
@@ -126,17 +134,25 @@ const PaymentMethodModal = ({
               { value: PaymentMethodType.Bitcoin.toString(), label: 'Bitcoin' },
             ]}
             renderOption={({ option }) => {
-              const Icon = PAYMENT_METHODS[parseInt(option.value) as PaymentMethodType].icon;
+              const { icon: Icon } = getPaymentMethodInfo(
+                parseInt(option.value) as PaymentMethodType,
+              );
               return (
                 <Group gap='sm'>
-                  <Icon size={16} />
+                  <div style={{ width: 16, height: 16, display: 'flex' }}>
+                    <Icon />
+                  </div>
                   <span>{option.label}</span>
                 </Group>
               );
             }}
             leftSection={((): JSX.Element => {
-              const Icon = PAYMENT_METHODS[form.values.MethodType].icon;
-              return <Icon size={16} />;
+              const { icon: Icon } = getPaymentMethodInfo(form.values.MethodType);
+              return (
+                <div style={{ width: 16, height: 16, display: 'flex' }}>
+                  <Icon />
+                </div>
+              );
             })()}
             value={form.values.MethodType.toString()}
             onChange={(value) =>
@@ -404,12 +420,14 @@ const PaymentMethodsSection = (): JSX.Element => {
                           </Table.Td>
                           <Table.Td>
                             <Group gap='xs' align='center'>
-                              {((): JSX.Element => {
-                                const { icon: Icon } = PAYMENT_METHODS[method.MethodType];
-                                return <Icon size={16} />;
-                              })()}
+                              <div style={{ width: 16, height: 16, display: 'flex' }}>
+                                {((): JSX.Element => {
+                                  const { icon: Icon } = getPaymentMethodInfo(method.MethodType);
+                                  return <Icon />;
+                                })()}
+                              </div>
                               <Text size='xs'>{getMethodTypeLabel(method.MethodType)}</Text>
-                            </Group>
+                            </Group>{' '}
                           </Table.Td>
                           <Table.Td
                             style={{

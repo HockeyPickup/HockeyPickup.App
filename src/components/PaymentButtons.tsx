@@ -64,6 +64,13 @@ const getPaymentUrl = (
   }
 };
 
+const getPaymentMethodInfo = (
+  methodType: PaymentMethodType,
+): { icon: React.ComponentType; label: string } => {
+  const defaultInfo = { icon: IconCreditCard, label: 'Unknown Method' };
+  return PAYMENT_METHODS[methodType] || defaultInfo;
+};
+
 export const PaymentButtons = ({
   user,
   defaultAmount = 27,
@@ -152,7 +159,7 @@ export const PaymentButtons = ({
           </Title>
           <Group>
             {user.PaymentMethods?.map((method) => {
-              const { icon: Icon, label } = PAYMENT_METHODS[method.MethodType];
+              const { icon: Icon, label } = getPaymentMethodInfo(method.MethodType);
               return (
                 <Tooltip
                   key={method.UserPaymentMethodId}
@@ -169,7 +176,9 @@ export const PaymentButtons = ({
                         cursor: method.IsActive ? 'pointer' : 'not-allowed',
                       }}
                     >
-                      <Icon size={24} />
+                      <div style={{ width: 24, height: 24, display: 'flex' }}>
+                        <Icon />
+                      </div>
                     </ActionIcon>
                     <Text size='xs' c={method.IsActive ? 'inherit' : 'dimmed'}>
                       {label}
