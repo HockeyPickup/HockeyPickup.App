@@ -137,7 +137,7 @@ export interface UserPaymentMethodResponse {
    */
   UserPaymentMethodId: number;
   /** Type of payment method */
-  MethodType: PaymentMethodType;
+  MethodType: PaymentMethod;
   /**
    * Payment identifier (email, username, etc.)
    * @minLength 1
@@ -152,7 +152,7 @@ export interface UserPaymentMethodResponse {
   IsActive: boolean;
 }
 
-export enum PaymentMethodType {
+export enum PaymentMethod {
   PayPal = 1,
   Venmo = 2,
   CashApp = 3,
@@ -405,7 +405,7 @@ export interface UserPaymentMethod {
    * @maxLength 128
    */
   UserId: string;
-  MethodType: PaymentMethodType;
+  MethodType: PaymentMethod;
   /**
    * @minLength 1
    * @maxLength 256
@@ -1382,6 +1382,151 @@ export type ApiDataResponseOfBoolean = ApiResponse & {
 };
 
 /** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfTransactionResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: TransactionResponse | null;
+};
+
+export interface TransactionResponse {
+  /**
+   * Unique identifier for the transaction
+   * @format int32
+   */
+  TransactionId: number;
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /** Current status of the transaction */
+  Status: TransactionStatus;
+  /** Type of transaction (Buy or Sell) */
+  Type: TransactionType;
+  /**
+   * Team assignment (1 for Light, 2 for Dark)
+   * @format int32
+   * @min 1
+   * @max 2
+   */
+  TeamAssignment: number;
+  /**
+   * Position (0 for TBD, 1 for Forward, 2 for Defense)
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  Position: number;
+  /**
+   * Transaction note
+   * @maxLength 4000
+   */
+  Note?: string | null;
+  /**
+   * Price for the transaction
+   * @format decimal
+   * @min 0
+   * @max 999.99
+   */
+  Price?: number | null;
+  /** Selected payment method */
+  PaymentMethod?: PaymentMethod | null;
+  /** Payment confirmation status */
+  PaymentConfirmed?: boolean | null;
+  /**
+   * Position in buying/selling queue
+   * @format int32
+   */
+  QueuePosition?: number | null;
+  /**
+   * Date and time of transaction creation
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /**
+   * Date and time of last update
+   * @format date-time
+   * @minLength 1
+   */
+  UpdateDateTime: string;
+  /** Initiator user details */
+  Initiator?: UserDetailedResponse | null;
+  /** Counterparty user details */
+  Counterparty?: UserDetailedResponse | null;
+}
+
+export enum TransactionStatus {
+  Pending = 1,
+  Matched = 2,
+  PaymentPending = 3,
+  Completed = 4,
+  Cancelled = 5,
+  Failed = 6,
+}
+
+export enum TransactionType {
+  Buy = 1,
+  Sell = 2,
+}
+
+export interface BuyRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Team assignment (1 for Light, 2 for Dark)
+   * @format int32
+   * @min 1
+   * @max 2
+   */
+  TeamAssignment: number;
+  /**
+   * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  Position: number;
+  /**
+   * Buyer's note for the transaction
+   * @maxLength 4000
+   */
+  Note?: string | null;
+  /** Preferred payment method */
+  PreferredPaymentMethod?: PaymentMethod | null;
+}
+
+export interface SellRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Asking price for the spot
+   * @format decimal
+   * @min 0
+   * @max 999.99
+   */
+  Price?: number | null;
+  /**
+   * Seller's note for the transaction
+   * @maxLength 4000
+   */
+  Note?: string | null;
+  /** Payment methods the seller accepts */
+  AcceptedPaymentMethods?: PaymentMethod[] | null;
+}
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfIEnumerableOfTransactionResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: TransactionResponse[] | null;
+};
+
+/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
   /** Response data payload of type T */
   Data?: UserPaymentMethodResponse | null;
@@ -1389,7 +1534,7 @@ export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
 
 export interface UserPaymentMethodRequest {
   /** Type of payment method */
-  MethodType: PaymentMethodType;
+  MethodType: PaymentMethod;
   /**
    * Payment identifier (email, username, etc.)
    * @minLength 1
@@ -1479,6 +1624,10 @@ export interface ServiceBusCommsMessage {
   RelatedEntities: Record<string, string>;
   /** Type-specific message payload data */
   MessageData?: Record<string, string>;
+  /** List of email addresses to notify */
+  NotificationEmails?: string[] | null;
+  /** List of device IDs for push notifications */
+  NotificationDeviceIds?: string[] | null;
 }
 
 export interface User {
