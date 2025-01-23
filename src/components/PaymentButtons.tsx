@@ -1,4 +1,8 @@
-import { PaymentMethod, UserDetailedResponse, UserPaymentMethodResponse } from '@/HockeyPickup.Api';
+import {
+  PaymentMethodType,
+  UserDetailedResponse,
+  UserPaymentMethodResponse,
+} from '@/HockeyPickup.Api';
 import {
   ActionIcon,
   Button,
@@ -30,11 +34,11 @@ interface PaymentForm {
 }
 
 const PAYMENT_METHODS = {
-  [PaymentMethod.PayPal]: { icon: FaPaypal, label: 'PayPal' },
-  [PaymentMethod.Venmo]: { icon: SiVenmo, label: 'Venmo' },
-  [PaymentMethod.CashApp]: { icon: SiCashapp, label: 'Cash App' },
-  [PaymentMethod.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
-  [PaymentMethod.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
+  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: 'PayPal' },
+  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: 'Venmo' },
+  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
+  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
+  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
 };
 
 const getPaymentUrl = (
@@ -45,15 +49,15 @@ const getPaymentUrl = (
   const encodedDesc = encodeURIComponent(description);
 
   switch (method.MethodType) {
-    case PaymentMethod.Venmo:
+    case PaymentMethodType.Venmo:
       return `https://venmo.com/${method.Identifier}?txn=pay&note=${encodedDesc}&amount=${amount}`;
-    case PaymentMethod.CashApp:
+    case PaymentMethodType.CashApp:
       return `https://cash.app/$${method.Identifier}/${amount}?note=${encodedDesc}`;
-    case PaymentMethod.PayPal:
+    case PaymentMethodType.PayPal:
       return `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${method.Identifier}&amount=${amount}&item_name=${encodedDesc}&currency_code=USD`;
-    case PaymentMethod.Zelle:
+    case PaymentMethodType.Zelle:
       return method.Identifier;
-    case PaymentMethod.Bitcoin:
+    case PaymentMethodType.Bitcoin:
       return method.Identifier;
     default:
       return '';
@@ -61,7 +65,7 @@ const getPaymentUrl = (
 };
 
 const getPaymentMethodInfo = (
-  methodType: PaymentMethod,
+  methodType: PaymentMethodType,
 ): { icon: React.ComponentType; label: string } => {
   const defaultInfo = { icon: IconCreditCard, label: 'Unknown Method' };
   return PAYMENT_METHODS[methodType] || defaultInfo;
@@ -87,7 +91,10 @@ export const PaymentButtons = ({
   const handlePayment = (method: UserPaymentMethodResponse): void => {
     const url = getPaymentUrl(method, form.values.amount, form.values.description);
 
-    if (method.MethodType === PaymentMethod.Zelle || method.MethodType === PaymentMethod.Bitcoin) {
+    if (
+      method.MethodType === PaymentMethodType.Zelle ||
+      method.MethodType === PaymentMethodType.Bitcoin
+    ) {
       navigator.clipboard.writeText(url);
       notifications.show({
         position: 'top-center',
