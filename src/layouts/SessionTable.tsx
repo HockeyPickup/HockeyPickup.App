@@ -1,4 +1,5 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { SessionActions } from '@/components/SessionActions';
 import { SessionActivityLog } from '@/components/SessionActivityLog';
 import { SessionBuyingQueue } from '@/components/SessionBuyingQueue';
 import { SessionBuySells } from '@/components/SessionBuySells';
@@ -51,6 +52,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   return (
     <Stack gap='md' mb='xl'>
       <SessionDetails session={session} />
+      <SessionActions session={session} />
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <SessionRoster session={session} onSessionUpdate={setSession} />
       )}
