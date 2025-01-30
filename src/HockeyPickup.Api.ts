@@ -137,7 +137,7 @@ export interface UserPaymentMethodResponse {
    */
   UserPaymentMethodId: number;
   /** Type of payment method */
-  MethodType: PaymentMethodType;
+  MethodType: PaymentMethod;
   /**
    * Payment identifier (email, username, etc.)
    * @minLength 1
@@ -152,7 +152,7 @@ export interface UserPaymentMethodResponse {
   IsActive: boolean;
 }
 
-export enum PaymentMethodType {
+export enum PaymentMethod {
   PayPal = 1,
   Venmo = 2,
   CashApp = 3,
@@ -405,7 +405,7 @@ export interface UserPaymentMethod {
    * @maxLength 128
    */
   UserId: string;
-  MethodType: PaymentMethodType;
+  MethodType: PaymentMethod;
   /**
    * @minLength 1
    * @maxLength 256
@@ -1410,31 +1410,26 @@ export interface TransactionResponse {
    */
   TeamAssignment: number;
   /**
-   * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
+   * Position (0 for TBD, 1 for Forward, 2 for Defense)
    * @format int32
    * @min 0
    * @max 2
    */
   Position: number;
   /**
-   * Buyer's note for the transaction
+   * Transaction note
    * @maxLength 4000
    */
-  BuyerNote?: string | null;
+  Note?: string | null;
   /**
-   * Seller's note for the transaction
-   * @maxLength 4000
-   */
-  SellerNote?: string | null;
-  /**
-   * Price for the transaction (from session)
+   * Price for the transaction
    * @format decimal
    * @min 0
    * @max 999.99
    */
-  Price: number;
-  /** Payment method used to complete the transaction */
-  CompletedWithPaymentMethod?: PaymentMethodType | null;
+  Price?: number | null;
+  /** Selected payment method */
+  PaymentMethod?: PaymentMethod | null;
   /** Payment confirmation status */
   PaymentConfirmed?: boolean | null;
   /**
@@ -1454,10 +1449,10 @@ export interface TransactionResponse {
    * @minLength 1
    */
   UpdateDateTime: string;
-  /** Buyer details */
-  Buyer?: UserDetailedResponse | null;
-  /** Seller details */
-  Seller?: UserDetailedResponse | null;
+  /** Initiator user details */
+  Initiator?: UserDetailedResponse | null;
+  /** Counterparty user details */
+  Counterparty?: UserDetailedResponse | null;
 }
 
 export enum TransactionStatus {
@@ -1481,10 +1476,26 @@ export interface BuyRequest {
    */
   SessionId: number;
   /**
+   * Team assignment (1 for Light, 2 for Dark)
+   * @format int32
+   * @min 1
+   * @max 2
+   */
+  TeamAssignment: number;
+  /**
+   * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  Position: number;
+  /**
    * Buyer's note for the transaction
    * @maxLength 4000
    */
   Note?: string | null;
+  /** Preferred payment method */
+  PreferredPaymentMethod?: PaymentMethod | null;
 }
 
 export interface SellRequest {
@@ -1494,10 +1505,19 @@ export interface SellRequest {
    */
   SessionId: number;
   /**
+   * Asking price for the spot
+   * @format decimal
+   * @min 0
+   * @max 999.99
+   */
+  Price?: number | null;
+  /**
    * Seller's note for the transaction
    * @maxLength 4000
    */
   Note?: string | null;
+  /** Payment methods the seller accepts */
+  AcceptedPaymentMethods?: PaymentMethod[] | null;
 }
 
 /** Generic API response wrapper with typed data payload */
@@ -1514,7 +1534,7 @@ export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
 
 export interface UserPaymentMethodRequest {
   /** Type of payment method */
-  MethodType: PaymentMethodType;
+  MethodType: PaymentMethod;
   /**
    * Payment identifier (email, username, etc.)
    * @minLength 1
