@@ -137,7 +137,7 @@ export interface UserPaymentMethodResponse {
    */
   UserPaymentMethodId: number;
   /** Type of payment method */
-  MethodType: PaymentMethod;
+  MethodType: PaymentMethodType;
   /**
    * Payment identifier (email, username, etc.)
    * @minLength 1
@@ -152,7 +152,7 @@ export interface UserPaymentMethodResponse {
   IsActive: boolean;
 }
 
-export enum PaymentMethod {
+export enum PaymentMethodType {
   PayPal = 1,
   Venmo = 2,
   CashApp = 3,
@@ -235,8 +235,11 @@ export type AspNetUser = IdentityUserOfString & {
   NotificationPreference?: number;
   /** @format int32 */
   PositionPreference?: number;
+  PayPalEmail?: string | null;
   Active?: boolean;
   Preferred?: boolean;
+  VenmoAccount?: string | null;
+  MobileLast4?: string | null;
   /** @format decimal */
   Rating?: number;
   PreferredPlus?: boolean;
@@ -286,6 +289,13 @@ export interface BuySell {
   TeamAssignment?: number;
   SellerNoteFlagged?: boolean;
   BuyerNoteFlagged?: boolean;
+  /** @format decimal */
+  Price?: number;
+  /** @format int32 */
+  PaymentMethod?: number;
+  CreateByUserId?: string | null;
+  UpdateByUserId?: string | null;
+  TransactionStatus?: string | null;
   Session?: Session | null;
   Buyer?: AspNetUser | null;
   Seller?: AspNetUser | null;
@@ -405,7 +415,7 @@ export interface UserPaymentMethod {
    * @maxLength 128
    */
   UserId: string;
-  MethodType: PaymentMethod;
+  MethodType: PaymentMethodType;
   /**
    * @minLength 1
    * @maxLength 256
@@ -662,6 +672,126 @@ export interface AdminPhotoDeleteRequest {
    */
   UserId: string;
 }
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfBuySellResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: BuySellResponse | null;
+};
+
+export interface BuySellResponse {
+  /**
+   * Unique identifier for the BuySell
+   * @format int32
+   */
+  BuySellId: number;
+  /**
+   * User ID of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User ID of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
+  /** Note from the seller */
+  SellerNote?: string | null;
+  /** Note from the buyer */
+  BuyerNote?: string | null;
+  /** Indicates if payment has been sent */
+  PaymentSent: boolean;
+  /** Indicates if payment has been received */
+  PaymentReceived: boolean;
+  /**
+   * Date and time of transaction creation
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /**
+   * Date and time of last update
+   * @format date-time
+   * @minLength 1
+   */
+  UpdateDateTime: string;
+  /**
+   * Team assignment for the transaction
+   * @format int32
+   * @min 0
+   * @max 2
+   */
+  TeamAssignment: number;
+  /**
+   * Price for the BuySell (from session)
+   * @format decimal
+   * @min 0
+   * @max 999.99
+   */
+  Price: number;
+  /** Payment method used to complete the BuySell */
+  PaymentMethod?: PaymentMethodType | null;
+  /**
+   * User ID creating BuySell
+   * @maxLength 128
+   */
+  CreateByUserId?: string | null;
+  /**
+   * User ID updating BuySell
+   * @maxLength 128
+   */
+  UpdateByUserId?: string | null;
+  /**
+   * Queue position of the Buyer
+   * @format int32
+   */
+  QueuePosition?: number;
+  /**
+   * Transaction status of BuySell
+   * @maxLength 128
+   */
+  TransactionStatus?: string | null;
+  /** Indicates if the seller note has been flagged */
+  SellerNoteFlagged: boolean;
+  /** Indicates if the buyer note has been flagged */
+  BuyerNoteFlagged: boolean;
+  /** Buyer details */
+  Buyer?: UserDetailedResponse | null;
+  /** Seller details */
+  Seller?: UserDetailedResponse | null;
+}
+
+export interface BuyRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Buyer's note for the BuySell
+   * @maxLength 4000
+   */
+  Note?: string | null;
+}
+
+export interface SellRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Seller's note for the BuySell
+   * @maxLength 4000
+   */
+  Note?: string | null;
+}
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfIEnumerableOfBuySellResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: BuySellResponse[] | null;
+};
 
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfString = ApiResponse & {
@@ -977,49 +1107,6 @@ export type SessionDetailedResponse = SessionBasicResponse & {
   /** Buying queue for the session */
   BuyingQueues?: BuyingQueueItem[] | null;
 };
-
-export interface BuySellResponse {
-  /**
-   * Unique identifier for the buy/sell transaction
-   * @format int32
-   */
-  BuySellId?: number | null;
-  /**
-   * User ID of the buyer
-   * @maxLength 128
-   */
-  BuyerUserId?: string | null;
-  /**
-   * User ID of the seller
-   * @maxLength 128
-   */
-  SellerUserId?: string | null;
-  /** Note from the seller */
-  SellerNote?: string | null;
-  /** Note from the buyer */
-  BuyerNote?: string | null;
-  /** Indicates if payment has been sent */
-  PaymentSent: boolean;
-  /** Indicates if payment has been received */
-  PaymentReceived: boolean;
-  /**
-   * Date and time of transaction creation
-   * @format date-time
-   * @minLength 1
-   */
-  CreateDateTime: string;
-  /**
-   * Team assignment for the transaction
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  TeamAssignment: number;
-  /** Buyer details */
-  Buyer?: UserDetailedResponse | null;
-  /** Seller details */
-  Seller?: UserDetailedResponse | null;
-}
 
 export interface ActivityLogResponse {
   /**
@@ -1382,151 +1469,6 @@ export type ApiDataResponseOfBoolean = ApiResponse & {
 };
 
 /** Generic API response wrapper with typed data payload */
-export type ApiDataResponseOfTransactionResponse = ApiResponse & {
-  /** Response data payload of type T */
-  Data?: TransactionResponse | null;
-};
-
-export interface TransactionResponse {
-  /**
-   * Unique identifier for the transaction
-   * @format int32
-   */
-  TransactionId: number;
-  /**
-   * Session identifier
-   * @format int32
-   */
-  SessionId: number;
-  /** Current status of the transaction */
-  Status: TransactionStatus;
-  /** Type of transaction (Buy or Sell) */
-  Type: TransactionType;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
-   * @min 1
-   * @max 2
-   */
-  TeamAssignment: number;
-  /**
-   * Position (0 for TBD, 1 for Forward, 2 for Defense)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  Position: number;
-  /**
-   * Transaction note
-   * @maxLength 4000
-   */
-  Note?: string | null;
-  /**
-   * Price for the transaction
-   * @format decimal
-   * @min 0
-   * @max 999.99
-   */
-  Price?: number | null;
-  /** Selected payment method */
-  PaymentMethod?: PaymentMethod | null;
-  /** Payment confirmation status */
-  PaymentConfirmed?: boolean | null;
-  /**
-   * Position in buying/selling queue
-   * @format int32
-   */
-  QueuePosition?: number | null;
-  /**
-   * Date and time of transaction creation
-   * @format date-time
-   * @minLength 1
-   */
-  CreateDateTime: string;
-  /**
-   * Date and time of last update
-   * @format date-time
-   * @minLength 1
-   */
-  UpdateDateTime: string;
-  /** Initiator user details */
-  Initiator?: UserDetailedResponse | null;
-  /** Counterparty user details */
-  Counterparty?: UserDetailedResponse | null;
-}
-
-export enum TransactionStatus {
-  Pending = 1,
-  Matched = 2,
-  PaymentPending = 3,
-  Completed = 4,
-  Cancelled = 5,
-  Failed = 6,
-}
-
-export enum TransactionType {
-  Buy = 1,
-  Sell = 2,
-}
-
-export interface BuyRequest {
-  /**
-   * Session identifier
-   * @format int32
-   */
-  SessionId: number;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
-   * @min 1
-   * @max 2
-   */
-  TeamAssignment: number;
-  /**
-   * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  Position: number;
-  /**
-   * Buyer's note for the transaction
-   * @maxLength 4000
-   */
-  Note?: string | null;
-  /** Preferred payment method */
-  PreferredPaymentMethod?: PaymentMethod | null;
-}
-
-export interface SellRequest {
-  /**
-   * Session identifier
-   * @format int32
-   */
-  SessionId: number;
-  /**
-   * Asking price for the spot
-   * @format decimal
-   * @min 0
-   * @max 999.99
-   */
-  Price?: number | null;
-  /**
-   * Seller's note for the transaction
-   * @maxLength 4000
-   */
-  Note?: string | null;
-  /** Payment methods the seller accepts */
-  AcceptedPaymentMethods?: PaymentMethod[] | null;
-}
-
-/** Generic API response wrapper with typed data payload */
-export type ApiDataResponseOfIEnumerableOfTransactionResponse = ApiResponse & {
-  /** Response data payload of type T */
-  Data?: TransactionResponse[] | null;
-};
-
-/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
   /** Response data payload of type T */
   Data?: UserPaymentMethodResponse | null;
@@ -1534,7 +1476,7 @@ export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
 
 export interface UserPaymentMethodRequest {
   /** Type of payment method */
-  MethodType: PaymentMethod;
+  MethodType: PaymentMethodType;
   /**
    * Payment identifier (email, username, etc.)
    * @minLength 1

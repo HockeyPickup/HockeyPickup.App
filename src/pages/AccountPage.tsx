@@ -48,7 +48,7 @@ import {
   ChangePasswordRequest,
   ErrorDetail,
   NotificationPreference,
-  PaymentMethod,
+  PaymentMethodType,
   PositionPreference,
   SaveUserRequest,
   UserPaymentMethodRequest,
@@ -56,15 +56,15 @@ import {
 } from '../HockeyPickup.Api';
 
 const PAYMENT_METHODS = {
-  [PaymentMethod.PayPal]: { icon: FaPaypal, label: 'PayPal' },
-  [PaymentMethod.Venmo]: { icon: SiVenmo, label: 'Venmo' },
-  [PaymentMethod.CashApp]: { icon: SiCashapp, label: 'Cash App' },
-  [PaymentMethod.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
-  [PaymentMethod.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
+  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: 'PayPal' },
+  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: 'Venmo' },
+  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
+  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
+  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
 };
 
 const getPaymentMethodInfo = (
-  methodType: PaymentMethod,
+  methodType: PaymentMethodType,
 ): { icon: React.ComponentType; label: string } => {
   const defaultInfo = { icon: IconCreditCard, label: 'Unknown Method' };
   return PAYMENT_METHODS[methodType] || defaultInfo;
@@ -83,7 +83,7 @@ const PaymentMethodModal = ({
 }): JSX.Element => {
   const form = useForm<UserPaymentMethodRequest>({
     initialValues: initialValues ?? {
-      MethodType: PaymentMethod.PayPal,
+      MethodType: PaymentMethodType.PayPal,
       Identifier: '',
       PreferenceOrder: 1,
       IsActive: true,
@@ -104,16 +104,18 @@ const PaymentMethodModal = ({
     }
   }, [opened, initialValues]);
 
-  const getFieldLabels = (methodType: PaymentMethod): { label: string; placeholder: string } => {
-    const labels: Record<PaymentMethod, { label: string; placeholder: string }> = {
-      [PaymentMethod.PayPal]: { label: 'PayPal Email', placeholder: 'Email address' },
-      [PaymentMethod.Venmo]: { label: 'Venmo Identifier', placeholder: 'Venmo Name' },
-      [PaymentMethod.CashApp]: {
+  const getFieldLabels = (
+    methodType: PaymentMethodType,
+  ): { label: string; placeholder: string } => {
+    const labels: Record<PaymentMethodType, { label: string; placeholder: string }> = {
+      [PaymentMethodType.PayPal]: { label: 'PayPal Email', placeholder: 'Email address' },
+      [PaymentMethodType.Venmo]: { label: 'Venmo Identifier', placeholder: 'Venmo Name' },
+      [PaymentMethodType.CashApp]: {
         label: 'Cash App CashTag',
         placeholder: 'CashTag',
       },
-      [PaymentMethod.Zelle]: { label: 'Zelle Email or Phone', placeholder: 'Email or Phone' },
-      [PaymentMethod.Bitcoin]: { label: 'Bitcoin Address', placeholder: 'Receiving Address' },
+      [PaymentMethodType.Zelle]: { label: 'Zelle Email or Phone', placeholder: 'Email or Phone' },
+      [PaymentMethodType.Bitcoin]: { label: 'Bitcoin Address', placeholder: 'Receiving Address' },
     };
     return labels[methodType];
   };
@@ -125,14 +127,16 @@ const PaymentMethodModal = ({
           <Select
             label='Payment Type'
             data={[
-              { value: PaymentMethod.PayPal.toString(), label: 'PayPal' },
-              { value: PaymentMethod.Venmo.toString(), label: 'Venmo' },
-              { value: PaymentMethod.CashApp.toString(), label: 'Cash App' },
-              { value: PaymentMethod.Zelle.toString(), label: 'Zelle' },
-              { value: PaymentMethod.Bitcoin.toString(), label: 'Bitcoin' },
+              { value: PaymentMethodType.PayPal.toString(), label: 'PayPal' },
+              { value: PaymentMethodType.Venmo.toString(), label: 'Venmo' },
+              { value: PaymentMethodType.CashApp.toString(), label: 'Cash App' },
+              { value: PaymentMethodType.Zelle.toString(), label: 'Zelle' },
+              { value: PaymentMethodType.Bitcoin.toString(), label: 'Bitcoin' },
             ]}
             renderOption={({ option }) => {
-              const { icon: Icon } = getPaymentMethodInfo(parseInt(option.value) as PaymentMethod);
+              const { icon: Icon } = getPaymentMethodInfo(
+                parseInt(option.value) as PaymentMethodType,
+              );
               return (
                 <Group gap='sm'>
                   <div style={{ width: 16, height: 16, display: 'flex' }}>
@@ -154,7 +158,7 @@ const PaymentMethodModal = ({
             onChange={(value) =>
               form.setFieldValue(
                 'MethodType',
-                value ? (parseInt(value) as PaymentMethod) : PaymentMethod.PayPal,
+                value ? (parseInt(value) as PaymentMethodType) : PaymentMethodType.PayPal,
               )
             }
           />
@@ -345,13 +349,13 @@ const PaymentMethodsSection = (): JSX.Element => {
     }
   };
 
-  const getMethodTypeLabel = (type: PaymentMethod): string => {
-    const labels: Record<PaymentMethod, string> = {
-      [PaymentMethod.PayPal]: 'PayPal',
-      [PaymentMethod.Venmo]: 'Venmo',
-      [PaymentMethod.CashApp]: 'Cash App',
-      [PaymentMethod.Zelle]: 'Zelle',
-      [PaymentMethod.Bitcoin]: 'Bitcoin',
+  const getMethodTypeLabel = (type: PaymentMethodType): string => {
+    const labels: Record<PaymentMethodType, string> = {
+      [PaymentMethodType.PayPal]: 'PayPal',
+      [PaymentMethodType.Venmo]: 'Venmo',
+      [PaymentMethodType.CashApp]: 'Cash App',
+      [PaymentMethodType.Zelle]: 'Zelle',
+      [PaymentMethodType.Bitcoin]: 'Bitcoin',
     };
     return labels[type];
   };

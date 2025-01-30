@@ -1,5 +1,5 @@
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
-import { transactionService } from '@/lib/transaction';
+import { buySellService } from '@/lib/buysell';
 import { Button, Group, Paper } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { JSX } from 'react';
@@ -11,7 +11,7 @@ interface SessionActionsProps {
 export const SessionActions = ({ session }: SessionActionsProps): JSX.Element => {
   const handleBuy = async (): Promise<void> => {
     try {
-      const response = await transactionService.buySpot({
+      const response = await buySellService.buySpot({
         SessionId: session.SessionId,
       });
 
@@ -41,7 +41,7 @@ export const SessionActions = ({ session }: SessionActionsProps): JSX.Element =>
 
   const handleSell = async (): Promise<void> => {
     try {
-      const response = await transactionService.sellSpot({
+      const response = await buySellService.sellSpot({
         SessionId: session.SessionId,
       });
 
