@@ -153,7 +153,7 @@ export interface UserPaymentMethodResponse {
 }
 
 export enum PaymentMethodType {
-  Unspecified = 0,
+  Unknown = 0,
   PayPal = 1,
   Venmo = 2,
   CashApp = 3,
@@ -387,8 +387,7 @@ export interface RosterPlayer {
   LastBuySellId?: number | null;
   /** @format date-time */
   JoinedDateTime?: string;
-  /** @format int32 */
-  Position?: number;
+  Position?: PositionPreference;
   CurrentPosition?: string;
 }
 
@@ -1217,11 +1216,10 @@ export interface RosterPlayer2 {
   TeamAssignment: TeamAssignment;
   /**
    * Position for the player
-   * @format int32
    * @min 0
    * @max 2
    */
-  Position: number;
+  Position: PositionPreference;
   /**
    * Position name for the player
    * @minLength 1

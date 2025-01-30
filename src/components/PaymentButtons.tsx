@@ -20,7 +20,7 @@ import { IconCreditCard } from '@tabler/icons-react';
 import { JSX, useState } from 'react';
 import { BsCreditCard2Front } from 'react-icons/bs';
 import { FaBitcoin, FaPaypal } from 'react-icons/fa';
-import { SiCashapp, SiVenmo } from 'react-icons/si';
+import { Si1And1, SiCashapp, SiVenmo } from 'react-icons/si';
 
 interface PaymentButtonsProps {
   user: UserDetailedResponse;
@@ -39,7 +39,7 @@ const PAYMENT_METHODS = {
   [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
   [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
   [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
-  [PaymentMethodType.Unspecified]: { icon: FaBitcoin, label: 'Unspecified' },
+  [PaymentMethodType.Unknown]: { icon: Si1And1, label: 'Unknown' },
 };
 
 const getPaymentUrl = (
