@@ -61,6 +61,7 @@ const PAYMENT_METHODS = {
   [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
   [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
   [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
+  [PaymentMethodType.Unspecified]: { icon: FaBitcoin, label: 'Unspecified' },
 };
 
 const getPaymentMethodInfo = (
@@ -116,6 +117,7 @@ const PaymentMethodModal = ({
       },
       [PaymentMethodType.Zelle]: { label: 'Zelle Email or Phone', placeholder: 'Email or Phone' },
       [PaymentMethodType.Bitcoin]: { label: 'Bitcoin Address', placeholder: 'Receiving Address' },
+      [PaymentMethodType.Unspecified]: { label: 'Unspecified', placeholder: 'Unspecified' },
     };
     return labels[methodType];
   };
@@ -356,6 +358,7 @@ const PaymentMethodsSection = (): JSX.Element => {
       [PaymentMethodType.CashApp]: 'Cash App',
       [PaymentMethodType.Zelle]: 'Zelle',
       [PaymentMethodType.Bitcoin]: 'Bitcoin',
+      [PaymentMethodType.Unspecified]: 'Unspecified',
     };
     return labels[type];
   };

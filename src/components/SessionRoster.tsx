@@ -12,6 +12,7 @@ import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea
 import {
   ActionIcon,
   Avatar,
+  Button,
   Divider,
   Grid,
   Group,
@@ -25,7 +26,7 @@ import {
   Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconPencil } from '@tabler/icons-react';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -38,6 +39,8 @@ interface SessionRosterProps {
 
 interface PlayerCellProps {
   player: RosterPlayer2 | undefined;
+  session: SessionDetailedResponse;
+  onSessionUpdate: (_session: SessionDetailedResponse) => void;
   editingPlayer: { userId: string; currentPosition: string; currentTeam: number } | null;
   onEditClick: (_userId: string, _currentPosition: string, _currentTeam: number) => void;
   onPositionChange: (_userId: string, _newPosition: PositionString) => Promise<void>;
@@ -47,6 +50,8 @@ interface PlayerCellProps {
 
 const PlayerCell = ({
   player,
+  session,
+  onSessionUpdate,
   editingPlayer,
   onEditClick,
   onPositionChange,
@@ -83,6 +88,42 @@ const PlayerCell = ({
     setIsSaving(true);
     try {
       await onTeamChange(editingPlayer?.userId ?? '', newTeam);
+    } finally {
+      setIsSaving(false);
+      onClose();
+    }
+  };
+
+  const handleRemovePlayer = async (): Promise<void> => {
+    setIsSaving(true);
+    try {
+      const result = await sessionService.deleteFromRoster(
+        session.SessionId ?? 0,
+        editingPlayer?.userId ?? '',
+      );
+      if (result.Data !== null && result.Data !== undefined) {
+        // Update the parent's session state
+        onSessionUpdate(result.Data);
+      }
+
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Player Removed',
+        message: result.Message,
+        color: 'green',
+      });
+    } catch (error) {
+      console.error('Failed to remove player:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to remove player from roster. Please try again.',
+        color: 'red',
+      });
     } finally {
       setIsSaving(false);
       onClose();
@@ -173,7 +214,6 @@ const PlayerCell = ({
                   </Stack>
                 </Radio.Group>
                 <Divider my='xs' />
-
                 <Text size='sm' fw={500}>
                   Team
                 </Text>
@@ -190,6 +230,18 @@ const PlayerCell = ({
                     <Radio value='2' label='Beauties (Dark)' disabled={isSaving} />
                   </Stack>
                 </Radio.Group>
+                <Divider my='xs' />
+                <Button
+                  color='red'
+                  variant='outline'
+                  onClick={handleRemovePlayer}
+                  disabled={isSaving}
+                >
+                  <Group gap='xs'>
+                    <IconTrash size={16} />
+                    <span>Remove from Session</span>
+                  </Group>
+                </Button>
               </Stack>
             </Paper>
           </Popover.Dropdown>
@@ -370,6 +422,8 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                                 <Divider my={1} opacity={0.2} color='gray' />
                                 <PlayerCell
                                   player={player}
+                                  session={session}
+                                  onSessionUpdate={onSessionUpdate}
                                   editingPlayer={editingPlayer}
                                   onEditClick={(userId, currentPosition, currentTeam) =>
                                     setEditingPlayer({ userId, currentPosition, currentTeam })
@@ -449,6 +503,8 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                                 <Divider my={1} opacity={0.2} color='gray' />
                                 <PlayerCell
                                   player={player}
+                                  session={session}
+                                  onSessionUpdate={onSessionUpdate}
                                   editingPlayer={editingPlayer}
                                   onEditClick={(userId, currentPosition, currentTeam) =>
                                     setEditingPlayer({ userId, currentPosition, currentTeam })

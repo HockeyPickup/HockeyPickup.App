@@ -39,6 +39,7 @@ const PAYMENT_METHODS = {
   [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
   [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
   [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
+  [PaymentMethodType.Unspecified]: { icon: FaBitcoin, label: 'Unspecified' },
 };
 
 const getPaymentUrl = (
