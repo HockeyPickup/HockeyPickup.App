@@ -153,6 +153,7 @@ export interface UserPaymentMethodResponse {
 }
 
 export enum PaymentMethodType {
+  Unspecified = 0,
   PayPal = 1,
   Venmo = 2,
   CashApp = 3,
@@ -279,8 +280,8 @@ export interface BuySell {
   SellerUserId?: string | null;
   SellerNote?: string | null;
   BuyerNote?: string | null;
-  PaymentSent?: boolean;
-  PaymentReceived?: boolean;
+  PaymentSent: boolean;
+  PaymentReceived: boolean;
   /** @format date-time */
   CreateDateTime?: string;
   /** @format date-time */
@@ -290,15 +291,16 @@ export interface BuySell {
   SellerNoteFlagged?: boolean;
   BuyerNoteFlagged?: boolean;
   /** @format decimal */
-  Price?: number;
-  /** @format int32 */
-  PaymentMethod?: number;
-  CreateByUserId?: string | null;
-  UpdateByUserId?: string | null;
-  TransactionStatus?: string | null;
+  Price?: number | null;
+  PaymentMethod?: PaymentMethodType | null;
+  CreateByUserId?: string;
+  UpdateByUserId?: string;
+  TransactionStatus?: string;
   Session?: Session | null;
   Buyer?: AspNetUser | null;
   Seller?: AspNetUser | null;
+  CreateByUser?: AspNetUser | null;
+  UpdateByUser?: AspNetUser | null;
 }
 
 export interface Session {
