@@ -232,10 +232,8 @@ export type AspNetUser = IdentityUserOfString & {
   LockoutEnd?: string | null;
   FirstName?: string | null;
   LastName?: string | null;
-  /** @format int32 */
-  NotificationPreference?: number;
-  /** @format int32 */
-  PositionPreference?: number;
+  NotificationPreference?: NotificationPreference;
+  PositionPreference?: PositionPreference;
   PayPalEmail?: string | null;
   Active?: boolean;
   Preferred?: boolean;
@@ -286,21 +284,26 @@ export interface BuySell {
   CreateDateTime?: string;
   /** @format date-time */
   UpdateDateTime?: string;
-  /** @format int32 */
-  TeamAssignment?: number;
+  TeamAssignment?: TeamAssignment;
   SellerNoteFlagged?: boolean;
   BuyerNoteFlagged?: boolean;
   /** @format decimal */
   Price?: number | null;
   PaymentMethod?: PaymentMethodType | null;
-  CreateByUserId?: string;
-  UpdateByUserId?: string;
+  CreateByUserId?: string | null;
+  UpdateByUserId?: string | null;
   TransactionStatus?: string;
   Session?: Session | null;
   Buyer?: AspNetUser | null;
   Seller?: AspNetUser | null;
   CreateByUser?: AspNetUser | null;
   UpdateByUser?: AspNetUser | null;
+}
+
+export enum TeamAssignment {
+  TBD = 0,
+  Light = 1,
+  Dark = 2,
 }
 
 export interface Session {
@@ -343,10 +346,8 @@ export interface Regular {
   /** @format int32 */
   RegularSetId?: number;
   UserId?: string | null;
-  /** @format int32 */
-  TeamAssignment?: number;
-  /** @format int32 */
-  PositionPreference?: number;
+  TeamAssignment?: TeamAssignment;
+  PositionPreference?: PositionPreference;
   RegularSet?: RegularSet | null;
   User?: AspNetUser | null;
 }
@@ -373,8 +374,7 @@ export interface RosterPlayer {
   LastName?: string;
   /** @format int32 */
   SessionId?: number;
-  /** @format int32 */
-  TeamAssignment?: number;
+  TeamAssignment?: TeamAssignment;
   IsPlaying?: boolean;
   IsRegular?: boolean;
   PlayerStatus?: string;
@@ -399,8 +399,7 @@ export interface BuyingQueue {
   SessionId?: number;
   BuyerName?: string | null;
   SellerName?: string | null;
-  /** @format int32 */
-  TeamAssignment?: number;
+  TeamAssignment?: TeamAssignment;
   TransactionStatus?: string;
   QueueStatus?: string;
   PaymentSent?: boolean;
@@ -719,11 +718,10 @@ export interface BuySellResponse {
   UpdateDateTime: string;
   /**
    * Team assignment for the transaction
-   * @format int32
    * @min 0
    * @max 2
    */
-  TeamAssignment: number;
+  TeamAssignment: TeamAssignment;
   /**
    * Price for the BuySell (from session)
    * @format decimal
@@ -942,16 +940,10 @@ export interface RegularDetailedResponse {
    * @minLength 1
    */
   UserId: string;
-  /**
-   * Team assignment for the regular player
-   * @format int32
-   */
-  TeamAssignment: number;
-  /**
-   * Position preference for the regular player
-   * @format int32
-   */
-  PositionPreference: number;
+  /** Team assignment for the regular player */
+  TeamAssignment: TeamAssignment;
+  /** Position preference for the regular player */
+  PositionPreference: PositionPreference;
   /** Detailed user information */
   User?: UserDetailedResponse | null;
 }
@@ -1047,18 +1039,16 @@ export interface AddRegularRequest {
   UserId: string;
   /**
    * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
    * @min 1
    * @max 2
    */
-  TeamAssignment: number;
+  TeamAssignment: TeamAssignment;
   /**
    * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
-   * @format int32
    * @min 0
    * @max 2
    */
-  PositionPreference: number;
+  PositionPreference: PositionPreference;
 }
 
 export interface CreateRegularSetRequest {
@@ -1173,18 +1163,16 @@ export interface RegularResponse {
   UserId?: string | null;
   /**
    * Team assignment for the regular player
-   * @format int32
    * @min 0
    * @max 2
    */
-  TeamAssignment: number;
+  TeamAssignment: TeamAssignment;
   /**
    * Position preference for the regular player
-   * @format int32
    * @min 0
    * @max 2
    */
-  PositionPreference: number;
+  PositionPreference: PositionPreference;
   /** User details */
   User?: UserDetailedResponse | null;
 }
@@ -1225,11 +1213,8 @@ export interface RosterPlayer2 {
    * @maxLength 256
    */
   LastName: string;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
-   */
-  TeamAssignment: number;
+  /** Team assignment (1 for Light, 2 for Dark) */
+  TeamAssignment: TeamAssignment;
   /**
    * Position for the player
    * @format int32
@@ -1305,11 +1290,8 @@ export interface BuyingQueueItem {
    * @maxLength 512
    */
   SellerName?: string | null;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
-   */
-  TeamAssignment: number;
+  /** Team assignment (1 for Light, 2 for Dark) */
+  TeamAssignment: TeamAssignment;
   /**
    * Current status of the transaction
    * @minLength 1
@@ -1640,18 +1622,16 @@ export interface User {
   AccessFailedCount: number;
   /**
    * User's notification preferences
-   * @format int32
    * @min 0
    * @max 2147483647
    */
-  NotificationPreference: number;
+  NotificationPreference: NotificationPreference;
   /**
    * User's position preferences
-   * @format int32
    * @min 0
    * @max 2147483647
    */
-  PositionPreference: number;
+  PositionPreference: PositionPreference;
   /** Indicates if user account is active */
   Active: boolean;
   /** Indicates if user has preferred status */

@@ -2,7 +2,12 @@ import { EmailList } from '@/components/EmailList';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
 import { RegularSetSelect } from '@/components/RegularSetSelect';
-import { RegularDetailedResponse, RegularSetDetailedResponse, User } from '@/HockeyPickup.Api';
+import {
+  RegularDetailedResponse,
+  RegularSetDetailedResponse,
+  TeamAssignment,
+  User,
+} from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
 import { getPositionString, positionMap, PositionString } from '@/lib/position';
@@ -233,16 +238,16 @@ export const RegularsPage = (): JSX.Element => {
 
   const getTeamRegulars = (teamId: Team.Light | Team.Dark): RegularDetailedResponse[] => {
     return (
-      selectedPresetData?.Regulars?.filter((regular) => regular.TeamAssignment === teamId).sort(
-        (a, b) => {
-          // Sort by position (Defense first)
-          if (a.PositionPreference !== b.PositionPreference) {
-            return b.PositionPreference - a.PositionPreference; // Defense (2) before Forward (1)
-          }
-          // Then by first name
-          return (a.User?.FirstName ?? '').localeCompare(b.User?.FirstName ?? '');
-        },
-      ) ?? []
+      selectedPresetData?.Regulars?.filter(
+        (regular) => regular.TeamAssignment === (teamId as unknown as TeamAssignment),
+      ).sort((a, b) => {
+        // Sort by position (Defense first)
+        if (a.PositionPreference !== b.PositionPreference) {
+          return b.PositionPreference - a.PositionPreference; // Defense (2) before Forward (1)
+        }
+        // Then by first name
+        return (a.User?.FirstName ?? '').localeCompare(b.User?.FirstName ?? '');
+      }) ?? []
     );
   };
 
@@ -312,9 +317,10 @@ export const RegularsPage = (): JSX.Element => {
       )?.Regulars?.find((p) => p.UserId === userId);
 
       const currentTeamName =
-        player?.TeamAssignment === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
+        (player?.TeamAssignment as unknown as Team) === Team.Light
+          ? 'Rockets (Light)'
+          : 'Beauties (Dark)';
       const newTeamName = newTeam === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
-
       const result = await regularService.updateRegularTeam({
         RegularSetId: parseInt(selectedPreset),
         UserId: userId,
@@ -416,9 +422,8 @@ export const RegularsPage = (): JSX.Element => {
         () => getPositionString(regular.PositionPreference) as PositionString,
       );
       const [checkedTeam, setCheckedTeam] = useState<Team.Light | Team.Dark>(
-        regular.TeamAssignment,
+        regular.TeamAssignment as unknown as Team.Light | Team.Dark,
       );
-
       const handlePositionChange = async (newPosition: PositionString): Promise<void> => {
         setIsSaving(true);
         try {
