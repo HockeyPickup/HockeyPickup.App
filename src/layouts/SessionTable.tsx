@@ -52,12 +52,12 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   return (
     <Stack gap='md' mb='xl'>
       <SessionDetails session={session} />
-      <SessionActions session={session} />
+      <SessionActions session={session} onSessionUpdate={setSession} />
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <SessionRoster session={session} onSessionUpdate={setSession} />
       )}
       {session.BuyingQueues && session.BuyingQueues.length > 0 && (
-        <SessionBuyingQueue session={session} />
+        <SessionBuyingQueue session={session} onSessionUpdate={setSession} />
       )}
       {session.ActivityLogs && session.ActivityLogs.length > 0 && (
         <SessionActivityLog session={session} />

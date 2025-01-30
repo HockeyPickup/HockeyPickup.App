@@ -1,19 +1,31 @@
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { buySellService } from '@/lib/buysell';
+import { GET_SESSION } from '@/lib/queries';
+import { useQuery } from '@apollo/client';
 import { Button, Group, Paper } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { JSX } from 'react';
 
 interface SessionActionsProps {
   session: SessionDetailedResponse;
+  onSessionUpdate: (_session: SessionDetailedResponse) => void;
 }
 
-export const SessionActions = ({ session }: SessionActionsProps): JSX.Element => {
+export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps): JSX.Element => {
+  const { refetch } = useQuery(GET_SESSION, {
+    variables: { SessionId: session.SessionId },
+    skip: true, // Skip initial fetch
+  });
+
   const handleBuy = async (): Promise<void> => {
     try {
       const response = await buySellService.buySpot({
         SessionId: session.SessionId,
       });
+      const { data } = await refetch();
+      if (data?.Session) {
+        onSessionUpdate(data.Session);
+      }
 
       notifications.show({
         position: 'top-center',
@@ -44,6 +56,10 @@ export const SessionActions = ({ session }: SessionActionsProps): JSX.Element =>
       const response = await buySellService.sellSpot({
         SessionId: session.SessionId,
       });
+      const { data } = await refetch();
+      if (data?.Session) {
+        onSessionUpdate(data.Session);
+      }
 
       notifications.show({
         position: 'top-center',
