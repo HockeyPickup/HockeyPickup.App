@@ -141,7 +141,7 @@ export const SessionBuyingQueue = ({
                     <IconTrash size={16} />
                   </ActionIcon>
                 )}
-              </Table.Td>{' '}
+              </Table.Td>
             </Table.Tr>
           ))}
         </Table.Tbody>

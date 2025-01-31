@@ -132,7 +132,7 @@ export const ResetPasswordPage = (): JSX.Element => {
         </form>
 
         <Text c='dimmed' size='sm' ta='center' mt={20}>
-          Remember your password?{' '}
+          Remember your password?&nbsp;
           <Anchor size='sm' component='button' onClick={() => navigate('/login')}>
             Back to login
           </Anchor>

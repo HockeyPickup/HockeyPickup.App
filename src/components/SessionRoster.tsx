@@ -188,8 +188,8 @@ const PlayerCell = ({
                 } else {
                   onEditClick(
                     player.UserId ?? '',
-                    player.CurrentPosition ?? 'TBD',
-                    player.TeamAssignment,
+                    player.Position ?? PositionPreference.TBD,
+                    player.TeamAssignment ?? TeamAssignment.TBD,
                   );
                 }
               }}
@@ -219,9 +219,21 @@ const PlayerCell = ({
                   }}
                 >
                   <Stack>
-                    <Radio value={PositionPreference.Defense} label='Defense' disabled={isSaving} />
-                    <Radio value={PositionPreference.Forward} label='Forward' disabled={isSaving} />
-                    <Radio value={PositionPreference.TBD} label='TBD' disabled={isSaving} />
+                    <Radio
+                      value={PositionPreference.Defense}
+                      label={PositionPreference.Defense}
+                      disabled={isSaving}
+                    />
+                    <Radio
+                      value={PositionPreference.Forward}
+                      label={PositionPreference.Forward}
+                      disabled={isSaving}
+                    />
+                    <Radio
+                      value={PositionPreference.TBD}
+                      label={PositionPreference.TBD}
+                      disabled={isSaving}
+                    />
                   </Stack>
                 </Radio.Group>
                 <Divider my='xs' />
@@ -247,7 +259,7 @@ const PlayerCell = ({
                       label='Beauties (Dark)'
                       disabled={isSaving}
                     />
-                  </Stack>{' '}
+                  </Stack>
                 </Radio.Group>
                 <Divider my='xs' />
                 <Button
@@ -469,8 +481,8 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                   session.CurrentRosters?.filter(
                     (p) => p.TeamAssignment === TeamAssignment.Light && p.IsPlaying,
                   ).length
-                }{' '}
-                Players
+                }
+                &nbsp; Players
               </Text>
               {canViewRatings() && showRatings && (
                 <Text size='sm' fw={500}>
@@ -551,8 +563,8 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                   session.CurrentRosters?.filter(
                     (p) => p.TeamAssignment === TeamAssignment.Dark && p.IsPlaying,
                   ).length
-                }{' '}
-                Players
+                }
+                &nbsp; Players
               </Text>
               {canViewRatings() && showRatings && (
                 <Text size='sm' fw={500}>

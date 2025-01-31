@@ -79,7 +79,7 @@ export const PrivacyPage = (): JSX.Element => {
           following your use of the Site. For example, we use Google Analytics, a web analytics
           service provided by Google, Inc. ("Google"). Google Analytics uses cookies to help us
           analyze how users use the Site and enhance your experience when you use the Site. For more
-          information on how Google uses this data, go to{' '}
+          information on how Google uses this data, go to&nbsp;
           <a href='https://www.google.com/policies/privacy/partners/'>
             https://www.google.com/policies/privacy/partners/
           </a>
@@ -207,7 +207,7 @@ export const PrivacyPage = (): JSX.Element => {
           Policy or the information practices of the Services.
           <br />
           <br />
-          You may contact us at{' '}
+          You may contact us at&nbsp;
           <a href='https://app.hockeypickup.com/about'>https://app.hockeypickup.com/about</a>, or at
           the following address:
           <br />

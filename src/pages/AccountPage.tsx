@@ -56,12 +56,12 @@ import {
 } from '../HockeyPickup.Api';
 
 const PAYMENT_METHODS = {
-  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: 'PayPal' },
-  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: 'Venmo' },
-  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
-  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
-  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
-  [PaymentMethodType.Unknown]: { icon: Si1And1, label: 'Unknown' },
+  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: PaymentMethodType.PayPal },
+  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: PaymentMethodType.Venmo },
+  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: PaymentMethodType.CashApp },
+  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: PaymentMethodType.Zelle },
+  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: PaymentMethodType.Bitcoin },
+  [PaymentMethodType.Unknown]: { icon: Si1And1, label: PaymentMethodType.Unknown },
 };
 
 const getPaymentMethodInfo = (
@@ -112,7 +112,7 @@ const PaymentMethodModal = ({
       [PaymentMethodType.PayPal]: { label: 'PayPal Email', placeholder: 'Email address' },
       [PaymentMethodType.Venmo]: { label: 'Venmo Identifier', placeholder: 'Venmo Name' },
       [PaymentMethodType.CashApp]: {
-        label: 'Cash App CashTag',
+        label: 'CashApp CashTag',
         placeholder: 'CashTag',
       },
       [PaymentMethodType.Zelle]: { label: 'Zelle Email or Phone', placeholder: 'Email or Phone' },
@@ -129,11 +129,11 @@ const PaymentMethodModal = ({
           <Select
             label='Payment Type'
             data={[
-              { value: PaymentMethodType.PayPal.toString(), label: 'PayPal' },
-              { value: PaymentMethodType.Venmo.toString(), label: 'Venmo' },
-              { value: PaymentMethodType.CashApp.toString(), label: 'Cash App' },
-              { value: PaymentMethodType.Zelle.toString(), label: 'Zelle' },
-              { value: PaymentMethodType.Bitcoin.toString(), label: 'Bitcoin' },
+              { value: PaymentMethodType.PayPal, label: PaymentMethodType.PayPal },
+              { value: PaymentMethodType.Venmo, label: PaymentMethodType.Venmo },
+              { value: PaymentMethodType.CashApp, label: PaymentMethodType.CashApp },
+              { value: PaymentMethodType.Zelle, label: PaymentMethodType.Zelle },
+              { value: PaymentMethodType.Bitcoin, label: PaymentMethodType.Bitcoin },
             ]}
             renderOption={({ option }) => {
               const { icon: Icon } = getPaymentMethodInfo(
@@ -280,9 +280,7 @@ const PaymentMethodsSection = (): JSX.Element => {
           autoClose: 5000,
           style: { marginTop: '60px' },
           title: 'Success',
-          message:
-            response.Message ??
-            `Payment method ${editingMethod ? 'updated' : 'added'} successfully`,
+          message: `Payment method ${editingMethod ? 'updated' : 'added'} successfully`,
           color: 'green',
         });
       } else {
@@ -353,12 +351,12 @@ const PaymentMethodsSection = (): JSX.Element => {
 
   const getMethodTypeLabel = (type: PaymentMethodType): string => {
     const labels: Record<PaymentMethodType, string> = {
-      [PaymentMethodType.PayPal]: 'PayPal',
-      [PaymentMethodType.Venmo]: 'Venmo',
-      [PaymentMethodType.CashApp]: 'Cash App',
-      [PaymentMethodType.Zelle]: 'Zelle',
-      [PaymentMethodType.Bitcoin]: 'Bitcoin',
-      [PaymentMethodType.Unknown]: 'Unknown',
+      [PaymentMethodType.PayPal]: PaymentMethodType.PayPal,
+      [PaymentMethodType.Venmo]: PaymentMethodType.Venmo,
+      [PaymentMethodType.CashApp]: PaymentMethodType.CashApp,
+      [PaymentMethodType.Zelle]: PaymentMethodType.Zelle,
+      [PaymentMethodType.Bitcoin]: PaymentMethodType.Bitcoin,
+      [PaymentMethodType.Unknown]: PaymentMethodType.Unknown,
     };
     return labels[type];
   };
@@ -386,10 +384,10 @@ const PaymentMethodsSection = (): JSX.Element => {
                 <Table.Th style={{ width: 10 }}>#</Table.Th>
                 <Table.Th style={{ width: 40 }}>Type</Table.Th>
                 <Table.Th style={{ width: 40 }}>ID</Table.Th>
-                <Table.Th style={{ width: 40 }}>On</Table.Th>{' '}
+                <Table.Th style={{ width: 40 }}>On</Table.Th>
                 <Table.Th style={{ width: 40, textAlign: 'right' }}>Actions</Table.Th>
               </Table.Tr>
-            </Table.Thead>{' '}
+            </Table.Thead>
             <Droppable droppableId='payment-methods'>
               {(provided) => (
                 <Table.Tbody {...provided.droppableProps} ref={provided.innerRef}>
@@ -430,7 +428,7 @@ const PaymentMethodsSection = (): JSX.Element => {
                                 })()}
                               </div>
                               <Text size='xs'>{getMethodTypeLabel(method.MethodType)}</Text>
-                            </Group>{' '}
+                            </Group>
                           </Table.Td>
                           <Table.Td
                             style={{
@@ -761,10 +759,10 @@ const PreferencesSection = (): JSX.Element => {
           <Select
             label='Position Preference'
             data={[
-              { value: PositionPreference.TBD.toString(), label: 'TBD' },
-              { value: PositionPreference.Forward.toString(), label: 'Forward' },
-              { value: PositionPreference.Defense.toString(), label: 'Defense' },
-              { value: PositionPreference.Goalie.toString(), label: 'Goalie' },
+              { value: PositionPreference.TBD, label: PositionPreference.TBD },
+              { value: PositionPreference.Forward, label: PositionPreference.Forward },
+              { value: PositionPreference.Defense, label: PositionPreference.Defense },
+              { value: PositionPreference.Goalie, label: PositionPreference.Goalie },
             ]}
             value={form.values.PositionPreference?.toString()}
             onChange={(value) =>

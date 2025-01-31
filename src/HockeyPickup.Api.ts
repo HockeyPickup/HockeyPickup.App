@@ -374,7 +374,8 @@ export interface RosterPlayer {
   LastName?: string;
   /** @format int32 */
   SessionId?: number;
-  TeamAssignment?: TeamAssignment;
+  /** @format int32 */
+  TeamAssignment?: number;
   IsPlaying?: boolean;
   IsRegular?: boolean;
   PlayerStatus?: string;
@@ -387,8 +388,9 @@ export interface RosterPlayer {
   LastBuySellId?: number | null;
   /** @format date-time */
   JoinedDateTime?: string;
-  Position?: PositionPreference;
-  CurrentPosition?: PositionPreference;
+  /** @format int32 */
+  Position?: number;
+  CurrentPosition?: string;
 }
 
 export interface BuyingQueue {
@@ -1024,7 +1026,7 @@ export interface AddRegularRequest {
   UserId: string;
   /** Team assignment (1 for Light, 2 for Dark) */
   TeamAssignment: TeamAssignment;
-  /** Position preference (0 for TBD, 1 for Forward, 2 for Defense) */
+  /** Position preference (0 for TBD, 1 for Forward, 2 for Defense, 3 for Goalie) */
   PositionPreference: PositionPreference;
 }
 
@@ -1188,9 +1190,10 @@ export interface RosterPlayer2 {
   Position: PositionPreference;
   /**
    * Position name for the player
+   * @minLength 1
    * @maxLength 256
    */
-  CurrentPosition: PositionPreference;
+  CurrentPosition: string;
   /** Indicates if the player is currently playing */
   IsPlaying: boolean;
   /** Indicates if the player is a regular */
@@ -1226,9 +1229,9 @@ export interface RosterPlayer2 {
 }
 
 export enum PlayerStatus {
+  NotPlaying = 'NotPlaying',
   Regular = 'Regular',
   Substitute = 'Substitute',
-  NotPlaying = 'NotPlaying',
   InQueue = 'InQueue',
 }
 

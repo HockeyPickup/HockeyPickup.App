@@ -34,12 +34,12 @@ interface PaymentForm {
 }
 
 const PAYMENT_METHODS = {
-  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: 'PayPal' },
-  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: 'Venmo' },
-  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
-  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
-  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
-  [PaymentMethodType.Unknown]: { icon: Si1And1, label: 'Unknown' },
+  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: PaymentMethodType.PayPal },
+  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: PaymentMethodType.Venmo },
+  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: PaymentMethodType.CashApp },
+  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: PaymentMethodType.Zelle },
+  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: PaymentMethodType.Bitcoin },
+  [PaymentMethodType.Unknown]: { icon: Si1And1, label: PaymentMethodType.Unknown },
 };
 
 const getPaymentUrl = (

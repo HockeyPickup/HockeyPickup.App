@@ -132,7 +132,7 @@ const AppRoutes = (): JSX.Element => {
               <RegularsPage />
             </ProtectedRoute>
           }
-        />{' '}
+        />
         <Route
           path='/game-pucks'
           element={

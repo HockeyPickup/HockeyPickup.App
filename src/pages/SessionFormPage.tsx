@@ -241,7 +241,7 @@ export const SessionFormPage = (): JSX.Element => {
               value={form.values.RegularSetId}
               onChange={(value) => form.setFieldValue('RegularSetId', value ?? '')}
               defaultIncludeArchived={false}
-            />{' '}
+            />
             <NumberInput
               label='Buy Day Minimum'
               placeholder='Enter minimum days before buying'

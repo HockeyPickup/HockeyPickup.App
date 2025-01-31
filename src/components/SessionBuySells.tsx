@@ -51,7 +51,7 @@ export const SessionBuySells = ({ session }: SessionBuySellsProps): JSX.Element 
                 </Table.Td>
                 <Table.Td>{buySell.TeamAssignment}</Table.Td>
                 <Table.Td>
-                  {buySell.PaymentSent ? 'Sent' : 'Pending'} /{' '}
+                  {buySell.PaymentSent ? 'Sent' : 'Pending'} /&nbsp;
                   {buySell.PaymentReceived ? 'Received' : 'Pending'}
                 </Table.Td>
                 <Table.Td>
