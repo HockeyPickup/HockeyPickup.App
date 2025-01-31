@@ -118,16 +118,16 @@ export interface UserDetailedResponse {
 }
 
 export enum NotificationPreference {
-  None = 0,
-  All = 1,
-  OnlyMyBuySell = 2,
+  None = 'None',
+  All = 'All',
+  OnlyMyBuySell = 'OnlyMyBuySell',
 }
 
 export enum PositionPreference {
-  TBD = 0,
-  Forward = 1,
-  Defense = 2,
-  Goalie = 3,
+  TBD = 'TBD',
+  Forward = 'Forward',
+  Defense = 'Defense',
+  Goalie = 'Goalie',
 }
 
 export interface UserPaymentMethodResponse {
@@ -153,12 +153,12 @@ export interface UserPaymentMethodResponse {
 }
 
 export enum PaymentMethodType {
-  Unknown = 0,
-  PayPal = 1,
-  Venmo = 2,
-  CashApp = 3,
-  Zelle = 4,
-  Bitcoin = 5,
+  Unknown = 'Unknown',
+  PayPal = 'PayPal',
+  Venmo = 'Venmo',
+  CashApp = 'CashApp',
+  Zelle = 'Zelle',
+  Bitcoin = 'Bitcoin',
 }
 
 /** Generic API response wrapper */
@@ -301,9 +301,9 @@ export interface BuySell {
 }
 
 export enum TeamAssignment {
-  TBD = 0,
-  Light = 1,
-  Dark = 2,
+  TBD = 'TBD',
+  Light = 'Light',
+  Dark = 'Dark',
 }
 
 export interface Session {
@@ -388,7 +388,7 @@ export interface RosterPlayer {
   /** @format date-time */
   JoinedDateTime?: string;
   Position?: PositionPreference;
-  CurrentPosition?: string;
+  CurrentPosition?: PositionPreference;
 }
 
 export interface BuyingQueue {
@@ -715,11 +715,7 @@ export interface BuySellResponse {
    * @minLength 1
    */
   UpdateDateTime: string;
-  /**
-   * Team assignment for the transaction
-   * @min 0
-   * @max 2
-   */
+  /** Team assignment for the transaction */
   TeamAssignment: TeamAssignment;
   /**
    * Price for the BuySell (from session)
@@ -993,13 +989,8 @@ export interface UpdateRegularPositionRequest {
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New position (0: TBD, 1: Forward, 2: Defense)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  NewPosition: number;
+  /** New position (0: TBD, 1: Forward, 2: Defense) */
+  NewPosition: PositionPreference;
 }
 
 export interface UpdateRegularTeamRequest {
@@ -1013,13 +1004,8 @@ export interface UpdateRegularTeamRequest {
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New team assignment (1: Light, 2: Dark)
-   * @format int32
-   * @min 1
-   * @max 2
-   */
-  NewTeamAssignment: number;
+  /** New team assignment (1: Light, 2: Dark) */
+  NewTeamAssignment: TeamAssignment;
 }
 
 export interface AddRegularRequest {
@@ -1036,17 +1022,9 @@ export interface AddRegularRequest {
    * @maxLength 128
    */
   UserId: string;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @min 1
-   * @max 2
-   */
+  /** Team assignment (1 for Light, 2 for Dark) */
   TeamAssignment: TeamAssignment;
-  /**
-   * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
-   * @min 0
-   * @max 2
-   */
+  /** Position preference (0 for TBD, 1 for Forward, 2 for Defense) */
   PositionPreference: PositionPreference;
 }
 
@@ -1160,17 +1138,9 @@ export interface RegularResponse {
    * @maxLength 128
    */
   UserId?: string | null;
-  /**
-   * Team assignment for the regular player
-   * @min 0
-   * @max 2
-   */
+  /** Team assignment for the regular player */
   TeamAssignment: TeamAssignment;
-  /**
-   * Position preference for the regular player
-   * @min 0
-   * @max 2
-   */
+  /** Position preference for the regular player */
   PositionPreference: PositionPreference;
   /** User details */
   User?: UserDetailedResponse | null;
@@ -1214,18 +1184,13 @@ export interface RosterPlayer2 {
   LastName: string;
   /** Team assignment (1 for Light, 2 for Dark) */
   TeamAssignment: TeamAssignment;
-  /**
-   * Position for the player
-   * @min 0
-   * @max 2
-   */
+  /** Position for the player */
   Position: PositionPreference;
   /**
    * Position name for the player
-   * @minLength 1
    * @maxLength 256
    */
-  CurrentPosition: string;
+  CurrentPosition: PositionPreference;
   /** Indicates if the player is currently playing */
   IsPlaying: boolean;
   /** Indicates if the player is a regular */
@@ -1261,10 +1226,10 @@ export interface RosterPlayer2 {
 }
 
 export enum PlayerStatus {
-  Regular = 0,
-  Substitute = 1,
-  NotPlaying = 2,
-  InQueue = 3,
+  Regular = 'Regular',
+  Substitute = 'Substitute',
+  NotPlaying = 'NotPlaying',
+  InQueue = 'InQueue',
 }
 
 export interface BuyingQueueItem {
@@ -1415,13 +1380,8 @@ export interface UpdateRosterPositionRequest {
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New position (0: TBD, 1: Forward, 2: Defense)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  NewPosition: number;
+  /** New position (0: TBD, 1: Forward, 2: Defense) */
+  NewPosition: PositionPreference;
 }
 
 export interface UpdateRosterTeamRequest {
@@ -1435,13 +1395,8 @@ export interface UpdateRosterTeamRequest {
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New team assignment (0 for TBD, 1 for Light, 2 for Dark)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  NewTeamAssignment: number;
+  /** New team assignment (0 for TBD, 1 for Light, 2 for Dark) */
+  NewTeamAssignment: TeamAssignment;
 }
 
 /** Generic API response wrapper with typed data payload */
@@ -1618,17 +1573,9 @@ export interface User {
    * @max 2147483647
    */
   AccessFailedCount: number;
-  /**
-   * User's notification preferences
-   * @min 0
-   * @max 2147483647
-   */
+  /** User's notification preferences */
   NotificationPreference: NotificationPreference;
-  /**
-   * User's position preferences
-   * @min 0
-   * @max 2147483647
-   */
+  /** User's position preferences */
   PositionPreference: PositionPreference;
   /** Indicates if user account is active */
   Active: boolean;

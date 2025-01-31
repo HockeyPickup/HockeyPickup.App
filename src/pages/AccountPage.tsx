@@ -137,7 +137,7 @@ const PaymentMethodModal = ({
             ]}
             renderOption={({ option }) => {
               const { icon: Icon } = getPaymentMethodInfo(
-                parseInt(option.value) as PaymentMethodType,
+                option.value as unknown as PaymentMethodType,
               );
               return (
                 <Group gap='sm'>
@@ -160,7 +160,7 @@ const PaymentMethodModal = ({
             onChange={(value) =>
               form.setFieldValue(
                 'MethodType',
-                value ? (parseInt(value) as PaymentMethodType) : PaymentMethodType.PayPal,
+                value ? (value as PaymentMethodType) : PaymentMethodType.PayPal,
               )
             }
           />
@@ -754,7 +754,7 @@ const PreferencesSection = (): JSX.Element => {
             onChange={(value) =>
               form.setFieldValue(
                 'NotificationPreference',
-                value ? (parseInt(value) as NotificationPreference) : null,
+                value ? (value as NotificationPreference) : null,
               )
             }
           />
@@ -768,10 +768,7 @@ const PreferencesSection = (): JSX.Element => {
             ]}
             value={form.values.PositionPreference?.toString()}
             onChange={(value) =>
-              form.setFieldValue(
-                'PositionPreference',
-                value ? (parseInt(value) as PositionPreference) : null,
-              )
+              form.setFieldValue('PositionPreference', value ? (value as PositionPreference) : null)
             }
           />
           {apiErrors.length > 0 && (

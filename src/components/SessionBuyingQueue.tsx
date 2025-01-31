@@ -107,9 +107,7 @@ export const SessionBuyingQueue = ({
             <Table.Tr key={queue.BuySellId}>
               <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
               <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
-              <Table.Td>
-                {queue.TeamAssignment === 1 ? 'Light' : queue.TeamAssignment === 2 ? 'Dark' : 'TBD'}
-              </Table.Td>
+              <Table.Td>{queue.TeamAssignment}</Table.Td>
               <Table.Td>{queue.QueueStatus}</Table.Td>
               <Table.Td>
                 {queue.TransactionStatus === 'Looking to Buy'

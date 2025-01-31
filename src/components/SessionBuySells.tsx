@@ -49,13 +49,7 @@ export const SessionBuySells = ({ session }: SessionBuySellsProps): JSX.Element 
                     ? buySell.Buyer?.FirstName + ' ' + buySell.Buyer?.LastName
                     : '-'}
                 </Table.Td>
-                <Table.Td>
-                  {buySell.TeamAssignment === 1
-                    ? 'Light'
-                    : buySell.TeamAssignment === 2
-                      ? 'Dark'
-                      : '-'}
-                </Table.Td>
+                <Table.Td>{buySell.TeamAssignment}</Table.Td>
                 <Table.Td>
                   {buySell.PaymentSent ? 'Sent' : 'Pending'} /{' '}
                   {buySell.PaymentReceived ? 'Received' : 'Pending'}

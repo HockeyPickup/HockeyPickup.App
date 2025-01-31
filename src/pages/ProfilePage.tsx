@@ -369,7 +369,7 @@ const EditUserForm = ({
             onChange={(value) =>
               form.setFieldValue(
                 'NotificationPreference',
-                value ? (parseInt(value) as NotificationPreference) : null,
+                value ? (value as NotificationPreference) : null,
               )
             }
           />
@@ -383,10 +383,7 @@ const EditUserForm = ({
             ]}
             value={form.values.PositionPreference?.toString()}
             onChange={(value) =>
-              form.setFieldValue(
-                'PositionPreference',
-                value ? (parseInt(value) as PositionPreference) : null,
-              )
+              form.setFieldValue('PositionPreference', value ? (value as PositionPreference) : null)
             }
           />
           <Checkbox label='Active' {...form.getInputProps('Active', { type: 'checkbox' })} />
