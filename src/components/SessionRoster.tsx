@@ -288,9 +288,10 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
     currentPosition: PositionPreference;
     currentTeam: TeamAssignment;
   } | null>(null);
-  const { canViewRatings } = useAuth();
+  const { canViewRatings, isAdmin } = useAuth();
   const { showRatings } = useRatingsVisibility();
   const [isDragging, setIsDragging] = useState(false);
+  const isDragEnabled = isAdmin() && showRatings;
 
   const handleDragEnd = async (result: DropResult): Promise<void> => {
     if (!result.destination) return;
@@ -436,7 +437,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 />
                 <Title order={4}>Rockets (Light)</Title>
               </Stack>
-              <Droppable droppableId='1'>
+              <Droppable droppableId='1' isDropDisabled={!isDragEnabled}>
                 {(provided) => (
                   <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
                     {session.CurrentRosters?.filter(
@@ -446,6 +447,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                         key={player.UserId}
                         draggableId={player.UserId ?? ''}
                         index={index}
+                        isDragDisabled={!isDragEnabled}
                       >
                         {(provided, _snapshot) => (
                           <>
@@ -518,7 +520,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 />
                 <Title order={4}>Beauties (Dark)</Title>
               </Stack>
-              <Droppable droppableId='2'>
+              <Droppable droppableId='2' isDropDisabled={!isDragEnabled}>
                 {(provided) => (
                   <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
                     {session.CurrentRosters?.filter(
@@ -528,6 +530,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                         key={player.UserId}
                         draggableId={player.UserId ?? ''}
                         index={index}
+                        isDragDisabled={!isDragEnabled}
                       >
                         {(provided, _snapshot) => (
                           <>
