@@ -2,7 +2,6 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SessionActions } from '@/components/SessionActions';
 import { SessionActivityLog } from '@/components/SessionActivityLog';
 import { SessionBuyingQueue } from '@/components/SessionBuyingQueue';
-import { SessionBuySells } from '@/components/SessionBuySells';
 import { SessionDetails } from '@/components/SessionDetails';
 import { SessionDetailsBottom } from '@/components/SessionDetailsBottom';
 import { SessionEmails } from '@/components/SessionEmails';
@@ -62,7 +61,6 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
       {session.ActivityLogs && session.ActivityLogs.length > 0 && (
         <SessionActivityLog session={session} />
       )}
-      {session.BuySells && session.BuySells.length > 0 && <SessionBuySells session={session} />}
       <SessionDetailsBottom session={session} />
       {isAdmin() && session && <SessionEmails session={session} />}
     </Stack>
