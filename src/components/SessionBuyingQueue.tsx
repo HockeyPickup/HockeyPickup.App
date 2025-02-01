@@ -1,9 +1,10 @@
 import styles from '@/App.module.css';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { ActionIcon, Paper, Table, Text, Title } from '@mantine/core';
+import { ActionIcon, Checkbox, Paper, Table, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
 import { JSX } from 'react';
@@ -21,6 +22,79 @@ export const SessionBuyingQueue = ({
     variables: { SessionId: session.SessionId },
     skip: true, // Skip initial fetch
   });
+  const { user } = useAuth();
+
+  const handlePaymentSentToggle = async (
+    buySellId: number,
+    currentStatus: boolean,
+  ): Promise<void> => {
+    try {
+      const response = currentStatus
+        ? await buySellService.unConfirmPaymentSent(buySellId)
+        : await buySellService.confirmPaymentSent(buySellId);
+      const { data } = await refetch();
+      if (data?.Session) {
+        onSessionUpdate(data.Session);
+      }
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Success',
+        message: response.Message,
+        color: 'green',
+      });
+    } catch (error) {
+      console.error('Failed to update payment sent status:', error);
+      const errorMessage =
+        (error as { response?: { data: { Message: string } } }).response?.data?.Message ??
+        'Failed to update payment status';
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      });
+    }
+  };
+
+  const handlePaymentReceivedToggle = async (
+    buySellId: number,
+    currentStatus: boolean,
+  ): Promise<void> => {
+    try {
+      const response = currentStatus
+        ? await buySellService.unConfirmPaymentReceived(buySellId)
+        : await buySellService.confirmPaymentReceived(buySellId);
+      const { data } = await refetch();
+      if (data?.Session) {
+        onSessionUpdate(data.Session);
+      }
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Success',
+        message: response.Message,
+        color: 'green',
+      });
+    } catch (error) {
+      console.error('Failed to update payment received status:', error);
+      const errorMessage =
+        (error as { response?: { data: { Message: string } } }).response?.data?.Message ??
+        'Failed to update payment status';
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      });
+    }
+  };
 
   const handleCancelSell = async (buySellId: number): Promise<void> => {
     try {
@@ -96,6 +170,7 @@ export const SessionBuyingQueue = ({
             <Table.Th>Buyer</Table.Th>
             <Table.Th>Team</Table.Th>
             <Table.Th>Queue Position</Table.Th>
+            <Table.Th>Payment Status</Table.Th>
             <Table.Th>Payment</Table.Th>
             <Table.Th>Notes</Table.Th>
             <Table.Th>Cancel Sell</Table.Th>
@@ -115,6 +190,44 @@ export const SessionBuyingQueue = ({
                   : `${queue.PaymentSent ? 'Sent' : 'Pending'} / ${
                       queue.PaymentReceived ? 'Received' : 'Pending'
                     }`}
+              </Table.Td>
+              <Table.Td>
+                {queue.BuyerUserId && queue.SellerUserId && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {user?.Id === queue.BuyerUserId && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Checkbox
+                          size='xs'
+                          label={
+                            <Text size='xs'>
+                              {queue.PaymentSent ? 'Unmark as Paid' : 'Mark as Paid'}
+                            </Text>
+                          }
+                          checked={queue.PaymentSent}
+                          onChange={() =>
+                            handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)
+                          }
+                        />
+                      </div>
+                    )}
+                    {user?.Id === queue.SellerUserId && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Checkbox
+                          size='xs'
+                          label={
+                            <Text size='xs'>
+                              {queue.PaymentReceived ? 'Unmark as Received' : 'Mark as Received'}
+                            </Text>
+                          }
+                          checked={queue.PaymentReceived}
+                          onChange={() =>
+                            handlePaymentReceivedToggle(queue.BuySellId, queue.PaymentReceived)
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </Table.Td>
               <Table.Td>
                 {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}

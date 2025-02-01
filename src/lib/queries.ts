@@ -154,7 +154,9 @@ export const GET_SESSION = gql`
       BuyingQueues {
         BuySellId
         SessionId
+        BuyerUserId
         BuyerName
+        SellerUserId
         SellerName
         TeamAssignment
         TransactionStatus
@@ -371,7 +373,9 @@ export const SESSION_UPDATED = gql`
       BuyingQueues {
         BuySellId
         SessionId
+        BuyerUserId
         BuyerName
+        SellerUserId
         SellerName
         TeamAssignment
         TransactionStatus

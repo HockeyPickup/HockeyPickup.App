@@ -32,4 +32,36 @@ export const buySellService = {
     console.info(response);
     return response.data;
   },
+
+  async confirmPaymentSent(buySellId: number): Promise<ApiDataResponseOfBuySellResponse> {
+    const response = await api.put<ApiDataResponseOfBuySellResponse>(
+      `/BuySell/${buySellId}/confirm-payment-sent`,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async confirmPaymentReceived(buySellId: number): Promise<ApiDataResponseOfBuySellResponse> {
+    const response = await api.put<ApiDataResponseOfBuySellResponse>(
+      `/BuySell/${buySellId}/confirm-payment-received`,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async unConfirmPaymentSent(buySellId: number): Promise<ApiDataResponseOfBuySellResponse> {
+    const response = await api.put<ApiDataResponseOfBuySellResponse>(
+      `/BuySell/${buySellId}/unconfirm-payment-sent`,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async unConfirmPaymentReceived(buySellId: number): Promise<ApiDataResponseOfBuySellResponse> {
+    const response = await api.put<ApiDataResponseOfBuySellResponse>(
+      `/BuySell/${buySellId}/unconfirm-payment-received`,
+    );
+    console.info(response);
+    return response.data;
+  },
 };

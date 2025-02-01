@@ -621,7 +621,7 @@ export interface SaveUserRequest {
 
 export type AdminUserUpdateRequest = SaveUserRequestEx & {
   /**
-   * ID of the user to update
+   * Id of the user to update
    * @minLength 1
    * @maxLength 128
    */
@@ -688,12 +688,12 @@ export interface BuySellResponse {
    */
   BuySellId: number;
   /**
-   * User ID of the buyer
+   * User Id of the buyer
    * @maxLength 128
    */
   BuyerUserId?: string | null;
   /**
-   * User ID of the seller
+   * User Id of the seller
    * @maxLength 128
    */
   SellerUserId?: string | null;
@@ -729,12 +729,12 @@ export interface BuySellResponse {
   /** Payment method used to complete the BuySell */
   PaymentMethod?: PaymentMethodType | null;
   /**
-   * User ID creating BuySell
+   * User Id creating BuySell
    * @maxLength 128
    */
   CreateByUserId?: string | null;
   /**
-   * User ID updating BuySell
+   * User Id updating BuySell
    * @maxLength 128
    */
   UpdateByUserId?: string | null;
@@ -810,13 +810,13 @@ export interface ImpersonationResponse {
    */
   Token: string;
   /**
-   * User ID of the impersonated user
+   * User Id of the impersonated user
    * @minLength 1
    * @maxLength 128
    */
   ImpersonatedUserId: string;
   /**
-   * User ID of the original admin user
+   * User Id of the original admin user
    * @minLength 1
    * @maxLength 128
    */
@@ -833,7 +833,7 @@ export interface ImpersonationResponse {
 
 export interface ImpersonationRequest {
   /**
-   * User ID of the target user to impersonate
+   * User Id of the target user to impersonate
    * @minLength 1
    * @maxLength 128
    */
@@ -854,7 +854,7 @@ export interface RevertImpersonationResponse {
    */
   Token: string;
   /**
-   * User ID of the original admin user
+   * User Id of the original admin user
    * @minLength 1
    * @maxLength 128
    */
@@ -877,12 +877,12 @@ export interface ImpersonationStatusResponse {
   /** Indicates if user is currently impersonating another user */
   IsImpersonating: boolean;
   /**
-   * Original admin user ID if impersonating
+   * Original admin user Id if impersonating
    * @maxLength 128
    */
   OriginalUserId?: string | null;
   /**
-   * Currently impersonated user ID
+   * Currently impersonated user Id
    * @maxLength 128
    */
   ImpersonatedUserId?: string | null;
@@ -982,12 +982,12 @@ export interface UpdateRegularSetRequest {
 
 export interface UpdateRegularPositionRequest {
   /**
-   * Regular Set ID
+   * Regular Set Id
    * @format int32
    */
   RegularSetId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
@@ -997,12 +997,12 @@ export interface UpdateRegularPositionRequest {
 
 export interface UpdateRegularTeamRequest {
   /**
-   * Regular Set ID
+   * Regular Set Id
    * @format int32
    */
   RegularSetId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
@@ -1086,7 +1086,7 @@ export interface ActivityLogResponse {
    */
   ActivityLogId: number;
   /**
-   * User ID associated with the activity
+   * User Id associated with the activity
    * @maxLength 128
    */
   UserId?: string | null;
@@ -1136,7 +1136,7 @@ export interface RegularResponse {
    */
   RegularSetId: number;
   /**
-   * User ID of the regular player
+   * User Id of the regular player
    * @maxLength 128
    */
   UserId?: string | null;
@@ -1216,7 +1216,7 @@ export interface RosterPlayer2 {
   /** Indicates if the player has preferred plus status */
   PreferredPlus: boolean;
   /**
-   * Last buy/sell transaction ID affecting this roster position
+   * Last buy/sell transaction Id affecting this roster position
    * @format int32
    */
   LastBuySellId?: number | null;
@@ -1246,6 +1246,16 @@ export interface BuyingQueueItem {
    * @format int32
    */
   SessionId: number;
+  /**
+   * User Id of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User Id of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
   /**
    * Name of the buyer
    * @maxLength 512
@@ -1374,12 +1384,12 @@ export type UpdateSessionRequest = CreateSessionRequest & {
 
 export interface UpdateRosterPositionRequest {
   /**
-   * Session ID
+   * Session Id
    * @format int32
    */
   SessionId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
@@ -1389,12 +1399,12 @@ export interface UpdateRosterPositionRequest {
 
 export interface UpdateRosterTeamRequest {
   /**
-   * Session ID
+   * Session Id
    * @format int32
    */
   SessionId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
