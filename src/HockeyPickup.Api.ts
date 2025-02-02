@@ -795,6 +795,27 @@ export type ApiDataResponseOfIEnumerableOfBuySellResponse = ApiResponse & {
 };
 
 /** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfBuySellStatusResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: BuySellStatusResponse | null;
+};
+
+export interface BuySellStatusResponse {
+  /** Indicates if the action is allowed */
+  IsAllowed: boolean;
+  /**
+   * Explanation of why action is/isn't allowed
+   * @minLength 1
+   */
+  Reason: string;
+  /**
+   * Time until action is allowed (if applicable)
+   * @format duration
+   */
+  TimeUntilAllowed?: string | null;
+}
+
+/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfString = ApiResponse & {
   /** Response data payload of type T */
   Data?: string | null;

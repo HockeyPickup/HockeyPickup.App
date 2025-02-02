@@ -1,6 +1,7 @@
 import {
   ApiDataResponseOfBoolean,
   ApiDataResponseOfBuySellResponse,
+  ApiDataResponseOfBuySellStatusResponse,
   BuyRequest,
   PaymentMethodType,
   SellRequest,
@@ -64,6 +65,22 @@ export const buySellService = {
   async unConfirmPaymentReceived(buySellId: number): Promise<ApiDataResponseOfBuySellResponse> {
     const response = await api.put<ApiDataResponseOfBuySellResponse>(
       `/BuySell/${buySellId}/unconfirm-payment-received`,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async canBuy(sessionId: number): Promise<ApiDataResponseOfBuySellStatusResponse> {
+    const response = await api.get<ApiDataResponseOfBuySellStatusResponse>(
+      `/BuySell/${sessionId}/can-buy`,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async canSell(sessionId: number): Promise<ApiDataResponseOfBuySellStatusResponse> {
+    const response = await api.get<ApiDataResponseOfBuySellStatusResponse>(
+      `/BuySell/${sessionId}/can-sell`,
     );
     console.info(response);
     return response.data;

@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/client';
 import { Button, Group, Paper, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import moment from 'moment';
-import { JSX } from 'react';
+import { JSX, useEffect, useState } from 'react';
 
 interface SessionActionsProps {
   session: SessionDetailedResponse;
@@ -19,6 +19,34 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     skip: true, // Skip initial fetch
   });
   const { user } = useAuth();
+  const [canBuySpot, setCanBuySpot] = useState(false);
+  const [canSellSpot, setCanSellSpot] = useState(false);
+  const [, setIsLoading] = useState(true);
+  const [isAdminBuying, setIsAdminBuying] = useState(false);
+
+  useEffect(() => {
+    const checkPermissions = async (): Promise<void> => {
+      try {
+        setIsLoading(true);
+        const [buyResponse, sellResponse] = await Promise.all([
+          buySellService.canBuy(session.SessionId ?? 0),
+          buySellService.canSell(session.SessionId ?? 0),
+        ]);
+
+        setCanBuySpot(buyResponse.Data?.IsAllowed ?? false);
+        setCanSellSpot(sellResponse.Data?.IsAllowed ?? false);
+        setIsAdminBuying(
+          buyResponse.Data?.Reason === 'Admins can buy spots regardless of time window',
+        );
+      } catch (error) {
+        console.error('Failed to check buy/sell permissions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkPermissions();
+  }, [session]);
 
   const getBuyWindowDate = (): string | undefined => {
     if (user?.PreferredPlus) {
@@ -111,12 +139,16 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         </Text>
       </Group>
       <Group justify='left'>
-        <Button onClick={handleBuy} color='blue'>
-          Buy Spot
-        </Button>
-        <Button onClick={handleSell} color='red'>
-          Sell Spot
-        </Button>
+        {canBuySpot && (
+          <Button onClick={handleBuy} color='blue'>
+            {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
+          </Button>
+        )}
+        {canSellSpot && (
+          <Button onClick={handleSell} color='red'>
+            Sell Spot
+          </Button>
+        )}
       </Group>
     </Paper>
   );
