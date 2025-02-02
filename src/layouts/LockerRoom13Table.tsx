@@ -17,31 +17,29 @@ export const LockerRoom13Table = (): JSX.Element => {
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
   const getStatusPriority = (playerStatus: PlayerStatus): number => {
-    var status = playerStatus.toString();
-
-    switch (status) {
-      case 'REGULAR':
-      case 'SUBSTITUTE':
+    switch (playerStatus) {
+      case PlayerStatus.Regular:
+      case PlayerStatus.Substitute:
         return 1;
-      case 'IN_QUEUE':
+      case PlayerStatus.InQueue:
         return 2;
-      case 'NOT_PLAYING':
+      case PlayerStatus.NotPlaying:
         return 3;
       default:
         return 4;
     }
   };
+
   const getStatusIcon = (playerStatus: PlayerStatus): JSX.Element => {
     const iconSize = rem(16);
-    var status = playerStatus.toString();
 
-    switch (status) {
-      case 'REGULAR':
-      case 'SUBSTITUTE':
+    switch (playerStatus) {
+      case PlayerStatus.Regular:
+      case PlayerStatus.Substitute:
         return <IconCheck style={{ width: iconSize, height: iconSize }} color='green' />;
-      case 'NOT_PLAYING':
+      case PlayerStatus.NotPlaying:
         return <IconX style={{ width: iconSize, height: iconSize }} color='red' />;
-      case 'IN_QUEUE':
+      case PlayerStatus.InQueue:
         return <IconQuestionMark style={{ width: iconSize, height: iconSize }} color='gray' />;
       default:
         return <></>;
