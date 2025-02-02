@@ -145,7 +145,7 @@ export const RegisterPage = (): JSX.Element => {
         </form>
 
         <Text c='dimmed' size='sm' ta='center' mt={20}>
-          Already have an account?{' '}
+          Already have an account?&nbsp;
           <Anchor size='sm' component='button' onClick={() => navigate('/login')}>
             Sign in
           </Anchor>

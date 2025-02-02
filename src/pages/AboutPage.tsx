@@ -22,11 +22,11 @@ export const AboutPage = (): JSX.Element => {
           <p>
             Our founder, John Bryan, started this pickup skate in 2004 to enable novice skaters to
             improve their skills. 20+ years later, our pickup has become a lifestyle and we're still
-            going strong. We play almost every Wednesday and Friday morning at our home ice at{' '}
+            going strong. We play almost every Wednesday and Friday morning at our home ice at&nbsp;
             <a href='https://www.toyotasportsperformancecenter.com/'>
               Toyota Sports Performance Center
-            </a>{' '}
-            in El Segundo, California, USA.
+            </a>
+            &nbsp;in El Segundo, California, USA.
           </p>
           <p>
             The mission since John Bryan founded this pickup was, and still is:&nbsp;
@@ -36,15 +36,15 @@ export const AboutPage = (): JSX.Element => {
             </b>
           </p>
           <p>
-            This portal is brought to you with ❤️ by{' '}
+            This portal is brought to you with ❤️ by&nbsp;
             <a href='https://brettmorrison.com'>Brett Morrison</a>.
           </p>
           <p>
-            The source code for this project is on{' '}
+            The source code for this project is on&nbsp;
             <a href='https://github.com/HockeyPickup'>GitHub</a> as Open Source, MIT license.
           </p>
           <p>
-            For feedback, feature requests, or bug reports, please leave them{' '}
+            For feedback, feature requests, or bug reports, please leave them&nbsp;
             <a href='https://github.com/HockeyPickup/HockeyPickup.App/issues'>here</a>.
           </p>
           <p>See you on the ice. Enjoy, and long may you glide...</p>

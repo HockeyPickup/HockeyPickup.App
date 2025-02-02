@@ -130,13 +130,13 @@ const HeaderSection = ({
                 }`}
                 target='_blank'
               >
-                Videos{' '}
+                Videos
                 <IconExternalLink
                   size={12}
                   style={{ marginLeft: 2, verticalAlign: 'middle', marginBottom: 4 }}
                 />
               </Badge>
-              {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}{' '}
+              {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}
             </Group>
           </div>
         </Group>
@@ -188,7 +188,7 @@ const HeaderSection = ({
               </Group>
             )}
           </Stack>
-        </Card>{' '}
+        </Card>
       </Group>
 
       {/* Stats Grid */}
@@ -361,32 +361,29 @@ const EditUserForm = ({
           <Select
             label='Notification Preference'
             data={[
-              { value: NotificationPreference.None.toString(), label: 'None' },
-              { value: NotificationPreference.All.toString(), label: 'All' },
-              { value: NotificationPreference.OnlyMyBuySell.toString(), label: 'Only My Buy/Sell' },
+              { value: NotificationPreference.None, label: NotificationPreference.None },
+              { value: NotificationPreference.All, label: NotificationPreference.All },
+              { value: NotificationPreference.OnlyMyBuySell, label: 'Only My Buy/Sell' },
             ]}
-            value={form.values.NotificationPreference?.toString()}
+            value={form.values.NotificationPreference}
             onChange={(value) =>
               form.setFieldValue(
                 'NotificationPreference',
-                value ? (parseInt(value) as NotificationPreference) : null,
+                value ? (value as NotificationPreference) : null,
               )
             }
           />
           <Select
             label='Position Preference'
             data={[
-              { value: PositionPreference.TBD.toString(), label: 'TBD' },
-              { value: PositionPreference.Forward.toString(), label: 'Forward' },
-              { value: PositionPreference.Defense.toString(), label: 'Defense' },
-              { value: PositionPreference.Goalie.toString(), label: 'Goalie' },
+              { value: PositionPreference.TBD, label: PositionPreference.TBD },
+              { value: PositionPreference.Forward, label: PositionPreference.Forward },
+              { value: PositionPreference.Defense, label: PositionPreference.Defense },
+              { value: PositionPreference.Goalie, label: PositionPreference.Goalie },
             ]}
             value={form.values.PositionPreference?.toString()}
             onChange={(value) =>
-              form.setFieldValue(
-                'PositionPreference',
-                value ? (parseInt(value) as PositionPreference) : null,
-              )
+              form.setFieldValue('PositionPreference', value ? (value as PositionPreference) : null)
             }
           />
           <Checkbox label='Active' {...form.getInputProps('Active', { type: 'checkbox' })} />
@@ -554,7 +551,7 @@ export const ProfilePage = (): JSX.Element => {
             {isEditing ? 'Cancel' : 'Admin Edit'}
           </Button>
         )}
-      </Group>{' '}
+      </Group>
       {showEmergencyInfo && profileUser && (
         <Paper p='xs' mt='xs' withBorder>
           <Stack>

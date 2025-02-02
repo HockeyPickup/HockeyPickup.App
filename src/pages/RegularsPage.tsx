@@ -2,13 +2,17 @@ import { EmailList } from '@/components/EmailList';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
 import { RegularSetSelect } from '@/components/RegularSetSelect';
-import { RegularDetailedResponse, RegularSetDetailedResponse, User } from '@/HockeyPickup.Api';
+import {
+  PositionPreference,
+  RegularDetailedResponse,
+  RegularSetDetailedResponse,
+  TeamAssignment,
+  User,
+} from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
-import { getPositionString, positionMap, PositionString } from '@/lib/position';
 import { GET_REGULARSETS, GET_USERS } from '@/lib/queries';
 import { regularService } from '@/lib/regular';
-import { Team, TEAM_LABELS } from '@/lib/team';
 import { AvatarService } from '@/services/avatar';
 import { useQuery } from '@apollo/client';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
@@ -115,7 +119,7 @@ const EditRegularSetForm = ({
           data={editDayOptions}
           value={form.values.dayOfWeek.toString()}
           onChange={(value) => form.setFieldValue('dayOfWeek', parseInt(value ?? '0'))}
-        />{' '}
+        />
         <Checkbox label='Archived' {...form.getInputProps('archived', { type: 'checkbox' })} />
         <Group justify='flex-end'>
           <Button variant='outline' onClick={onCancel}>
@@ -231,34 +235,36 @@ export const RegularsPage = (): JSX.Element => {
     await refetch();
   };
 
-  const getTeamRegulars = (teamId: Team.Light | Team.Dark): RegularDetailedResponse[] => {
+  const getTeamRegulars = (team: TeamAssignment): RegularDetailedResponse[] => {
     return (
-      selectedPresetData?.Regulars?.filter((regular) => regular.TeamAssignment === teamId).sort(
-        (a, b) => {
-          // Sort by position (Defense first)
-          if (a.PositionPreference !== b.PositionPreference) {
-            return b.PositionPreference - a.PositionPreference; // Defense (2) before Forward (1)
-          }
-          // Then by first name
-          return (a.User?.FirstName ?? '').localeCompare(b.User?.FirstName ?? '');
-        },
-      ) ?? []
+      selectedPresetData?.Regulars?.filter((regular) => {
+        return regular.TeamAssignment === team;
+      }).sort((a, b) => {
+        if (a.PositionPreference !== b.PositionPreference) {
+          // Defense sorts before Forward
+          return a.PositionPreference === PositionPreference.Defense ? -1 : 1;
+        }
+        return (a.User?.FirstName ?? '').localeCompare(b.User?.FirstName ?? '');
+      }) ?? []
     );
   };
 
-  const getTeamEmails = (teamId: Team.Light | Team.Dark): string[] => {
-    return getTeamRegulars(teamId)
+  const getTeamEmails = (team: TeamAssignment): string[] => {
+    return getTeamRegulars(team)
       .map((regular) => regular.User?.Email)
       .filter(Boolean) as string[];
   };
 
   const getAllEmails = (): string => {
-    const lightEmails = getTeamEmails(Team.Light);
-    const darkEmails = getTeamEmails(Team.Dark);
+    const lightEmails = getTeamEmails(TeamAssignment.Light);
+    const darkEmails = getTeamEmails(TeamAssignment.Dark);
     return [...lightEmails, ...darkEmails].sort((a, b) => a.localeCompare(b)).join('\n');
   };
 
-  const handlePositionChange = async (userId: string, newPosition: number): Promise<void> => {
+  const handlePositionChange = async (
+    userId: string,
+    newPosition: PositionPreference,
+  ): Promise<void> => {
     try {
       if (!selectedPreset) return;
 
@@ -266,8 +272,7 @@ export const RegularsPage = (): JSX.Element => {
         (set) => set.RegularSetId.toString() === selectedPreset,
       )?.Regulars?.find((p) => p.UserId === userId);
 
-      const currentPosition = getPositionString(player?.PositionPreference ?? 0);
-      const newPositionString = getPositionString(newPosition);
+      const currentPosition = player?.PositionPreference ?? PositionPreference.TBD;
 
       const result = await regularService.updateRegularPosition({
         RegularSetId: parseInt(selectedPreset),
@@ -282,7 +287,7 @@ export const RegularsPage = (): JSX.Element => {
           autoClose: 5000,
           style: { marginTop: '60px' },
           title: 'Position Updated',
-          message: `${player?.User?.FirstName} ${player?.User?.LastName} changed position from ${currentPosition} to ${newPositionString}`,
+          message: `${player?.User?.FirstName} ${player?.User?.LastName} changed position from ${currentPosition} to ${newPosition}`,
           color: 'green',
         });
       }
@@ -299,10 +304,7 @@ export const RegularsPage = (): JSX.Element => {
     }
   };
 
-  const handleTeamChange = async (
-    userId: string,
-    newTeam: Team.Light | Team.Dark,
-  ): Promise<void> => {
+  const handleTeamChange = async (userId: string, newTeam: TeamAssignment): Promise<void> => {
     setIsDragging(true);
     try {
       if (!selectedPreset) return;
@@ -312,9 +314,8 @@ export const RegularsPage = (): JSX.Element => {
       )?.Regulars?.find((p) => p.UserId === userId);
 
       const currentTeamName =
-        player?.TeamAssignment === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
-      const newTeamName = newTeam === Team.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
-
+        player?.TeamAssignment === TeamAssignment.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
+      const newTeamName = newTeam === TeamAssignment.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
       const result = await regularService.updateRegularTeam({
         RegularSetId: parseInt(selectedPreset),
         UserId: userId,
@@ -350,21 +351,21 @@ export const RegularsPage = (): JSX.Element => {
   const handleDragEnd = async (result: DropResult): Promise<void> => {
     if (!result.destination || !selectedPreset) return;
 
-    const sourceTeam = parseInt(result.source.droppableId.split('-')[1]);
-    const destinationTeam = parseInt(result.destination.droppableId.split('-')[1]);
+    const sourceTeam = result.source.droppableId.split('-')[1] as TeamAssignment;
+    const destinationTeam = result.destination.droppableId.split('-')[1] as TeamAssignment;
 
     if (sourceTeam === destinationTeam) return;
 
     const playerId = result.draggableId;
     try {
-      await handleTeamChange(playerId, destinationTeam as Team.Light | Team.Dark);
+      await handleTeamChange(playerId, destinationTeam);
     } catch (error) {
       console.error('Failed to move player:', error);
     }
   };
 
-  const TeamSection = ({ teamId }: { teamId: Team.Light | Team.Dark }): JSX.Element => {
-    const teamRegulars = getTeamRegulars(teamId);
+  const TeamSection = ({ team }: { team: TeamAssignment }): JSX.Element => {
+    const teamRegulars = getTeamRegulars(team);
     const [avatars, setAvatars] = useState<Record<string, string>>({});
     const teamRegularsKey = teamRegulars
       .map((regular) => regular.UserId)
@@ -382,8 +383,6 @@ export const RegularsPage = (): JSX.Element => {
       };
       loadAvatars();
     }, [teamRegularsKey]);
-
-    if (teamRegulars.length === 0) return <></>;
 
     const calculateTeamRatings = (): { total: string; average: string } => {
       const playersWithRatings = teamRegulars.filter(
@@ -405,31 +404,28 @@ export const RegularsPage = (): JSX.Element => {
       onTeamChange,
     }: {
       regular: RegularDetailedResponse;
-      onPositionChange: (_userId: string, _newPosition: number) => Promise<void>;
-      onTeamChange: (_userId: string, _newTeam: Team.Light | Team.Dark) => Promise<void>;
+      onPositionChange: (_userId: string, _newPosition: PositionPreference) => Promise<void>;
+      onTeamChange: (_userId: string, _newTeam: TeamAssignment) => Promise<void>;
     }): JSX.Element => {
       const { isAdmin, canViewRatings } = useAuth();
       const { showRatings } = useRatingsVisibility();
       const [editingPlayer, setEditingPlayer] = useState(false);
       const [isSaving, setIsSaving] = useState(false);
-      const [checkedPosition, setCheckedPosition] = useState<PositionString>(
-        () => getPositionString(regular.PositionPreference) as PositionString,
+      const [checkedPosition, setCheckedPosition] = useState<PositionPreference>(
+        (regular?.PositionPreference ?? PositionPreference.TBD) as PositionPreference,
       );
-      const [checkedTeam, setCheckedTeam] = useState<Team.Light | Team.Dark>(
-        regular.TeamAssignment,
-      );
-
-      const handlePositionChange = async (newPosition: PositionString): Promise<void> => {
+      const [checkedTeam, setCheckedTeam] = useState<TeamAssignment>(regular.TeamAssignment);
+      const handlePositionChange = async (newPosition: PositionPreference): Promise<void> => {
         setIsSaving(true);
         try {
-          await onPositionChange(regular.UserId, positionMap[newPosition]);
+          await onPositionChange(regular.UserId, newPosition);
         } finally {
           setIsSaving(false);
           setEditingPlayer(false);
         }
       };
 
-      const handleTeamChange = async (newTeam: Team.Light | Team.Dark): Promise<void> => {
+      const handleTeamChange = async (newTeam: TeamAssignment): Promise<void> => {
         setIsSaving(true);
         try {
           await onTeamChange(regular.UserId, newTeam);
@@ -483,8 +479,8 @@ export const RegularsPage = (): JSX.Element => {
             />
           </Link>
           <Text size='xs' ml={4} mr={2} key={regular.UserId}>
-            {regular.User?.FirstName} {regular.User?.LastName},{' '}
-            {getPositionString(regular.PositionPreference)}
+            {regular.User?.FirstName} {regular.User?.LastName},&nbsp;
+            {regular.PositionPreference as unknown as string}
             {canViewRatings() &&
               showRatings &&
               regular.User?.Rating !== undefined &&
@@ -522,17 +518,29 @@ export const RegularsPage = (): JSX.Element => {
                       Position
                     </Text>
                     <Radio.Group
-                      value={checkedPosition}
+                      value={checkedPosition.toString()}
                       onChange={(value: string) => {
-                        const newPosition = value as PositionString;
+                        const newPosition = value as PositionPreference;
                         setCheckedPosition(newPosition);
                         handlePositionChange(newPosition);
                       }}
                     >
                       <Stack>
-                        <Radio value='Defense' label='Defense' disabled={isSaving} />
-                        <Radio value='Forward' label='Forward' disabled={isSaving} />
-                        <Radio value='TBD' label='TBD' disabled={isSaving} />
+                        <Radio
+                          value={PositionPreference.Defense}
+                          label={PositionPreference.Defense}
+                          disabled={isSaving}
+                        />
+                        <Radio
+                          value={PositionPreference.Forward}
+                          label={PositionPreference.Forward}
+                          disabled={isSaving}
+                        />
+                        <Radio
+                          value={PositionPreference.TBD}
+                          label={PositionPreference.TBD}
+                          disabled={isSaving}
+                        />
                       </Stack>
                     </Radio.Group>
                     <Divider my='xs' />
@@ -542,19 +550,19 @@ export const RegularsPage = (): JSX.Element => {
                     <Radio.Group
                       value={checkedTeam.toString()}
                       onChange={(value: string) => {
-                        const newTeam = parseInt(value) as Team.Light | Team.Dark;
+                        const newTeam = value as TeamAssignment;
                         setCheckedTeam(newTeam);
                         handleTeamChange(newTeam);
                       }}
                     >
                       <Stack>
                         <Radio
-                          value={Team.Light.toString()}
+                          value={TeamAssignment.Light}
                           label='Rockets (Light)'
                           disabled={isSaving}
                         />
                         <Radio
-                          value={Team.Dark.toString()}
+                          value={TeamAssignment.Dark}
                           label='Beauties (Dark)'
                           disabled={isSaving}
                         />
@@ -579,22 +587,40 @@ export const RegularsPage = (): JSX.Element => {
         </Group>
       );
     };
+
     return (
       <Stack>
         <Stack align='center' gap='xs'>
           <Image
-            src={teamId === Team.Light ? '/static/Rockets_Logo.jpg' : '/static/Beauties_Logo.jpg'}
-            alt={teamId === Team.Light ? 'Rockets Logo' : 'Beauties Logo'}
+            src={
+              team === TeamAssignment.Light
+                ? '/static/Rockets_Logo.jpg'
+                : '/static/Beauties_Logo.jpg'
+            }
+            alt={team === TeamAssignment.Light ? 'Rockets Logo' : 'Beauties Logo'}
             w={125}
             h={125}
             fit='contain'
             radius='md'
           />
-          <Title order={4}>{TEAM_LABELS[teamId]}</Title>
+          <Title order={4}>
+            {team === TeamAssignment.Light ? 'Rockets (Light)' : 'Beauties (Dark)'}
+          </Title>
         </Stack>
-        <Droppable droppableId={`team-${teamId}`}>
+        <Droppable droppableId={`team-${team.toString()}`}>
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              style={{
+                minHeight: '50px',
+                ...(teamRegulars.length === 0 && {
+                  border: '2px dashed var(--mantine-color-gray-4)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                }),
+              }}
+            >
               {teamRegulars.map((regular, index) => (
                 <Draggable key={regular.UserId} draggableId={regular.UserId} index={index}>
                   {(provided, snapshot) => (
@@ -622,7 +648,7 @@ export const RegularsPage = (): JSX.Element => {
           )}
         </Droppable>
         <Text size='lg' fw={700}>
-          {teamRegulars.length} Players
+          {teamRegulars.length} {teamRegulars.length === 1 ? 'Player' : 'Players'}
         </Text>
         {canViewRatings() && showRatings && (
           <Text size='sm' fw={500}>
@@ -735,8 +761,8 @@ export const RegularsPage = (): JSX.Element => {
     const form = useForm({
       initialValues: {
         userId: '',
-        position: positionMap.Forward.toString(),
-        team: Team.Light.toString(),
+        position: PositionPreference.TBD,
+        team: TeamAssignment.Light,
       },
     });
 
@@ -755,8 +781,8 @@ export const RegularsPage = (): JSX.Element => {
         await regularService.addRegular({
           RegularSetId: regularSetId,
           UserId: values.userId,
-          PositionPreference: parseInt(values.position),
-          TeamAssignment: parseInt(values.team),
+          PositionPreference: values.position,
+          TeamAssignment: values.team,
         });
 
         await refetch();
@@ -800,15 +826,15 @@ export const RegularsPage = (): JSX.Element => {
             />
             <Radio.Group label='Position' {...form.getInputProps('position')}>
               <Stack>
-                <Radio value={positionMap.Defense.toString()} label='Defense' />
-                <Radio value={positionMap.Forward.toString()} label='Forward' />
-                <Radio value={positionMap.TBD.toString()} label='TBD' />
+                <Radio value={PositionPreference.Defense} label={PositionPreference.Defense} />
+                <Radio value={PositionPreference.Forward} label={PositionPreference.Forward} />
+                <Radio value={PositionPreference.TBD} label={PositionPreference.TBD} />
               </Stack>
             </Radio.Group>
             <Radio.Group label='Team' {...form.getInputProps('team')}>
               <Stack>
-                <Radio value={Team.Light.toString()} label='Rockets (Light)' />
-                <Radio value={Team.Dark.toString()} label='Beauties (Dark)' />
+                <Radio value={TeamAssignment.Light} label='Rockets (Light)' />
+                <Radio value={TeamAssignment.Dark} label='Beauties (Dark)' />
               </Stack>
             </Radio.Group>
             <Group justify='flex-end' mt='md'>
@@ -896,7 +922,7 @@ export const RegularsPage = (): JSX.Element => {
                   />
                   <Grid>
                     <Grid.Col span={6}>
-                      <TeamSection teamId={Team.Light} />
+                      <TeamSection team={TeamAssignment.Light} />
                     </Grid.Col>
                     <div
                       style={{
@@ -906,9 +932,9 @@ export const RegularsPage = (): JSX.Element => {
                         alignSelf: 'stretch',
                         opacity: 0.5, // make it subtle
                       }}
-                    />{' '}
+                    />
                     <Grid.Col span={6}>
-                      <TeamSection teamId={Team.Dark} />
+                      <TeamSection team={TeamAssignment.Dark} />
                     </Grid.Col>
                   </Grid>
                 </Stack>

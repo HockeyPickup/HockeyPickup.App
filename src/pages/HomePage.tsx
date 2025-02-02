@@ -21,7 +21,7 @@ export const HomePage = (): JSX.Element => {
           src='/static/JB_Puck_Logo.png'
           alt='Hockey Pickup Logo'
           className={styles.headerLogo}
-        />{' '}
+        />
         <Text size='xl' w={700} ta='center'>
           Welcome to Hockey Pickup
         </Text>

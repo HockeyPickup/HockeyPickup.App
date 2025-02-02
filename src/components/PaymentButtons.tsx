@@ -20,12 +20,13 @@ import { IconCreditCard } from '@tabler/icons-react';
 import { JSX, useState } from 'react';
 import { BsCreditCard2Front } from 'react-icons/bs';
 import { FaBitcoin, FaPaypal } from 'react-icons/fa';
-import { SiCashapp, SiVenmo } from 'react-icons/si';
+import { Si1And1, SiCashapp, SiVenmo } from 'react-icons/si';
 
 interface PaymentButtonsProps {
   user: UserDetailedResponse;
   defaultAmount?: number;
   defaultDescription?: string;
+  onPaymentMethodClick?: (method: PaymentMethodType) => void;
 }
 
 interface PaymentForm {
@@ -34,11 +35,12 @@ interface PaymentForm {
 }
 
 const PAYMENT_METHODS = {
-  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: 'PayPal' },
-  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: 'Venmo' },
-  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: 'Cash App' },
-  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: 'Zelle' },
-  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: 'Bitcoin' },
+  [PaymentMethodType.PayPal]: { icon: FaPaypal, label: PaymentMethodType.PayPal },
+  [PaymentMethodType.Venmo]: { icon: SiVenmo, label: PaymentMethodType.Venmo },
+  [PaymentMethodType.CashApp]: { icon: SiCashapp, label: PaymentMethodType.CashApp },
+  [PaymentMethodType.Zelle]: { icon: BsCreditCard2Front, label: PaymentMethodType.Zelle },
+  [PaymentMethodType.Bitcoin]: { icon: FaBitcoin, label: PaymentMethodType.Bitcoin },
+  [PaymentMethodType.Unknown]: { icon: Si1And1, label: PaymentMethodType.Unknown },
 };
 
 const getPaymentUrl = (
@@ -75,6 +77,7 @@ export const PaymentButtons = ({
   user,
   defaultAmount = 27,
   defaultDescription = 'Pickup Hockey Profile Payment',
+  onPaymentMethodClick,
 }: PaymentButtonsProps): JSX.Element => {
   const [opened, setOpened] = useState(false);
   const form = useForm<PaymentForm>({
@@ -90,6 +93,8 @@ export const PaymentButtons = ({
 
   const handlePayment = (method: UserPaymentMethodResponse): void => {
     const url = getPaymentUrl(method, form.values.amount, form.values.description);
+
+    onPaymentMethodClick?.(method.MethodType);
 
     if (
       method.MethodType === PaymentMethodType.Zelle ||

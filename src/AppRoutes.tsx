@@ -12,6 +12,7 @@ import { GoalieLoungePage } from './pages/GoalieLoungePage';
 import { HomePage } from './pages/HomePage';
 import { LockerRoom13Page } from './pages/LockerRoom13Page';
 import { LoginPage } from './pages/LoginPage';
+import { NewslettersPage } from './pages/NewslettersPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -132,12 +133,20 @@ const AppRoutes = (): JSX.Element => {
               <RegularsPage />
             </ProtectedRoute>
           }
-        />{' '}
+        />
         <Route
           path='/game-pucks'
           element={
             <ProtectedRoute>
               <GamePucksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/newsletters'
+          element={
+            <ProtectedRoute>
+              <NewslettersPage />
             </ProtectedRoute>
           }
         />

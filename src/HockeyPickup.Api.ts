@@ -118,16 +118,16 @@ export interface UserDetailedResponse {
 }
 
 export enum NotificationPreference {
-  None = 0,
-  All = 1,
-  OnlyMyBuySell = 2,
+  None = 'None',
+  All = 'All',
+  OnlyMyBuySell = 'OnlyMyBuySell',
 }
 
 export enum PositionPreference {
-  TBD = 0,
-  Forward = 1,
-  Defense = 2,
-  Goalie = 3,
+  TBD = 'TBD',
+  Forward = 'Forward',
+  Defense = 'Defense',
+  Goalie = 'Goalie',
 }
 
 export interface UserPaymentMethodResponse {
@@ -153,11 +153,12 @@ export interface UserPaymentMethodResponse {
 }
 
 export enum PaymentMethodType {
-  PayPal = 1,
-  Venmo = 2,
-  CashApp = 3,
-  Zelle = 4,
-  Bitcoin = 5,
+  Unknown = 'Unknown',
+  PayPal = 'PayPal',
+  Venmo = 'Venmo',
+  CashApp = 'CashApp',
+  Zelle = 'Zelle',
+  Bitcoin = 'Bitcoin',
 }
 
 /** Generic API response wrapper */
@@ -231,12 +232,13 @@ export type AspNetUser = IdentityUserOfString & {
   LockoutEnd?: string | null;
   FirstName?: string | null;
   LastName?: string | null;
-  /** @format int32 */
-  NotificationPreference?: number;
-  /** @format int32 */
-  PositionPreference?: number;
+  NotificationPreference?: NotificationPreference;
+  PositionPreference?: PositionPreference;
+  PayPalEmail?: string | null;
   Active?: boolean;
   Preferred?: boolean;
+  VenmoAccount?: string | null;
+  MobileLast4?: string | null;
   /** @format decimal */
   Rating?: number;
   PreferredPlus?: boolean;
@@ -276,19 +278,32 @@ export interface BuySell {
   SellerUserId?: string | null;
   SellerNote?: string | null;
   BuyerNote?: string | null;
-  PaymentSent?: boolean;
-  PaymentReceived?: boolean;
+  PaymentSent: boolean;
+  PaymentReceived: boolean;
   /** @format date-time */
   CreateDateTime?: string;
   /** @format date-time */
   UpdateDateTime?: string;
-  /** @format int32 */
-  TeamAssignment?: number;
+  TeamAssignment?: TeamAssignment;
   SellerNoteFlagged?: boolean;
   BuyerNoteFlagged?: boolean;
+  /** @format decimal */
+  Price?: number | null;
+  PaymentMethod?: PaymentMethodType | null;
+  CreateByUserId?: string | null;
+  UpdateByUserId?: string | null;
+  TransactionStatus?: string;
   Session?: Session | null;
   Buyer?: AspNetUser | null;
   Seller?: AspNetUser | null;
+  CreateByUser?: AspNetUser | null;
+  UpdateByUser?: AspNetUser | null;
+}
+
+export enum TeamAssignment {
+  TBD = 'TBD',
+  Light = 'Light',
+  Dark = 'Dark',
 }
 
 export interface Session {
@@ -331,10 +346,8 @@ export interface Regular {
   /** @format int32 */
   RegularSetId?: number;
   UserId?: string | null;
-  /** @format int32 */
-  TeamAssignment?: number;
-  /** @format int32 */
-  PositionPreference?: number;
+  TeamAssignment?: TeamAssignment;
+  PositionPreference?: PositionPreference;
   RegularSet?: RegularSet | null;
   User?: AspNetUser | null;
 }
@@ -385,16 +398,19 @@ export interface BuyingQueue {
   BuySellId?: number;
   /** @format int32 */
   SessionId?: number;
+  BuyerUserId?: string | null;
   BuyerName?: string | null;
+  SellerUserId?: string | null;
   SellerName?: string | null;
-  /** @format int32 */
-  TeamAssignment?: number;
+  TeamAssignment?: TeamAssignment;
   TransactionStatus?: string;
   QueueStatus?: string;
   PaymentSent?: boolean;
   PaymentReceived?: boolean;
   BuyerNote?: string | null;
   SellerNote?: string | null;
+  Buyer?: AspNetUser | null;
+  Seller?: AspNetUser | null;
 }
 
 export interface UserPaymentMethod {
@@ -609,7 +625,7 @@ export interface SaveUserRequest {
 
 export type AdminUserUpdateRequest = SaveUserRequestEx & {
   /**
-   * ID of the user to update
+   * Id of the user to update
    * @minLength 1
    * @maxLength 128
    */
@@ -664,6 +680,121 @@ export interface AdminPhotoDeleteRequest {
 }
 
 /** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfBuySellResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: BuySellResponse | null;
+};
+
+export interface BuySellResponse {
+  /**
+   * Unique identifier for the BuySell
+   * @format int32
+   */
+  BuySellId: number;
+  /**
+   * User Id of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User Id of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
+  /** Note from the seller */
+  SellerNote?: string | null;
+  /** Note from the buyer */
+  BuyerNote?: string | null;
+  /** Indicates if payment has been sent */
+  PaymentSent: boolean;
+  /** Indicates if payment has been received */
+  PaymentReceived: boolean;
+  /**
+   * Date and time of transaction creation
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /**
+   * Date and time of last update
+   * @format date-time
+   * @minLength 1
+   */
+  UpdateDateTime: string;
+  /** Team assignment for the transaction */
+  TeamAssignment: TeamAssignment;
+  /**
+   * Price for the BuySell (from session)
+   * @format decimal
+   * @min 0
+   * @max 999.99
+   */
+  Price: number;
+  /** Payment method used to complete the BuySell */
+  PaymentMethod?: PaymentMethodType | null;
+  /**
+   * User Id creating BuySell
+   * @maxLength 128
+   */
+  CreateByUserId?: string | null;
+  /**
+   * User Id updating BuySell
+   * @maxLength 128
+   */
+  UpdateByUserId?: string | null;
+  /**
+   * Queue position of the Buyer
+   * @format int32
+   */
+  QueuePosition?: number;
+  /**
+   * Transaction status of BuySell
+   * @maxLength 128
+   */
+  TransactionStatus?: string | null;
+  /** Indicates if the seller note has been flagged */
+  SellerNoteFlagged: boolean;
+  /** Indicates if the buyer note has been flagged */
+  BuyerNoteFlagged: boolean;
+  /** Buyer details */
+  Buyer?: UserDetailedResponse | null;
+  /** Seller details */
+  Seller?: UserDetailedResponse | null;
+}
+
+export interface BuyRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Buyer's note for the BuySell
+   * @maxLength 4000
+   */
+  Note?: string | null;
+}
+
+export interface SellRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Seller's note for the BuySell
+   * @maxLength 4000
+   */
+  Note?: string | null;
+}
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfIEnumerableOfBuySellResponse = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: BuySellResponse[] | null;
+};
+
+/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfString = ApiResponse & {
   /** Response data payload of type T */
   Data?: string | null;
@@ -683,13 +814,13 @@ export interface ImpersonationResponse {
    */
   Token: string;
   /**
-   * User ID of the impersonated user
+   * User Id of the impersonated user
    * @minLength 1
    * @maxLength 128
    */
   ImpersonatedUserId: string;
   /**
-   * User ID of the original admin user
+   * User Id of the original admin user
    * @minLength 1
    * @maxLength 128
    */
@@ -706,7 +837,7 @@ export interface ImpersonationResponse {
 
 export interface ImpersonationRequest {
   /**
-   * User ID of the target user to impersonate
+   * User Id of the target user to impersonate
    * @minLength 1
    * @maxLength 128
    */
@@ -727,7 +858,7 @@ export interface RevertImpersonationResponse {
    */
   Token: string;
   /**
-   * User ID of the original admin user
+   * User Id of the original admin user
    * @minLength 1
    * @maxLength 128
    */
@@ -750,12 +881,12 @@ export interface ImpersonationStatusResponse {
   /** Indicates if user is currently impersonating another user */
   IsImpersonating: boolean;
   /**
-   * Original admin user ID if impersonating
+   * Original admin user Id if impersonating
    * @maxLength 128
    */
   OriginalUserId?: string | null;
   /**
-   * Currently impersonated user ID
+   * Currently impersonated user Id
    * @maxLength 128
    */
   ImpersonatedUserId?: string | null;
@@ -810,16 +941,10 @@ export interface RegularDetailedResponse {
    * @minLength 1
    */
   UserId: string;
-  /**
-   * Team assignment for the regular player
-   * @format int32
-   */
-  TeamAssignment: number;
-  /**
-   * Position preference for the regular player
-   * @format int32
-   */
-  PositionPreference: number;
+  /** Team assignment for the regular player */
+  TeamAssignment: TeamAssignment;
+  /** Position preference for the regular player */
+  PositionPreference: PositionPreference;
   /** Detailed user information */
   User?: UserDetailedResponse | null;
 }
@@ -861,42 +986,32 @@ export interface UpdateRegularSetRequest {
 
 export interface UpdateRegularPositionRequest {
   /**
-   * Regular Set ID
+   * Regular Set Id
    * @format int32
    */
   RegularSetId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New position (0: TBD, 1: Forward, 2: Defense)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  NewPosition: number;
+  /** New position (0: TBD, 1: Forward, 2: Defense) */
+  NewPosition: PositionPreference;
 }
 
 export interface UpdateRegularTeamRequest {
   /**
-   * Regular Set ID
+   * Regular Set Id
    * @format int32
    */
   RegularSetId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New team assignment (1: Light, 2: Dark)
-   * @format int32
-   * @min 1
-   * @max 2
-   */
-  NewTeamAssignment: number;
+  /** New team assignment (1: Light, 2: Dark) */
+  NewTeamAssignment: TeamAssignment;
 }
 
 export interface AddRegularRequest {
@@ -913,20 +1028,10 @@ export interface AddRegularRequest {
    * @maxLength 128
    */
   UserId: string;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
-   * @min 1
-   * @max 2
-   */
-  TeamAssignment: number;
-  /**
-   * Position preference (0 for TBD, 1 for Forward, 2 for Defense)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  PositionPreference: number;
+  /** Team assignment (1 for Light, 2 for Dark) */
+  TeamAssignment: TeamAssignment;
+  /** Position preference (0 for TBD, 1 for Forward, 2 for Defense, 3 for Goalie) */
+  PositionPreference: PositionPreference;
 }
 
 export interface CreateRegularSetRequest {
@@ -978,49 +1083,6 @@ export type SessionDetailedResponse = SessionBasicResponse & {
   BuyingQueues?: BuyingQueueItem[] | null;
 };
 
-export interface BuySellResponse {
-  /**
-   * Unique identifier for the buy/sell transaction
-   * @format int32
-   */
-  BuySellId?: number | null;
-  /**
-   * User ID of the buyer
-   * @maxLength 128
-   */
-  BuyerUserId?: string | null;
-  /**
-   * User ID of the seller
-   * @maxLength 128
-   */
-  SellerUserId?: string | null;
-  /** Note from the seller */
-  SellerNote?: string | null;
-  /** Note from the buyer */
-  BuyerNote?: string | null;
-  /** Indicates if payment has been sent */
-  PaymentSent: boolean;
-  /** Indicates if payment has been received */
-  PaymentReceived: boolean;
-  /**
-   * Date and time of transaction creation
-   * @format date-time
-   * @minLength 1
-   */
-  CreateDateTime: string;
-  /**
-   * Team assignment for the transaction
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  TeamAssignment: number;
-  /** Buyer details */
-  Buyer?: UserDetailedResponse | null;
-  /** Seller details */
-  Seller?: UserDetailedResponse | null;
-}
-
 export interface ActivityLogResponse {
   /**
    * Unique identifier for the activity log
@@ -1028,7 +1090,7 @@ export interface ActivityLogResponse {
    */
   ActivityLogId: number;
   /**
-   * User ID associated with the activity
+   * User Id associated with the activity
    * @maxLength 128
    */
   UserId?: string | null;
@@ -1078,24 +1140,14 @@ export interface RegularResponse {
    */
   RegularSetId: number;
   /**
-   * User ID of the regular player
+   * User Id of the regular player
    * @maxLength 128
    */
   UserId?: string | null;
-  /**
-   * Team assignment for the regular player
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  TeamAssignment: number;
-  /**
-   * Position preference for the regular player
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  PositionPreference: number;
+  /** Team assignment for the regular player */
+  TeamAssignment: TeamAssignment;
+  /** Position preference for the regular player */
+  PositionPreference: PositionPreference;
   /** User details */
   User?: UserDetailedResponse | null;
 }
@@ -1136,18 +1188,10 @@ export interface RosterPlayer2 {
    * @maxLength 256
    */
   LastName: string;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
-   */
-  TeamAssignment: number;
-  /**
-   * Position for the player
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  Position: number;
+  /** Team assignment (1 for Light, 2 for Dark) */
+  TeamAssignment: TeamAssignment;
+  /** Position for the player */
+  Position: PositionPreference;
   /**
    * Position name for the player
    * @minLength 1
@@ -1176,7 +1220,7 @@ export interface RosterPlayer2 {
   /** Indicates if the player has preferred plus status */
   PreferredPlus: boolean;
   /**
-   * Last buy/sell transaction ID affecting this roster position
+   * Last buy/sell transaction Id affecting this roster position
    * @format int32
    */
   LastBuySellId?: number | null;
@@ -1189,10 +1233,10 @@ export interface RosterPlayer2 {
 }
 
 export enum PlayerStatus {
-  Regular = 0,
-  Substitute = 1,
-  NotPlaying = 2,
-  InQueue = 3,
+  NotPlaying = 'NotPlaying',
+  Regular = 'Regular',
+  Substitute = 'Substitute',
+  InQueue = 'InQueue',
 }
 
 export interface BuyingQueueItem {
@@ -1207,6 +1251,16 @@ export interface BuyingQueueItem {
    */
   SessionId: number;
   /**
+   * User Id of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User Id of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
+  /**
    * Name of the buyer
    * @maxLength 512
    */
@@ -1216,11 +1270,8 @@ export interface BuyingQueueItem {
    * @maxLength 512
    */
   SellerName?: string | null;
-  /**
-   * Team assignment (1 for Light, 2 for Dark)
-   * @format int32
-   */
-  TeamAssignment: number;
+  /** Team assignment (1 for Light, 2 for Dark) */
+  TeamAssignment: TeamAssignment;
   /**
    * Current status of the transaction
    * @minLength 1
@@ -1247,6 +1298,10 @@ export interface BuyingQueueItem {
    * @maxLength 4000
    */
   SellerNote?: string | null;
+  /** Buyer details */
+  Buyer?: UserDetailedResponse | null;
+  /** Seller details */
+  Seller?: UserDetailedResponse | null;
 }
 
 export interface SessionBasicResponse {
@@ -1337,42 +1392,32 @@ export type UpdateSessionRequest = CreateSessionRequest & {
 
 export interface UpdateRosterPositionRequest {
   /**
-   * Session ID
+   * Session Id
    * @format int32
    */
   SessionId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New position (0: TBD, 1: Forward, 2: Defense)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  NewPosition: number;
+  /** New position (0: TBD, 1: Forward, 2: Defense) */
+  NewPosition: PositionPreference;
 }
 
 export interface UpdateRosterTeamRequest {
   /**
-   * Session ID
+   * Session Id
    * @format int32
    */
   SessionId: number;
   /**
-   * User ID
+   * User Id
    * @minLength 1
    */
   UserId: string;
-  /**
-   * New team assignment (0 for TBD, 1 for Light, 2 for Dark)
-   * @format int32
-   * @min 0
-   * @max 2
-   */
-  NewTeamAssignment: number;
+  /** New team assignment (0 for TBD, 1 for Light, 2 for Dark) */
+  NewTeamAssignment: TeamAssignment;
 }
 
 /** Generic API response wrapper with typed data payload */
@@ -1479,6 +1524,10 @@ export interface ServiceBusCommsMessage {
   RelatedEntities: Record<string, string>;
   /** Type-specific message payload data */
   MessageData?: Record<string, string>;
+  /** List of email addresses to notify */
+  NotificationEmails?: string[] | null;
+  /** List of device IDs for push notifications */
+  NotificationDeviceIds?: string[] | null;
 }
 
 export interface User {
@@ -1545,20 +1594,10 @@ export interface User {
    * @max 2147483647
    */
   AccessFailedCount: number;
-  /**
-   * User's notification preferences
-   * @format int32
-   * @min 0
-   * @max 2147483647
-   */
-  NotificationPreference: number;
-  /**
-   * User's position preferences
-   * @format int32
-   * @min 0
-   * @max 2147483647
-   */
-  PositionPreference: number;
+  /** User's notification preferences */
+  NotificationPreference: NotificationPreference;
+  /** User's position preferences */
+  PositionPreference: PositionPreference;
   /** Indicates if user account is active */
   Active: boolean;
   /** Indicates if user has preferred status */
