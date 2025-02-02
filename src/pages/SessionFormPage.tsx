@@ -58,22 +58,13 @@ const formatDateForApi = (date: Date): string => {
 };
 
 const parseDateFromApi = (isoString: string): Date => {
-  // Remove any timezone indicator to prevent conversion
-  const localString = isoString.replace('Z', '');
+  // Since the API sends the date in PST (despite the Z suffix),
+  // we'll create the date directly without timezone conversion
+  const [datePart, timePart] = isoString.split('T');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hours, minutes, seconds] = timePart.split(':').map((num) => parseInt(num));
 
-  const [datePart, timePart] = localString.split('T');
-  const [year, month, day] = datePart.split('-');
-  const [hours, minutes, seconds] = timePart.split(':');
-
-  const date = new Date();
-  date.setFullYear(parseInt(year));
-  date.setMonth(parseInt(month) - 1);
-  date.setDate(parseInt(day));
-  date.setHours(parseInt(hours));
-  date.setMinutes(parseInt(minutes));
-  date.setSeconds(parseFloat(seconds));
-
-  return date;
+  return new Date(year, month - 1, day, hours, minutes, seconds);
 };
 
 export const SessionFormPage = (): JSX.Element => {
@@ -250,7 +241,7 @@ export const SessionFormPage = (): JSX.Element => {
               value={form.values.RegularSetId}
               onChange={(value) => form.setFieldValue('RegularSetId', value ?? '')}
               defaultIncludeArchived={false}
-            />{' '}
+            />
             <NumberInput
               label='Buy Day Minimum'
               placeholder='Enter minimum days before buying'

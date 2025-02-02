@@ -31,6 +31,17 @@ export const sessionService = {
     return response.data;
   },
 
+  async deleteFromRoster(
+    sessionId: number,
+    userId: string,
+  ): Promise<ApiDataResponseOfSessionDetailedResponse> {
+    const response = await api.delete<ApiDataResponseOfSessionDetailedResponse>(
+      `/Session/delete-roster-player/${sessionId}/${userId}`,
+    );
+    console.info(response);
+    return response.data;
+  },
+
   async updateSession(
     request: UpdateSessionRequest,
   ): Promise<ApiDataResponseOfSessionDetailedResponse> {

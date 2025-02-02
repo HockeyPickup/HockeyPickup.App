@@ -98,7 +98,7 @@ export const LoginPage = (): JSX.Element => {
         </form>
 
         <Text c='dimmed' size='sm' ta='center' mt={20}>
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?&nbsp;
           <Anchor size='sm' component='button' onClick={() => navigate('/register')}>
             Create account
           </Anchor>

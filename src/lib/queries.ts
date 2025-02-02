@@ -154,6 +154,8 @@ export const GET_SESSION = gql`
       BuyingQueues {
         BuySellId
         SessionId
+        BuyerUserId
+        SellerUserId
         BuyerName
         SellerName
         TeamAssignment
@@ -163,6 +165,60 @@ export const GET_SESSION = gql`
         PaymentReceived
         BuyerNote
         SellerNote
+        Buyer {
+          Id
+          UserName
+          Email
+          FirstName
+          LastName
+          Active
+          Preferred
+          PreferredPlus
+          NotificationPreference
+          PositionPreference
+          EmergencyName
+          EmergencyPhone
+          JerseyNumber
+          LockerRoom13
+          PhotoUrl
+          DateCreated
+          Roles
+          Rating
+          PaymentMethods {
+            UserPaymentMethodId
+            MethodType
+            Identifier
+            PreferenceOrder
+            IsActive
+          }
+        }
+        Seller {
+          Id
+          UserName
+          Email
+          FirstName
+          LastName
+          Active
+          Preferred
+          PreferredPlus
+          NotificationPreference
+          PositionPreference
+          EmergencyName
+          EmergencyPhone
+          JerseyNumber
+          LockerRoom13
+          PhotoUrl
+          DateCreated
+          Roles
+          Rating
+          PaymentMethods {
+            UserPaymentMethodId
+            MethodType
+            Identifier
+            PreferenceOrder
+            IsActive
+          }
+        }
       }
     }
   }
@@ -371,6 +427,8 @@ export const SESSION_UPDATED = gql`
       BuyingQueues {
         BuySellId
         SessionId
+        BuyerUserId
+        SellerUserId
         BuyerName
         SellerName
         TeamAssignment
@@ -380,6 +438,60 @@ export const SESSION_UPDATED = gql`
         PaymentReceived
         BuyerNote
         SellerNote
+        Buyer {
+          Id
+          UserName
+          Email
+          FirstName
+          LastName
+          Active
+          Preferred
+          PreferredPlus
+          NotificationPreference
+          PositionPreference
+          EmergencyName
+          EmergencyPhone
+          JerseyNumber
+          LockerRoom13
+          PhotoUrl
+          DateCreated
+          Roles
+          Rating
+          PaymentMethods {
+            UserPaymentMethodId
+            MethodType
+            Identifier
+            PreferenceOrder
+            IsActive
+          }
+        }
+        Seller {
+          Id
+          UserName
+          Email
+          FirstName
+          LastName
+          Active
+          Preferred
+          PreferredPlus
+          NotificationPreference
+          PositionPreference
+          EmergencyName
+          EmergencyPhone
+          JerseyNumber
+          LockerRoom13
+          PhotoUrl
+          DateCreated
+          Roles
+          Rating
+          PaymentMethods {
+            UserPaymentMethodId
+            MethodType
+            Identifier
+            PreferenceOrder
+            IsActive
+          }
+        }
       }
     }
   }

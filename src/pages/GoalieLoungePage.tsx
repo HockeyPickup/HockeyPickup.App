@@ -1,5 +1,5 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { Session, User } from '@/HockeyPickup.Api';
+import { PositionPreference, Session, User } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { GET_SESSIONS, GET_USERS } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
@@ -173,7 +173,7 @@ export const GoalieLoungePage = (): JSX.Element => {
 
   const goalies =
     data?.UsersEx.filter(
-      (user: User) => user.Active && user.PositionPreference.toString() === 'GOALIE',
+      (user: User) => user.Active && user.PositionPreference == PositionPreference.Goalie,
     ) || [];
   return (
     <Container size='xl' mb='lg'>

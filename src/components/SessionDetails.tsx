@@ -12,7 +12,7 @@ interface SessionDetailsProps {
 }
 
 export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element => {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const { showRatings } = useRatingsVisibility();
 
@@ -39,21 +39,6 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
           <Text style={{ whiteSpace: 'pre-wrap' }}>{session.Note ?? ''}</Text>
         </Group>
       </Paper>
-      <Group mt='md'>
-        <Text fw={700}>
-          Buy Window
-          {user?.PreferredPlus ? ' (Preferred Plus): ' : user?.Preferred ? ' (Preferred): ' : ': '}
-          {moment
-            .utc(
-              user?.PreferredPlus
-                ? session.BuyWindowPreferredPlus
-                : user?.Preferred
-                  ? session.BuyWindowPreferred
-                  : session.BuyWindow,
-            )
-            .format('dddd, MM/DD/yyyy, HH:mm')}
-        </Text>
-      </Group>
     </Paper>
   );
 };
