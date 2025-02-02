@@ -51,10 +51,10 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   return (
     <Stack gap='md' mb='xl'>
       <SessionDetails session={session} />
-      <SessionActions session={session} onSessionUpdate={setSession} />
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <SessionRoster session={session} onSessionUpdate={setSession} />
       )}
+      <SessionActions session={session} onSessionUpdate={setSession} />
       {session.BuyingQueues && session.BuyingQueues.length > 0 && (
         <SessionBuyingQueue session={session} onSessionUpdate={setSession} />
       )}

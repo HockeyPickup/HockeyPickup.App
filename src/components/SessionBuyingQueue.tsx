@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { ActionIcon, Checkbox, Paper, Table, Text, Title } from '@mantine/core';
+import { Button, Checkbox, Group, Paper, Table, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
 import { JSX } from 'react';
@@ -168,13 +168,12 @@ export const SessionBuyingQueue = ({
           <Table.Tr>
             <Table.Th>Seller</Table.Th>
             <Table.Th>Buyer</Table.Th>
+            <Table.Th>Notes</Table.Th>
             <Table.Th>Team</Table.Th>
             <Table.Th>Queue Position</Table.Th>
             <Table.Th>Payment Status</Table.Th>
             <Table.Th>Payment</Table.Th>
-            <Table.Th>Notes</Table.Th>
-            <Table.Th>Cancel Sell</Table.Th>
-            <Table.Th>Cancel Buy</Table.Th>
+            <Table.Th>Cancel</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -182,6 +181,10 @@ export const SessionBuyingQueue = ({
             <Table.Tr key={queue.BuySellId}>
               <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
               <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
+              <Table.Td>
+                {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
+                {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}
+              </Table.Td>
               <Table.Td>{queue.TeamAssignment}</Table.Td>
               <Table.Td>{queue.QueueStatus}</Table.Td>
               <Table.Td>
@@ -230,30 +233,37 @@ export const SessionBuyingQueue = ({
                 )}
               </Table.Td>
               <Table.Td>
-                {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
-                {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}
-              </Table.Td>
-              <Table.Td>
-                {queue.SellerName && (
-                  <ActionIcon
-                    variant='subtle'
-                    color='red'
-                    onClick={() => handleCancelSell(queue.BuySellId)}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                )}
-              </Table.Td>
-              <Table.Td>
-                {queue.BuyerName && (
-                  <ActionIcon
-                    variant='subtle'
-                    color='red'
-                    onClick={() => handleCancelBuy(queue.BuySellId)}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                )}
+                <Group>
+                  {user?.Id === queue.BuyerUserId && !(queue.BuyerUserId && queue.SellerUserId) && (
+                    <Group>
+                      <Button
+                        variant='subtle'
+                        color='red'
+                        size='xs'
+                        onClick={() => handleCancelBuy(queue.BuySellId)}
+                        pl={0}
+                        leftSection={<IconTrash size={14} />}
+                      >
+                        Remove Buy
+                      </Button>
+                    </Group>
+                  )}
+                  {user?.Id === queue.SellerUserId &&
+                    !(queue.BuyerUserId && queue.SellerUserId) && (
+                      <Group>
+                        <Button
+                          variant='subtle'
+                          color='red'
+                          size='xs'
+                          onClick={() => handleCancelSell(queue.BuySellId)}
+                          pl={0}
+                          leftSection={<IconTrash size={14} />}
+                        >
+                          Remove Sell
+                        </Button>
+                      </Group>
+                    )}
+                </Group>
               </Table.Td>
             </Table.Tr>
           ))}

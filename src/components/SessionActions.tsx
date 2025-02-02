@@ -1,9 +1,11 @@
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { Button, Group, Paper } from '@mantine/core';
+import { Button, Group, Paper, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import moment from 'moment';
 import { JSX } from 'react';
 
 interface SessionActionsProps {
@@ -16,6 +18,19 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     variables: { SessionId: session.SessionId },
     skip: true, // Skip initial fetch
   });
+  const { user } = useAuth();
+
+  const getBuyWindowDate = (): string | undefined => {
+    if (user?.PreferredPlus) {
+      return session.BuyWindowPreferredPlus;
+    } else if (user?.Preferred) {
+      return session.BuyWindowPreferred;
+    }
+    return session.BuyWindow;
+  };
+
+  const buyWindowOpen = moment().tz('America/Los_Angeles') >= moment.utc(getBuyWindowDate());
+  const buyWindowDate = moment.utc(getBuyWindowDate()).format('dddd, MM/DD/yyyy, HH:mm');
 
   const handleBuy = async (): Promise<void> => {
     try {
@@ -87,7 +102,15 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
 
   return (
     <Paper shadow='sm' p='md'>
-      <Group justify='center'>
+      <Group mt='md'>
+        <Text fw={700}>
+          Buy Window
+          {user?.PreferredPlus ? ' (Preferred Plus)' : user?.Preferred ? ' (Preferred)' : ''}
+          {buyWindowOpen ? ' opened on ' : ' will open on '}
+          {buyWindowDate}
+        </Text>
+      </Group>
+      <Group justify='left'>
         <Button onClick={handleBuy} color='blue'>
           Buy Spot
         </Button>
