@@ -409,6 +409,8 @@ export interface BuyingQueue {
   PaymentReceived?: boolean;
   BuyerNote?: string | null;
   SellerNote?: string | null;
+  Buyer?: AspNetUser | null;
+  Seller?: AspNetUser | null;
 }
 
 export interface UserPaymentMethod {
@@ -1296,6 +1298,10 @@ export interface BuyingQueueItem {
    * @maxLength 4000
    */
   SellerNote?: string | null;
+  /** Buyer details */
+  Buyer?: UserDetailedResponse | null;
+  /** Seller details */
+  Seller?: UserDetailedResponse | null;
 }
 
 export interface SessionBasicResponse {

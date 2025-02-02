@@ -1,5 +1,5 @@
 import styles from '@/App.module.css';
-import { SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { PaymentMethodType, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
@@ -7,7 +7,9 @@ import { useQuery } from '@apollo/client';
 import { Button, Checkbox, Group, Paper, Table, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
-import { JSX } from 'react';
+import moment from 'moment';
+import { JSX, useState } from 'react';
+import { PaymentButtons } from './PaymentButtons';
 
 interface SessionBuyingQueueProps {
   session: SessionDetailedResponse;
@@ -23,6 +25,9 @@ export const SessionBuyingQueue = ({
     skip: true, // Skip initial fetch
   });
   const { user } = useAuth();
+  const [lastUsedPaymentMethod, setLastUsedPaymentMethod] = useState<{
+    [key: number]: PaymentMethodType;
+  }>({});
 
   const handlePaymentSentToggle = async (
     buySellId: number,
@@ -31,7 +36,10 @@ export const SessionBuyingQueue = ({
     try {
       const response = currentStatus
         ? await buySellService.unConfirmPaymentSent(buySellId)
-        : await buySellService.confirmPaymentSent(buySellId);
+        : await buySellService.confirmPaymentSent(
+            buySellId,
+            lastUsedPaymentMethod[buySellId] || PaymentMethodType.Unknown,
+          );
       const { data } = await refetch();
       if (data?.Session) {
         onSessionUpdate(data.Session);
@@ -178,7 +186,7 @@ export const SessionBuyingQueue = ({
         </Table.Thead>
         <Table.Tbody>
           {session.BuyingQueues?.map((queue) => (
-            <Table.Tr key={queue.BuySellId}>
+            <Table.Tr key={`queue-row-${queue.BuySellId}`}>
               <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
               <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
               <Table.Td>
@@ -198,24 +206,50 @@ export const SessionBuyingQueue = ({
                 {queue.BuyerUserId && queue.SellerUserId && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {user?.Id === queue.BuyerUserId && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Checkbox
-                          size='xs'
-                          label={
-                            <Text size='xs'>
-                              {queue.PaymentSent ? 'Unmark as Paid' : 'Mark as Paid'}
-                            </Text>
-                          }
-                          checked={queue.PaymentSent}
-                          onChange={() =>
-                            handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)
-                          }
-                        />
-                      </div>
+                      <Group>
+                        <div
+                          key={`buyer-controls-${queue.BuySellId}`}
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                        >
+                          {queue.Seller && !queue.PaymentSent && (
+                            <Group>
+                              <PaymentButtons
+                                key={`payment-buttons-${queue.BuySellId}`}
+                                user={queue.Seller}
+                                defaultAmount={session.Cost!}
+                                defaultDescription={`Payment for Session - ${moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}`}
+                                onPaymentMethodClick={(method) =>
+                                  setLastUsedPaymentMethod((prev) => ({
+                                    ...prev,
+                                    [queue.BuySellId]: method,
+                                  }))
+                                }
+                              />
+                            </Group>
+                          )}{' '}
+                          <Checkbox
+                            key={`buyer-checkbox-${queue.BuySellId}`}
+                            size='xs'
+                            label={
+                              <Text size='xs'>
+                                {queue.PaymentSent ? 'Unmark as Paid' : 'Mark as Paid'}
+                              </Text>
+                            }
+                            checked={queue.PaymentSent}
+                            onChange={() =>
+                              handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)
+                            }
+                          />
+                        </div>
+                      </Group>
                     )}
                     {user?.Id === queue.SellerUserId && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div
+                        key={`seller-controls-${queue.BuySellId}`}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
                         <Checkbox
+                          key={`seller-checkbox-${queue.BuySellId}`}
                           size='xs'
                           label={
                             <Text size='xs'>
@@ -235,7 +269,7 @@ export const SessionBuyingQueue = ({
               <Table.Td>
                 <Group>
                   {user?.Id === queue.BuyerUserId && !(queue.BuyerUserId && queue.SellerUserId) && (
-                    <Group>
+                    <Group key={`buyer-${queue.BuySellId}`}>
                       <Button
                         variant='subtle'
                         color='red'
@@ -250,7 +284,7 @@ export const SessionBuyingQueue = ({
                   )}
                   {user?.Id === queue.SellerUserId &&
                     !(queue.BuyerUserId && queue.SellerUserId) && (
-                      <Group>
+                      <Group key={`seller-${queue.BuySellId}`}>
                         <Button
                           variant='subtle'
                           color='red'

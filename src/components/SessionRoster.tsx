@@ -444,7 +444,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                       (p) => p.TeamAssignment === TeamAssignment.Light,
                     ).map((player, index) => (
                       <Draggable
-                        key={player.UserId}
+                        key={`light-${player.UserId}-${index}`}
                         draggableId={player.UserId ?? ''}
                         index={index}
                         isDragDisabled={!isDragEnabled}
@@ -527,7 +527,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                       (p) => p.TeamAssignment === TeamAssignment.Dark,
                     ).map((player, index) => (
                       <Draggable
-                        key={player.UserId}
+                        key={`dark-${player.UserId}-${index}`}
                         draggableId={player.UserId ?? ''}
                         index={index}
                         isDragDisabled={!isDragEnabled}

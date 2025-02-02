@@ -26,6 +26,7 @@ interface PaymentButtonsProps {
   user: UserDetailedResponse;
   defaultAmount?: number;
   defaultDescription?: string;
+  onPaymentMethodClick?: (method: PaymentMethodType) => void;
 }
 
 interface PaymentForm {
@@ -76,6 +77,7 @@ export const PaymentButtons = ({
   user,
   defaultAmount = 27,
   defaultDescription = 'Pickup Hockey Profile Payment',
+  onPaymentMethodClick,
 }: PaymentButtonsProps): JSX.Element => {
   const [opened, setOpened] = useState(false);
   const form = useForm<PaymentForm>({
@@ -91,6 +93,8 @@ export const PaymentButtons = ({
 
   const handlePayment = (method: UserPaymentMethodResponse): void => {
     const url = getPaymentUrl(method, form.values.amount, form.values.description);
+
+    onPaymentMethodClick?.(method.MethodType);
 
     if (
       method.MethodType === PaymentMethodType.Zelle ||

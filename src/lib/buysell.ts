@@ -2,6 +2,7 @@ import {
   ApiDataResponseOfBoolean,
   ApiDataResponseOfBuySellResponse,
   BuyRequest,
+  PaymentMethodType,
   SellRequest,
 } from '@/HockeyPickup.Api';
 import api from '../services/api';
@@ -33,9 +34,12 @@ export const buySellService = {
     return response.data;
   },
 
-  async confirmPaymentSent(buySellId: number): Promise<ApiDataResponseOfBuySellResponse> {
+  async confirmPaymentSent(
+    buySellId: number,
+    paymentMethodType: PaymentMethodType,
+  ): Promise<ApiDataResponseOfBuySellResponse> {
     const response = await api.put<ApiDataResponseOfBuySellResponse>(
-      `/BuySell/${buySellId}/confirm-payment-sent`,
+      `/BuySell/${buySellId}/confirm-payment-sent?paymentMethodType=${paymentMethodType}`,
     );
     console.info(response);
     return response.data;
