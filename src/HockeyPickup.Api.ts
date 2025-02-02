@@ -398,7 +398,9 @@ export interface BuyingQueue {
   BuySellId?: number;
   /** @format int32 */
   SessionId?: number;
+  BuyerUserId?: string | null;
   BuyerName?: string | null;
+  SellerUserId?: string | null;
   SellerName?: string | null;
   TeamAssignment?: TeamAssignment;
   TransactionStatus?: string;
