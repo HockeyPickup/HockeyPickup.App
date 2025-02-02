@@ -1,0 +1,34 @@
+{
+  "newsletters": [
+    {
+      "id": "10",
+      "title": "December 2024 - Pickup Hockey Bulletin",
+      "date": "12-11-2024",
+      "url": "https://hockeypickupstorage.blob.core.windows.net/newsletters/12-11-2024.html"
+    },
+    {
+      "id": "9",
+      "title": "March 2024 - Pickup Hockey Bulletin",
+      "date": "03-28-2024",
+      "url": "https://hockeypickupstorage.blob.core.windows.net/newsletters/03-28-2024.html"
+    },
+    {
+      "id": "8",
+      "title": "August 2023 - Pickup Hockey Bulletin - New feature on site!",
+      "date": "08-19-2023",
+      "url": "https://hockeypickupstorage.blob.core.windows.net/newsletters/08-19-2023.html"
+    },
+    {
+      "id": "7",
+      "title": "November 2022 - Pickup Hockey Bulletin",
+      "date": "11-23-2022",
+      "url": "https://hockeypickupstorage.blob.core.windows.net/newsletters/11-23-2022.html"
+    },
+    {
+      "id": "6",
+      "title": "August 2022 - Pickup Hockey Bulletin",
+      "date": "08-29-2022",
+      "url": "https://hockeypickupstorage.blob.core.windows.net/newsletters/08-29-2022.html"
+    }
+  ]
+}
