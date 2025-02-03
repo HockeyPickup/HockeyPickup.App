@@ -744,11 +744,14 @@ const PreferencesSection = (): JSX.Element => {
               { value: NotificationPreference.All.toString(), label: 'All' },
               { value: NotificationPreference.OnlyMyBuySell.toString(), label: 'Only My Buy/Sell' },
             ]}
-            value={form.values.NotificationPreference?.toString()}
+            value={
+              form.values.NotificationPreference?.toString() ??
+              NotificationPreference.None.toString()
+            }
             onChange={(value) =>
               form.setFieldValue(
                 'NotificationPreference',
-                value ? (value as NotificationPreference) : null,
+                value ? (value as NotificationPreference) : NotificationPreference.None,
               )
             }
           />
