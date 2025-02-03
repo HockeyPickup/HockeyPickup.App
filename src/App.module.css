@@ -333,3 +333,21 @@
   opacity: 1;
   background-color: transparent;
 }
+
+.mobileOnly {
+  display: none;
+}
+
+.desktopOnly {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .mobileOnly {
+    display: block;
+  }
+
+  .desktopOnly {
+    display: none;
+  }
+}

@@ -1,5 +1,5 @@
 import styles from '@/App.module.css';
-import { PaymentMethodType, SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { BuyingQueueItem, PaymentMethodType, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
@@ -166,143 +166,243 @@ export const SessionBuyingQueue = ({
     }
   };
 
+  const renderMobileRow = (queue: BuyingQueueItem): JSX.Element => (
+    <Paper p='xs' mb='sm' withBorder key={`queue-mobile-${queue.BuySellId}`}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <Group justify='space-between'>
+          <div>
+            <Text size='sm' fw={500}>
+              Seller: {queue.SellerName ?? '-'}
+            </Text>
+            <Text size='sm' fw={500}>
+              Buyer: {queue.BuyerName ?? '-'}
+            </Text>
+            {!(queue.BuyerUserId && queue.SellerUserId) && queue.TeamAssignment && (
+              <Text size='sm'>Team: {queue.TeamAssignment}</Text>
+            )}{' '}
+            {queue.QueueStatus && <Text size='sm'>Queue: {queue.QueueStatus}</Text>}
+          </div>
+        </Group>
+
+        {(queue.SellerNote ?? queue.BuyerNote) && (
+          <div>
+            {queue.SellerNote && <Text size='sm'>Seller Note: {queue.SellerNote}</Text>}
+            {queue.BuyerNote && <Text size='sm'>Buyer Note: {queue.BuyerNote}</Text>}
+          </div>
+        )}
+
+        <Group justify='space-between' align='center'>
+          {queue.BuyerUserId && queue.SellerUserId && (
+            <Text size='sm'>
+              Payment Status: {queue.PaymentSent ? 'Sent' : 'Pending'} /{' '}
+              {queue.PaymentReceived ? 'Received' : 'Pending'}
+            </Text>
+          )}
+        </Group>
+
+        {queue.BuyerUserId && queue.SellerUserId && (
+          <Group>
+            {user?.Id === queue.BuyerUserId && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {queue.Seller && !queue.PaymentSent && (
+                  <PaymentButtons
+                    key={`payment-buttons-${queue.BuySellId}`}
+                    user={queue.Seller}
+                    defaultAmount={session.Cost!}
+                    defaultDescription={`Payment for Session - ${moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}`}
+                    onPaymentMethodClick={(method) =>
+                      setLastUsedPaymentMethod((prev) => ({
+                        ...prev,
+                        [queue.BuySellId]: method,
+                      }))
+                    }
+                  />
+                )}
+                <Checkbox
+                  size='xs'
+                  label={queue.PaymentSent ? 'Unmark as Paid' : 'Mark as Paid'}
+                  checked={queue.PaymentSent}
+                  onChange={() => handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)}
+                />
+              </div>
+            )}
+            {user?.Id === queue.SellerUserId && (
+              <Checkbox
+                size='xs'
+                label={queue.PaymentReceived ? 'Unmark as Received' : 'Mark as Received'}
+                checked={queue.PaymentReceived}
+                onChange={() => handlePaymentReceivedToggle(queue.BuySellId, queue.PaymentReceived)}
+              />
+            )}
+          </Group>
+        )}
+
+        <Group>
+          {user?.Id === queue.BuyerUserId && !(queue.BuyerUserId && queue.SellerUserId) && (
+            <Button
+              variant='subtle'
+              color='red'
+              size='xs'
+              onClick={() => handleCancelBuy(queue.BuySellId)}
+              leftSection={<IconTrash size={14} />}
+              ml={-10}
+            >
+              Remove Buy
+            </Button>
+          )}
+          {user?.Id === queue.SellerUserId && !(queue.BuyerUserId && queue.SellerUserId) && (
+            <Button
+              variant='subtle'
+              color='red'
+              size='xs'
+              onClick={() => handleCancelSell(queue.BuySellId)}
+              leftSection={<IconTrash size={14} />}
+              ml={-10}
+            >
+              Remove Sell
+            </Button>
+          )}
+        </Group>
+      </div>
+    </Paper>
+  );
+
+  const renderDesktopRow = (queue: BuyingQueueItem): JSX.Element => (
+    <Table.Tr key={`queue-row-${queue.BuySellId}`}>
+      <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
+      <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
+      <Table.Td>
+        {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
+        {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}
+      </Table.Td>
+      <Table.Td> {!(queue.BuyerUserId && queue.SellerUserId) ? queue.TeamAssignment : ''}</Table.Td>
+      <Table.Td>{queue.QueueStatus}</Table.Td>
+      <Table.Td>
+        {queue.BuyerUserId && queue.SellerUserId && (
+          <Text size='xs'>
+            {queue.PaymentSent ? 'Sent' : 'Pending'} /{' '}
+            {queue.PaymentReceived ? 'Received' : 'Pending'}
+          </Text>
+        )}{' '}
+      </Table.Td>
+      <Table.Td>
+        {queue.BuyerUserId && queue.SellerUserId && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {user?.Id === queue.BuyerUserId && (
+              <Group>
+                <div
+                  key={`buyer-controls-${queue.BuySellId}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  {queue.Seller && !queue.PaymentSent && (
+                    <Group>
+                      <PaymentButtons
+                        key={`payment-buttons-${queue.BuySellId}`}
+                        user={queue.Seller}
+                        defaultAmount={session.Cost!}
+                        defaultDescription={`Payment for Session - ${moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}`}
+                        onPaymentMethodClick={(method) =>
+                          setLastUsedPaymentMethod((prev) => ({
+                            ...prev,
+                            [queue.BuySellId]: method,
+                          }))
+                        }
+                      />
+                    </Group>
+                  )}{' '}
+                  <Checkbox
+                    key={`buyer-checkbox-${queue.BuySellId}`}
+                    size='xs'
+                    label={
+                      <Text size='xs'>{queue.PaymentSent ? 'Unmark as Paid' : 'Mark as Paid'}</Text>
+                    }
+                    checked={queue.PaymentSent}
+                    onChange={() => handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)}
+                  />
+                </div>
+              </Group>
+            )}
+            {user?.Id === queue.SellerUserId && (
+              <div
+                key={`seller-controls-${queue.BuySellId}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <Checkbox
+                  key={`seller-checkbox-${queue.BuySellId}`}
+                  size='xs'
+                  label={
+                    <Text size='xs'>
+                      {queue.PaymentReceived ? 'Unmark as Received' : 'Mark as Received'}
+                    </Text>
+                  }
+                  checked={queue.PaymentReceived}
+                  onChange={() =>
+                    handlePaymentReceivedToggle(queue.BuySellId, queue.PaymentReceived)
+                  }
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </Table.Td>
+      <Table.Td>
+        <Group>
+          {user?.Id === queue.BuyerUserId && !(queue.BuyerUserId && queue.SellerUserId) && (
+            <Group key={`buyer-${queue.BuySellId}`}>
+              <Button
+                variant='subtle'
+                color='red'
+                size='xs'
+                onClick={() => handleCancelBuy(queue.BuySellId)}
+                pl={0}
+                leftSection={<IconTrash size={14} />}
+              >
+                Remove Buy
+              </Button>
+            </Group>
+          )}
+          {user?.Id === queue.SellerUserId && !(queue.BuyerUserId && queue.SellerUserId) && (
+            <Group key={`seller-${queue.BuySellId}`}>
+              <Button
+                variant='subtle'
+                color='red'
+                size='xs'
+                onClick={() => handleCancelSell(queue.BuySellId)}
+                pl={0}
+                leftSection={<IconTrash size={14} />}
+              >
+                Remove Sell
+              </Button>
+            </Group>
+          )}
+        </Group>
+      </Table.Td>
+    </Table.Tr>
+  );
+
   return (
     <Paper shadow='sm' p='md'>
       <Title order={3} mb='md'>
         Buying / Selling Queue
       </Title>
-      <Table striped highlightOnHover className={styles.table}>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Seller</Table.Th>
-            <Table.Th>Buyer</Table.Th>
-            <Table.Th>Notes</Table.Th>
-            <Table.Th>Team</Table.Th>
-            <Table.Th>Queue Position</Table.Th>
-            <Table.Th>Payment Status</Table.Th>
-            <Table.Th>Payment</Table.Th>
-            <Table.Th>Cancel</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {session.BuyingQueues?.map((queue) => (
-            <Table.Tr key={`queue-row-${queue.BuySellId}`}>
-              <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
-              <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
-              <Table.Td>
-                {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
-                {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}
-              </Table.Td>
-              <Table.Td>{queue.TeamAssignment}</Table.Td>
-              <Table.Td>{queue.QueueStatus}</Table.Td>
-              <Table.Td>
-                {queue.TransactionStatus === 'Looking to Buy'
-                  ? '-'
-                  : `${queue.PaymentSent ? 'Sent' : 'Pending'} / ${
-                      queue.PaymentReceived ? 'Received' : 'Pending'
-                    }`}
-              </Table.Td>
-              <Table.Td>
-                {queue.BuyerUserId && queue.SellerUserId && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {user?.Id === queue.BuyerUserId && (
-                      <Group>
-                        <div
-                          key={`buyer-controls-${queue.BuySellId}`}
-                          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                        >
-                          {queue.Seller && !queue.PaymentSent && (
-                            <Group>
-                              <PaymentButtons
-                                key={`payment-buttons-${queue.BuySellId}`}
-                                user={queue.Seller}
-                                defaultAmount={session.Cost!}
-                                defaultDescription={`Payment for Session - ${moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}`}
-                                onPaymentMethodClick={(method) =>
-                                  setLastUsedPaymentMethod((prev) => ({
-                                    ...prev,
-                                    [queue.BuySellId]: method,
-                                  }))
-                                }
-                              />
-                            </Group>
-                          )}{' '}
-                          <Checkbox
-                            key={`buyer-checkbox-${queue.BuySellId}`}
-                            size='xs'
-                            label={
-                              <Text size='xs'>
-                                {queue.PaymentSent ? 'Unmark as Paid' : 'Mark as Paid'}
-                              </Text>
-                            }
-                            checked={queue.PaymentSent}
-                            onChange={() =>
-                              handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)
-                            }
-                          />
-                        </div>
-                      </Group>
-                    )}
-                    {user?.Id === queue.SellerUserId && (
-                      <div
-                        key={`seller-controls-${queue.BuySellId}`}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                      >
-                        <Checkbox
-                          key={`seller-checkbox-${queue.BuySellId}`}
-                          size='xs'
-                          label={
-                            <Text size='xs'>
-                              {queue.PaymentReceived ? 'Unmark as Received' : 'Mark as Received'}
-                            </Text>
-                          }
-                          checked={queue.PaymentReceived}
-                          onChange={() =>
-                            handlePaymentReceivedToggle(queue.BuySellId, queue.PaymentReceived)
-                          }
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Table.Td>
-              <Table.Td>
-                <Group>
-                  {user?.Id === queue.BuyerUserId && !(queue.BuyerUserId && queue.SellerUserId) && (
-                    <Group key={`buyer-${queue.BuySellId}`}>
-                      <Button
-                        variant='subtle'
-                        color='red'
-                        size='xs'
-                        onClick={() => handleCancelBuy(queue.BuySellId)}
-                        pl={0}
-                        leftSection={<IconTrash size={14} />}
-                      >
-                        Remove Buy
-                      </Button>
-                    </Group>
-                  )}
-                  {user?.Id === queue.SellerUserId &&
-                    !(queue.BuyerUserId && queue.SellerUserId) && (
-                      <Group key={`seller-${queue.BuySellId}`}>
-                        <Button
-                          variant='subtle'
-                          color='red'
-                          size='xs'
-                          onClick={() => handleCancelSell(queue.BuySellId)}
-                          pl={0}
-                          leftSection={<IconTrash size={14} />}
-                        >
-                          Remove Sell
-                        </Button>
-                      </Group>
-                    )}
-                </Group>
-              </Table.Td>
+      <div className={styles.mobileOnly}>{session.BuyingQueues?.map(renderMobileRow)}</div>
+      <div className={styles.desktopOnly}>
+        <Table striped highlightOnHover className={styles.table}>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Seller</Table.Th>
+              <Table.Th>Buyer</Table.Th>
+              <Table.Th>Notes</Table.Th>
+              <Table.Th>Team</Table.Th>
+              <Table.Th>Queue Position</Table.Th>
+              <Table.Th>Payment Status</Table.Th>
+              <Table.Th>Payment</Table.Th>
+              <Table.Th>Cancel</Table.Th>
             </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+          </Table.Thead>
+          <Table.Tbody>{session.BuyingQueues?.map(renderDesktopRow)}</Table.Tbody>
+        </Table>
+      </div>
     </Paper>
   );
 };
