@@ -1,3 +1,4 @@
+import styles from '@/App.module.css';
 import { EmailList } from '@/components/EmailList';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
@@ -474,8 +475,8 @@ export const RegularsPage = (): JSX.Element => {
             <Avatar
               src={avatars[regular.UserId]}
               alt={`${regular.User?.FirstName} ${regular.User?.LastName}`}
-              size={36}
               radius='xl'
+              className={styles.rosterAvatar}
             />
           </Link>
           <Text size='xs' ml={4} mr={2} key={regular.UserId}>

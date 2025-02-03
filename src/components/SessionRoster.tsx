@@ -1,3 +1,4 @@
+import styles from '@/App.module.css';
 import {
   PositionPreference,
   RosterPlayer2,
@@ -149,8 +150,8 @@ const PlayerCell = ({
         <Avatar
           src={avatarUrl}
           alt={`${player.FirstName} ${player.LastName}`}
-          size={36}
           radius='xl'
+          className={styles.rosterAvatar}
         />
       </Link>
       <Text

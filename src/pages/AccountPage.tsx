@@ -381,8 +381,7 @@ const PaymentMethodsSection = (): JSX.Element => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th style={{ width: 10, padding: '8px' }} />
-                <Table.Th style={{ width: 10 }}>#</Table.Th>
-                <Table.Th style={{ width: 40 }}>Type</Table.Th>
+                <Table.Th style={{ width: 80 }}>Type</Table.Th>
                 <Table.Th style={{ width: 40 }}>ID</Table.Th>
                 <Table.Th style={{ width: 40 }}>On</Table.Th>
                 <Table.Th style={{ width: 40, textAlign: 'right' }}>Actions</Table.Th>
@@ -415,9 +414,6 @@ const PaymentMethodsSection = (): JSX.Element => {
                             >
                               <IconGripVertical size={16} />
                             </ActionIcon>
-                          </Table.Td>
-                          <Table.Td>
-                            <Text size='sm'>{method.PreferenceOrder}</Text>
                           </Table.Td>
                           <Table.Td>
                             <Group gap='xs' align='center'>
