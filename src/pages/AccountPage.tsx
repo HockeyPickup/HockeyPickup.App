@@ -524,6 +524,7 @@ const PaymentsSection = (): JSX.Element => (
     </Paper>
   </Stack>
 );
+
 const PasswordSection = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
@@ -740,14 +741,14 @@ const PreferencesSection = (): JSX.Element => {
           <Select
             label='Notification Preference'
             data={[
-              { value: NotificationPreference.None.toString(), label: 'None' },
-              { value: NotificationPreference.All.toString(), label: 'All' },
-              { value: NotificationPreference.OnlyMyBuySell.toString(), label: 'Only My Buy/Sell' },
+              { value: NotificationPreference.None, label: NotificationPreference.None },
+              { value: NotificationPreference.All, label: NotificationPreference.All },
+              {
+                value: NotificationPreference.OnlyMyBuySell,
+                label: 'Only My Buy/Sell',
+              },
             ]}
-            value={
-              form.values.NotificationPreference?.toString() ??
-              NotificationPreference.None.toString()
-            }
+            value={form.values.NotificationPreference?.toString()}
             onChange={(value) =>
               form.setFieldValue(
                 'NotificationPreference',
@@ -765,7 +766,10 @@ const PreferencesSection = (): JSX.Element => {
             ]}
             value={form.values.PositionPreference?.toString()}
             onChange={(value) =>
-              form.setFieldValue('PositionPreference', value ? (value as PositionPreference) : null)
+              form.setFieldValue(
+                'PositionPreference',
+                value ? (value as PositionPreference) : PositionPreference.TBD,
+              )
             }
           />
           {apiErrors.length > 0 && (

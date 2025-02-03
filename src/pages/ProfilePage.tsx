@@ -363,13 +363,16 @@ const EditUserForm = ({
             data={[
               { value: NotificationPreference.None, label: NotificationPreference.None },
               { value: NotificationPreference.All, label: NotificationPreference.All },
-              { value: NotificationPreference.OnlyMyBuySell, label: 'Only My Buy/Sell' },
+              {
+                value: NotificationPreference.OnlyMyBuySell,
+                label: 'Only My Buy/Sell',
+              },
             ]}
             value={form.values.NotificationPreference}
             onChange={(value) =>
               form.setFieldValue(
                 'NotificationPreference',
-                value ? (value as NotificationPreference) : null,
+                value ? (value as NotificationPreference) : NotificationPreference.None,
               )
             }
           />
@@ -383,7 +386,10 @@ const EditUserForm = ({
             ]}
             value={form.values.PositionPreference?.toString()}
             onChange={(value) =>
-              form.setFieldValue('PositionPreference', value ? (value as PositionPreference) : null)
+              form.setFieldValue(
+                'PositionPreference',
+                value ? (value as PositionPreference) : PositionPreference.TBD,
+              )
             }
           />
           <Checkbox label='Active' {...form.getInputProps('Active', { type: 'checkbox' })} />
