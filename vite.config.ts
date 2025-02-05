@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import * as path from 'path';
@@ -5,6 +6,17 @@ import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      '@mantine/core',
+      '@mantine/hooks',
+      '@hello-pangea/dnd',
+      '@mantine/notifications',
+      '@tabler/icons-react'
+    ]
+  },
   resolve: {
     alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
   },
@@ -21,20 +33,26 @@ export default defineConfig(({ mode }) => ({
     ),
   },
   server: {
+    hmr: {
+      overlay: false  // Disable the error overlay
+    },
+    fs: {
+      strict: false  // Allows importing from outside the root
+    },
     proxy: {
       '/api': {
         target: 'https://localhost:7042',
         changeOrigin: true,
         secure: false,
         ws: true,
-        configure: (proxy, _options): void => {
-          proxy.on('error', (err, _req, _res) => {
+        configure: (proxy: any, _options: any): void => {
+          proxy.on('error', (err: any, _req: any, _res: any) => {
             console.info('Proxy Error', err);
           });
-          proxy.on('proxyReq', (_proxyReq, req, _res) => {
+          proxy.on('proxyReq', (_proxyReq: any, req: any, _res: any) => {
             console.info('Proxy Send:', req.method, req.url);
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes: any, req: any, _res: any) => {
             console.info('Proxy Receive:', proxyRes.statusCode, req.url);
           });
         },

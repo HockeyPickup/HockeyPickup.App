@@ -2,6 +2,8 @@
 
 declare const self: ServiceWorkerGlobalScope;
 
+export {};
+
 // Handle external links
 self.addEventListener('fetch', (event: FetchEvent) => {
   // Only handle navigation requests
