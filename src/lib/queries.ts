@@ -13,6 +13,7 @@ export const GET_USERS = gql`
       PreferredPlus
       NotificationPreference
       PositionPreference
+      Shoots
       EmergencyName
       EmergencyPhone
       JerseyNumber
@@ -116,6 +117,7 @@ export const GET_SESSION = gql`
             PreferredPlus
             NotificationPreference
             PositionPreference
+            Shoots
             EmergencyName
             EmergencyPhone
             JerseyNumber
@@ -176,6 +178,7 @@ export const GET_SESSION = gql`
           PreferredPlus
           NotificationPreference
           PositionPreference
+          Shoots
           EmergencyName
           EmergencyPhone
           JerseyNumber
@@ -203,6 +206,7 @@ export const GET_SESSION = gql`
           PreferredPlus
           NotificationPreference
           PositionPreference
+          Shoots
           EmergencyName
           EmergencyPhone
           JerseyNumber
@@ -269,6 +273,7 @@ export const GET_REGULARSETS = gql`
           PreferredPlus
           NotificationPreference
           PositionPreference
+          Shoots
           EmergencyName
           EmergencyPhone
           JerseyNumber
@@ -389,6 +394,7 @@ export const SESSION_UPDATED = gql`
             PreferredPlus
             NotificationPreference
             PositionPreference
+            Shoots
             EmergencyName
             EmergencyPhone
             JerseyNumber
@@ -449,6 +455,7 @@ export const SESSION_UPDATED = gql`
           PreferredPlus
           NotificationPreference
           PositionPreference
+          Shoots
           EmergencyName
           EmergencyPhone
           JerseyNumber
@@ -476,6 +483,7 @@ export const SESSION_UPDATED = gql`
           PreferredPlus
           NotificationPreference
           PositionPreference
+          Shoots
           EmergencyName
           EmergencyPhone
           JerseyNumber

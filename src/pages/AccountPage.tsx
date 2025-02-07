@@ -52,6 +52,7 @@ import {
   PaymentMethodType,
   PositionPreference,
   SaveUserRequest,
+  ShootPreference,
   UserPaymentMethodRequest,
   UserPaymentMethodResponse,
 } from '../HockeyPickup.Api';
@@ -659,6 +660,7 @@ const PreferencesSection = (): JSX.Element => {
       JerseyNumber: user?.JerseyNumber ?? 0,
       NotificationPreference: user?.NotificationPreference ?? NotificationPreference.None,
       PositionPreference: user?.PositionPreference ?? PositionPreference.TBD,
+      Shoots: user?.Shoots ?? ShootPreference.TBD,
     },
     validate: {
       FirstName: (value) => (!value ? 'First name is required' : null),
@@ -783,6 +785,18 @@ const PreferencesSection = (): JSX.Element => {
                 'PositionPreference',
                 value ? (value as PositionPreference) : PositionPreference.TBD,
               )
+            }
+          />
+          <Select
+            label='Shoot Preference'
+            data={[
+              { value: ShootPreference.TBD, label: ShootPreference.TBD },
+              { value: ShootPreference.Left, label: ShootPreference.Left },
+              { value: ShootPreference.Right, label: ShootPreference.Right },
+            ]}
+            value={form.values.Shoots?.toString()}
+            onChange={(value) =>
+              form.setFieldValue('Shoots', value ? (value as ShootPreference) : ShootPreference.TBD)
             }
           />
           {apiErrors.length > 0 && (

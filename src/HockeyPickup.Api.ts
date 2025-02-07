@@ -96,6 +96,8 @@ export interface UserDetailedResponse {
    * @maxLength 256
    */
   PhotoUrl?: string | null;
+  /** User's shoot preference */
+  Shoots?: ShootPreference | null;
   /**
    * Date and time when lockout ends
    * @format date-time
@@ -128,6 +130,12 @@ export enum PositionPreference {
   Forward = 'Forward',
   Defense = 'Defense',
   Goalie = 'Goalie',
+}
+
+export enum ShootPreference {
+  TBD = 'TBD',
+  Left = 'Left',
+  Right = 'Right',
 }
 
 export interface UserPaymentMethodResponse {
@@ -250,6 +258,7 @@ export type AspNetUser = IdentityUserOfString & {
   PhotoUrl?: string | null;
   /** @format date-time */
   DateCreated?: string;
+  Shoots?: ShootPreference;
   Roles?: AspNetRole[];
   BuyerTransactions?: BuySell[] | null;
   SellerTransactions?: BuySell[] | null;
@@ -621,6 +630,8 @@ export interface SaveUserRequest {
   NotificationPreference?: NotificationPreference | null;
   /** User's position preference setting */
   PositionPreference?: PositionPreference | null;
+  /** User's shoot preference setting */
+  Shoots?: ShootPreference | null;
 }
 
 export type AdminUserUpdateRequest = SaveUserRequestEx & {
@@ -1619,6 +1630,8 @@ export interface User {
   NotificationPreference: NotificationPreference;
   /** User's position preferences */
   PositionPreference: PositionPreference;
+  /** User's shooting preference */
+  Shoots: ShootPreference;
   /** Indicates if user account is active */
   Active: boolean;
   /** Indicates if user has preferred status */

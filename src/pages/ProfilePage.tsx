@@ -10,6 +10,7 @@ import {
   NotificationPreference,
   PositionPreference,
   RevertImpersonationResponse,
+  ShootPreference,
   UserDetailedResponse,
   UserStatsResponse,
 } from '@/HockeyPickup.Api';
@@ -167,6 +168,12 @@ const HeaderSection = ({
               <Text size='lg'>
                 {PositionPreference[profileUser.PositionPreference ?? PositionPreference.TBD]}
               </Text>
+            </Group>
+            <Group gap={5}>
+              <Text size='sm' fw={500} w={150} ta='right'>
+                Shoots:
+              </Text>
+              <Text size='lg'>{ShootPreference[profileUser.Shoots ?? ShootPreference.TBD]}</Text>
             </Group>
             {profileUser.PositionPreference != PositionPreference.Goalie && (
               <Group gap={5}>
