@@ -22,6 +22,10 @@ Install all the front-end packages:
 
 `$ yarn install`
 
+Build the project:
+
+`$ yarn build`
+
 Serve up the instance of the app locally, using [Vite](https://vitejs.dev/).
 
 `$ yarn dev`
