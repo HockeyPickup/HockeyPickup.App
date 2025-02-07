@@ -56,12 +56,29 @@ export const SessionCard = ({ session, image }: SessionCardProps): JSX.Element =
             {session.Note}
           </Text>
 
-          <Group gap='xs'>
-            <IconMapPin size={24} style={{ color: '#909296' }} />
-            <Text size='lg' c='gray.4' style={{ flex: 1 }}>
-              Toyota Sports Center, El Segundo, CA, USA
-            </Text>
-          </Group>
+          <a
+            href='https://maps.app.goo.gl/z3t64RhrksDy16GN9'
+            target='_blank'
+            rel='noopener noreferrer'
+            style={{ textDecoration: 'none' }}
+            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'none')}
+            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+          >
+            <Group gap='xs'>
+              <IconMapPin size={24} style={{ color: '#909296' }} />
+              <Stack gap={1}>
+                <Text size='lg' c='gray.4'>
+                  Toyota Sports Performance Center
+                </Text>
+                <Text size='lg' c='gray.4'>
+                  555 North Nash Street
+                </Text>
+                <Text size='lg' c='gray.4'>
+                  El Segundo, CA, 90245 USA
+                </Text>
+              </Stack>
+            </Group>
+          </a>
           <Button
             component={Link}
             to={`/session/${session.SessionId}`}
