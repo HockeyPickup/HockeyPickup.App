@@ -512,25 +512,29 @@ const PaymentsSection = (): JSX.Element => (
   <Stack gap='xl'>
     <PaymentMethodsSection />
 
-    <Paper withBorder shadow='md' p='xl' radius='md'>
-      <Stack gap='md'>
-        <Title order={2}>Payments Due</Title>
-        {/* Add your payments due table/list here */}
-        <Text size='sm' c='dimmed'>
-          No payments due
-        </Text>
-      </Stack>
-    </Paper>
+    {false && (
+      <>
+        <Paper withBorder shadow='md' p='xl' radius='md'>
+          <Stack gap='md'>
+            <Title order={2}>Payments Due</Title>
+            {/* Add your payments due table/list here */}
+            <Text size='sm' c='dimmed'>
+              No payments due
+            </Text>
+          </Stack>
+        </Paper>
 
-    <Paper withBorder shadow='md' p='xl' radius='md'>
-      <Stack gap='md'>
-        <Title order={2}>Payment History</Title>
-        {/* Add your payment history table/list here */}
-        <Text size='sm' c='dimmed'>
-          No previous payments
-        </Text>
-      </Stack>
-    </Paper>
+        <Paper withBorder shadow='md' p='xl' radius='md'>
+          <Stack gap='md'>
+            <Title order={2}>Payment History</Title>
+            {/* Add your payment history table/list here */}
+            <Text size='sm' c='dimmed'>
+              No previous payments
+            </Text>
+          </Stack>
+        </Paper>
+      </>
+    )}
   </Stack>
 );
 
