@@ -172,10 +172,10 @@ export const SessionBuyingQueue = ({
         <Group justify='space-between'>
           <div>
             <Text size='sm' fw={500}>
-              Seller: {queue.SellerName ?? '-'}
+              Seller: {queue.SellerName ?? 'TBD'}
             </Text>
             <Text size='sm' fw={500}>
-              Buyer: {queue.BuyerName ?? '-'}
+              Buyer: {queue.BuyerName ?? 'TBD'}
             </Text>
             {!(queue.BuyerUserId && queue.SellerUserId) && queue.TeamAssignment && (
               <Text size='sm'>Team: {queue.TeamAssignment}</Text>
@@ -269,8 +269,8 @@ export const SessionBuyingQueue = ({
 
   const renderDesktopRow = (queue: BuyingQueueItem): JSX.Element => (
     <Table.Tr key={`queue-row-${queue.BuySellId}`}>
-      <Table.Td>{queue.SellerName ?? '-'}</Table.Td>
-      <Table.Td>{queue.BuyerName ?? '-'}</Table.Td>
+      <Table.Td>{queue.SellerName ?? 'TBD'}</Table.Td>
+      <Table.Td>{queue.BuyerName ?? 'TBD'}</Table.Td>
       <Table.Td>
         {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
         {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}

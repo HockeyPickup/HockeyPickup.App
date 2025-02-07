@@ -26,6 +26,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
   IconCheck,
@@ -310,43 +311,51 @@ const PaymentMethodsSection = (): JSX.Element => {
   const handleDelete = async (methodId: number): Promise<void> => {
     if (!user?.Id) return;
 
-    if (window.confirm('Are you sure you want to delete this payment method?')) {
-      try {
-        const response = await userPaymentService.deletePaymentMethod(user.Id, methodId);
+    modals.openConfirmModal({
+      title: 'Delete Payment Method',
+      centered: true,
+      children: <Text size='sm'>Are you sure you want to delete this payment method?</Text>,
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        try {
+          const response = await userPaymentService.deletePaymentMethod(user.Id, methodId);
 
-        if (response?.Success) {
-          await loadPaymentMethods();
-          notifications.show({
-            position: 'top-center',
-            autoClose: 5000,
-            style: { marginTop: '60px' },
-            title: 'Success',
-            message: 'Payment method deleted successfully',
-            color: 'green',
-          });
-        } else {
-          const errorMessage = response?.Errors?.[0]?.Message ?? 'Failed to delete payment method';
+          if (response?.Success) {
+            await loadPaymentMethods();
+            notifications.show({
+              position: 'top-center',
+              autoClose: 5000,
+              style: { marginTop: '60px' },
+              title: 'Success',
+              message: 'Payment method deleted successfully',
+              color: 'green',
+            });
+          } else {
+            const errorMessage =
+              response?.Errors?.[0]?.Message ?? 'Failed to delete payment method';
+            notifications.show({
+              position: 'top-center',
+              autoClose: 5000,
+              style: { marginTop: '60px' },
+              title: 'Error',
+              message: errorMessage,
+              color: 'red',
+            });
+          }
+        } catch (error) {
+          console.error('Error deleting payment method:', error);
           notifications.show({
             position: 'top-center',
             autoClose: 5000,
             style: { marginTop: '60px' },
             title: 'Error',
-            message: errorMessage,
+            message: 'An unexpected error occurred while deleting the payment method',
             color: 'red',
           });
         }
-      } catch (error) {
-        console.error('Error deleting payment method:', error);
-        notifications.show({
-          position: 'top-center',
-          autoClose: 5000,
-          style: { marginTop: '60px' },
-          title: 'Error',
-          message: 'An unexpected error occurred while deleting the payment method',
-          color: 'red',
-        });
-      }
-    }
+      },
+    });
   };
 
   const getMethodTypeLabel = (type: PaymentMethodType): string => {
