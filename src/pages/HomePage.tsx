@@ -102,14 +102,14 @@ export const HomePage = (): JSX.Element => {
               <SessionSection
                 title='Next Session'
                 session={nextSessions[0]}
-                image='/static/two_hockey_players.jpg'
+                image='/static/game1.jpg'
               />
             )}
             {nextSessions[1] && (
               <SessionSection
                 title='Upcoming Pickup'
                 session={nextSessions[1]}
-                image='/static/hockey_celly.jpg'
+                image='/static/game2.jpg'
               />
             )}
           </>
