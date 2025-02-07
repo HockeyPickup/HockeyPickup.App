@@ -124,7 +124,7 @@ const HeaderSection = ({
                 color='red'
                 style={{ cursor: 'pointer' }}
                 component='a'
-                href={`https://www.youtube.com/@pickupicehockey/search?query=${
+                href={`https://youtube.com/channel/UC2xSSzpA4oEAUaTNgXCL6cw/search?query=${
                   YOUTUBE_NAME_OVERRIDES[`${profileUser.FirstName} ${profileUser.LastName}`] ??
                   profileUser.LastName
                 }`}
