@@ -15,7 +15,7 @@
     "update-packages": "ncu -u"
   },
   "dependencies": {
-    "@apollo/client": "^3.12.9",
+    "@apollo/client": "^3.12.10",
     "@emotion/react": "^11.14.0",
     "@hello-pangea/dnd": "^17.0.0",
     "@mantine/carousel": "^7.16.2",
