@@ -54,11 +54,14 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Menu.Item component={Link} to='/sessions'>
             🏒 Sessions
           </Menu.Item>
-          <Menu.Item component={Link} to='/players'>
-            📋 Players
+          <Menu.Item component={Link} to='/account'>
+            🔒 Account
           </Menu.Item>
           <Menu.Item component={Link} to='/regulars'>
             👥 Regulars
+          </Menu.Item>
+          <Menu.Item component={Link} to='/players'>
+            📋 Players
           </Menu.Item>
           <Menu.Item component={Link} to='/game-pucks'>
             🏆 Game Pucks
