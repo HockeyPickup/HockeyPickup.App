@@ -45,7 +45,7 @@ const SessionSection = ({
 }): JSX.Element => (
   <Box style={{ width: '100%', maxWidth: '1200px' }} px='md'>
     <Group justify='flex-end' w='100%'>
-      <Text size='2.1rem' style={{ marginRight: 'auto' }}>
+      <Text size='2.1rem' fw='bold' style={{ marginRight: 'auto' }}>
         {title}
       </Text>
       <Button
@@ -89,8 +89,8 @@ export const HomePage = (): JSX.Element => {
           Welcome to Hockey Pickup
         </Text>
         <Text size='lg' c='gray.2' ta='center' maw={700} px='md' mb='lg'>
-          To provide a safe skate for pickup hockey where players can improve their skills and have
-          fun together.
+          <b>Our Mission</b>: To provide a safe skate for pickup hockey where players can improve
+          their skills and have fun together.
         </Text>
         {!user ? (
           <Button component={Link} to='/login' size='lg'>

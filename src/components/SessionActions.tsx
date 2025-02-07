@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
-import { Button, Group, Paper, Text } from '@mantine/core';
+import { Button, Group, Modal, Paper, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
@@ -23,6 +23,9 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   const [canSellSpot, setCanSellSpot] = useState(false);
   const [, setIsLoading] = useState(true);
   const [isAdminBuying, setIsAdminBuying] = useState(false);
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [sellModalOpen, setSellModalOpen] = useState(false);
+  const [note, setNote] = useState('');
 
   useEffect(() => {
     const checkPermissions = async (): Promise<void> => {
@@ -64,6 +67,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     try {
       const response = await buySellService.buySpot({
         SessionId: session.SessionId,
+        Note: note,
       });
       const { data } = await refetch();
       if (data?.Session) {
@@ -78,6 +82,8 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         message: response.Message,
         color: 'green',
       });
+      setBuyModalOpen(false);
+      setNote('');
     } catch (error) {
       console.error('Failed to buy transaction:', error);
       const errorMessage =
@@ -98,6 +104,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     try {
       const response = await buySellService.sellSpot({
         SessionId: session.SessionId,
+        Note: note,
       });
       const { data } = await refetch();
       if (data?.Session) {
@@ -112,6 +119,8 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         message: response.Message,
         color: 'green',
       });
+      setSellModalOpen(false);
+      setNote('');
     } catch (error) {
       console.error('Failed to sell transaction:', error);
       const errorMessage =
@@ -129,27 +138,87 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   };
 
   return (
-    <Paper shadow='sm' p='md'>
-      <Group mt='md'>
-        <Text fw={700}>
-          Buy Window
-          {user?.PreferredPlus ? ' (Preferred Plus)' : user?.Preferred ? ' (Preferred)' : ''}
-          {buyWindowOpen ? ' opened on ' : ' will open on '}
-          {buyWindowDate}
-        </Text>
-      </Group>
-      <Group justify='left'>
-        {canBuySpot && (
-          <Button onClick={handleBuy} color='blue'>
-            {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
+    <>
+      <Paper shadow='sm' p='md'>
+        <Group mt='md'>
+          <Text fw={700}>
+            Buy Window
+            {user?.PreferredPlus ? ' (Preferred Plus)' : user?.Preferred ? ' (Preferred)' : ''}
+            {buyWindowOpen ? ' opened on ' : ' will open on '}
+            {buyWindowDate}
+          </Text>
+        </Group>
+        <Group justify='left'>
+          {canBuySpot && (
+            <Button onClick={() => setBuyModalOpen(true)} color='blue'>
+              {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
+            </Button>
+          )}
+          {canSellSpot && (
+            <Button onClick={() => setSellModalOpen(true)} color='red'>
+              Sell Spot
+            </Button>
+          )}
+        </Group>
+      </Paper>
+      <Modal
+        opened={buyModalOpen}
+        onClose={() => {
+          setBuyModalOpen(false);
+          setNote('');
+        }}
+        title='Buy a Spot'
+      >
+        <Textarea
+          label='Note (optional)'
+          value={note}
+          onChange={(event) => setNote(event.currentTarget.value)}
+          mb='md'
+        />
+        <Group justify='flex-end'>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setBuyModalOpen(false);
+              setNote('');
+            }}
+          >
+            Cancel
           </Button>
-        )}
-        {canSellSpot && (
-          <Button onClick={handleSell} color='red'>
+          <Button color='blue' onClick={handleBuy}>
+            Buy Spot
+          </Button>
+        </Group>
+      </Modal>
+      <Modal
+        opened={sellModalOpen}
+        onClose={() => {
+          setSellModalOpen(false);
+          setNote('');
+        }}
+        title='Sell your Spot'
+      >
+        <Textarea
+          label='Note (optional)'
+          value={note}
+          onChange={(event) => setNote(event.currentTarget.value)}
+          mb='md'
+        />
+        <Group justify='flex-end'>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setSellModalOpen(false);
+              setNote('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button color='red' onClick={handleSell}>
             Sell Spot
           </Button>
-        )}
-      </Group>
-    </Paper>
+        </Group>
+      </Modal>{' '}
+    </>
   );
 };
