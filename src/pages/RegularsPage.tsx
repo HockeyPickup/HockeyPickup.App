@@ -479,7 +479,16 @@ export const RegularsPage = (): JSX.Element => {
               className={styles.rosterAvatar}
             />
           </Link>
-          <Text size='xs' ml={4} mr={2} key={regular.UserId}>
+          <Text
+            size='xs'
+            ml={4}
+            mr={2}
+            key={regular.UserId}
+            style={{
+              whiteSpace: 'nowrap',
+            }}
+            className={styles.rosterText}
+          >
             {regular.User?.FirstName} {regular.User?.LastName},&nbsp;
             {regular.PositionPreference as unknown as string}
             {canViewRatings() &&

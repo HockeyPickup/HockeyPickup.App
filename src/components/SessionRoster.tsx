@@ -163,6 +163,7 @@ const PlayerCell = ({
           textDecoration: !player.IsPlaying ? 'line-through' : 'none',
           whiteSpace: 'nowrap',
         }}
+        className={styles.rosterText}
       >
         {player.FirstName} {player.LastName}, {player.CurrentPosition}
         {canViewRatings() &&

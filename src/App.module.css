@@ -404,3 +404,49 @@
     height: 20px !important;
   }
 }
+
+.rosterText {
+  font-size: 16px !important;
+}
+
+@media (max-width: 1400px) {
+  /* xl */
+  .rosterText {
+    font-size: 15px !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  /* lg */
+  .rosterText {
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  /* md */
+  .rosterText {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* sm */
+  .rosterText {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* xs */
+  .rosterText {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  /* tiny phones */
+  .rosterText {
+    font-size: 10px !important;
+  }
+}
