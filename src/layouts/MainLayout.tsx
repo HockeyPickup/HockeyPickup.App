@@ -63,6 +63,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Menu.Item component={Link} to='/players'>
             📋 Players
           </Menu.Item>
+          <Menu.Divider />
           <Menu.Item component={Link} to='/game-pucks'>
             🏆 Game Pucks
           </Menu.Item>
@@ -75,6 +76,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Menu.Item component={Link} to='/calendar'>
             📅 Calendar
           </Menu.Item>
+          <Menu.Divider />
           <Menu.Item onClick={handleLogout}>↪️ Logout</Menu.Item>
         </>
       ) : (
