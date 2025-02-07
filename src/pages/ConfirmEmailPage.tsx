@@ -84,28 +84,30 @@ export const ConfirmEmailPage = (): JSX.Element => {
   }, [navigate, searchParams]);
 
   return (
-    <Container size={420} my={40}>
-      <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
-        {isLoading ? (
-          <Text ta='center'>Confirming your email...</Text>
-        ) : (
-          <Stack>
-            {apiErrors.length > 0 && (
-              <Stack gap='xs'>
-                {apiErrors.map((error, index) => (
-                  <Text key={index} c='red' size='sm'>
-                    {error.Message}
-                  </Text>
-                ))}
-              </Stack>
-            )}
+    <Container style={{ width: '800px' }} my={40}>
+      <div style={{ maxWidth: 380, margin: '0 auto' }}>
+        <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
+          {isLoading ? (
+            <Text ta='center'>Confirming your email...</Text>
+          ) : (
+            <Stack>
+              {apiErrors.length > 0 && (
+                <Stack gap='xs'>
+                  {apiErrors.map((error, index) => (
+                    <Text key={index} c='red' size='sm'>
+                      {error.Message}
+                    </Text>
+                  ))}
+                </Stack>
+              )}
 
-            <Button fullWidth onClick={() => navigate('/login')}>
-              Return to Login
-            </Button>
-          </Stack>
-        )}
-      </Paper>
+              <Button fullWidth onClick={() => navigate('/login')}>
+                Return to Login
+              </Button>
+            </Stack>
+          )}
+        </Paper>
+      </div>
     </Container>
   );
 };

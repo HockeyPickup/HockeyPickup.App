@@ -51,30 +51,32 @@ export const ForgotPasswordPage = (): JSX.Element => {
   }
 
   return (
-    <Container size={420} my={40}>
-      <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack>
-            <TextInput
-              label='Email'
-              placeholder='your@email.com'
-              required
-              {...form.getInputProps('email')}
-            />
+    <Container style={{ width: '800px' }} my={40}>
+      <div style={{ maxWidth: 380, margin: '0 auto' }}>
+        <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack>
+              <TextInput
+                label='Email'
+                placeholder='your@email.com'
+                required
+                {...form.getInputProps('email')}
+              />
 
-            <Button type='submit' fullWidth mt='xl' loading={isLoading}>
-              Reset Password
-            </Button>
-          </Stack>
-        </form>
+              <Button type='submit' fullWidth mt='xs' loading={isLoading}>
+                Reset Password
+              </Button>
+            </Stack>
+          </form>
 
-        <Text c='dimmed' size='sm' ta='center' mt={20}>
-          Remember your password?&nbsp;
-          <Anchor size='sm' component='button' onClick={() => navigate('/')}>
-            Back to home
-          </Anchor>
-        </Text>
-      </Paper>
+          <Text c='dimmed' size='sm' ta='center' mt={20}>
+            Remember your password?&nbsp;
+            <Anchor size='sm' component='button' onClick={() => navigate('/')}>
+              Back to home
+            </Anchor>
+          </Text>
+        </Paper>
+      </div>
     </Container>
   );
 };

@@ -85,72 +85,74 @@ export const RegisterPage = (): JSX.Element => {
   };
 
   return (
-    <Container size={420} my={40}>
-      <Title ta='center'>Create an Account</Title>
+    <Container style={{ width: '800px' }} my={40}>
+      <div style={{ maxWidth: 380, margin: '0 auto' }}>
+        <Title ta='center'>Create an Account</Title>
 
-      <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack>
-            <TextInput
-              label='First Name'
-              placeholder='John'
-              required
-              {...form.getInputProps('FirstName')}
-            />
-            <TextInput
-              label='Last Name'
-              placeholder='Doe'
-              required
-              {...form.getInputProps('LastName')}
-            />
-            <TextInput
-              label='Email'
-              placeholder='your@email.com'
-              required
-              {...form.getInputProps('Email')}
-            />
-            <PasswordInput
-              label='Password'
-              placeholder='Your password'
-              required
-              {...form.getInputProps('Password')}
-            />
-            <PasswordInput
-              label='Confirm Password'
-              placeholder='Confirm your password'
-              required
-              {...form.getInputProps('ConfirmPassword')}
-            />
-            <TextInput
-              label='Invite Code'
-              placeholder='Invite Code from Comissioner'
-              required
-              {...form.getInputProps('InviteCode')}
-            />
+        <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack>
+              <TextInput
+                label='First Name'
+                placeholder='John'
+                required
+                {...form.getInputProps('FirstName')}
+              />
+              <TextInput
+                label='Last Name'
+                placeholder='Doe'
+                required
+                {...form.getInputProps('LastName')}
+              />
+              <TextInput
+                label='Email'
+                placeholder='your@email.com'
+                required
+                {...form.getInputProps('Email')}
+              />
+              <PasswordInput
+                label='Password'
+                placeholder='Your password'
+                required
+                {...form.getInputProps('Password')}
+              />
+              <PasswordInput
+                label='Confirm Password'
+                placeholder='Confirm your password'
+                required
+                {...form.getInputProps('ConfirmPassword')}
+              />
+              <TextInput
+                label='Invite Code'
+                placeholder='Invite Code from Comissioner'
+                required
+                {...form.getInputProps('InviteCode')}
+              />
 
-            {apiErrors.length > 0 && (
-              <Stack gap='xs'>
-                {apiErrors.map((error, index) => (
-                  <Text key={index} c='red' size='sm'>
-                    {error.Message}
-                  </Text>
-                ))}
-              </Stack>
-            )}
+              {apiErrors.length > 0 && (
+                <Stack gap='xs'>
+                  {apiErrors.map((error, index) => (
+                    <Text key={index} c='red' size='sm'>
+                      {error.Message}
+                    </Text>
+                  ))}
+                </Stack>
+              )}
 
-            <Button type='submit' fullWidth mt='xl' loading={isLoading}>
-              Register
-            </Button>
-          </Stack>
-        </form>
+              <Button type='submit' fullWidth mt='xs' loading={isLoading}>
+                Register
+              </Button>
+            </Stack>
+          </form>
 
-        <Text c='dimmed' size='sm' ta='center' mt={20}>
-          Already have an account?&nbsp;
-          <Anchor size='sm' component='button' onClick={() => navigate('/login')}>
-            Sign in
-          </Anchor>
-        </Text>
-      </Paper>
+          <Text c='dimmed' size='sm' ta='center' mt={20}>
+            Already have an account?&nbsp;
+            <Anchor size='sm' component='button' onClick={() => navigate('/login')}>
+              Sign in
+            </Anchor>
+          </Text>
+        </Paper>
+      </div>
     </Container>
   );
 };

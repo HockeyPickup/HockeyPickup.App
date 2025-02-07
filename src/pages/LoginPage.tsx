@@ -57,53 +57,48 @@ export const LoginPage = (): JSX.Element => {
   };
 
   return (
-    <Container size={420} my={40}>
-      <Title ta='center'>Welcome Back</Title>
+    <Container style={{ width: '800px' }} my={40}>
+      <div style={{ maxWidth: 380, margin: '0 auto' }}>
+        <Title ta='center'>Welcome Back</Title>
+        <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack>
+              <TextInput
+                label='Email'
+                placeholder='your@email.com'
+                required
+                autoComplete='username email'
+                {...form.getInputProps('UserName')}
+              />
 
-      <Paper withBorder shadow='md' p={30} mt={30} radius='md'>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack>
-            <TextInput
-              label='Email'
-              placeholder='your@email.com'
-              required
-              autoComplete='username email'
-              {...form.getInputProps('UserName')}
-            />
+              <PasswordInput
+                label='Password'
+                placeholder='Your password'
+                required
+                autoComplete='current-password'
+                {...form.getInputProps('Password')}
+              />
 
-            <PasswordInput
-              label='Password'
-              placeholder='Your password'
-              required
-              autoComplete='current-password'
-              {...form.getInputProps('Password')}
-            />
+              <Group justify='space-between' mt='xs'>
+                <Anchor size='sm' component='button' onClick={() => navigate('/forgot-password')}>
+                  Forgot password?
+                </Anchor>
+              </Group>
 
-            <Group justify='space-between' mt='xs'>
-              <Anchor
-                component='button'
-                type='button'
-                c='dimmed'
-                size='sm'
-                onClick={() => navigate('/forgot-password')}
-              >
-                Forgot password?
-              </Anchor>
-            </Group>
+              <Button type='submit' fullWidth mt='xs' loading={isLoading}>
+                Sign in
+              </Button>
+            </Stack>
+          </form>
 
-            <Button type='submit' fullWidth mt='xl' loading={isLoading}>
-              Sign in
-            </Button>
-          </Stack>
-        </form>
-
-        <Text c='dimmed' size='sm' ta='center' mt={20}>
-          Don&apos;t have an account?&nbsp;
-          <Anchor size='sm' component='button' onClick={() => navigate('/register')}>
-            Create account
-          </Anchor>
-        </Text>
-      </Paper>
+          <Text c='dimmed' size='sm' ta='center' mt={20}>
+            Don&apos;t have an account?&nbsp;
+            <Anchor size='sm' component='button' onClick={() => navigate('/register')}>
+              Create account
+            </Anchor>
+          </Text>
+        </Paper>
+      </div>
     </Container>
   );
 };
