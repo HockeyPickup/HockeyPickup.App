@@ -1,4 +1,5 @@
 import styles from '@/App.module.css';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SessionCard } from '@/components/SessionCard';
 import { Session } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
@@ -11,12 +12,12 @@ import moment from 'moment';
 import { JSX, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-export const useUpcomingSessions = (): Session[] => {
-  const { data } = useQuery(GET_SESSIONS, {
+export const useUpcomingSessions = (): { sessions: Session[]; loading: boolean } => {
+  const { data, loading } = useQuery(GET_SESSIONS, {
     fetchPolicy: 'network-only',
   });
 
-  if (!data?.Sessions) return [];
+  if (!data?.Sessions) return { sessions: [], loading };
 
   const futureSessions = data.Sessions.filter((session: Session) => {
     if (!session.SessionDate) return false;
@@ -31,7 +32,7 @@ export const useUpcomingSessions = (): Session[] => {
     return dateA.valueOf() - dateB.valueOf();
   });
 
-  return futureSessions.slice(0, 2);
+  return { sessions: futureSessions.slice(0, 2), loading };
 };
 
 const SessionSection = ({
@@ -71,7 +72,7 @@ const SessionSection = ({
 export const HomePage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
   const { user } = useAuth();
-  const nextSessions = useUpcomingSessions();
+  const { sessions: nextSessions, loading } = useUpcomingSessions();
 
   useEffect(() => {
     setPageInfo('Home', 'Hockey Pickup Home');
@@ -96,6 +97,8 @@ export const HomePage = (): JSX.Element => {
           <Button component={Link} to='/login' size='lg'>
             Login
           </Button>
+        ) : loading ? (
+          <LoadingSpinner />
         ) : (
           <>
             {nextSessions[0] && (
