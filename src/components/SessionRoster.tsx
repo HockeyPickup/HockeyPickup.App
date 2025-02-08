@@ -413,6 +413,22 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
     }
   };
 
+  const sortRosterPlayers = (a: RosterPlayer2, b: RosterPlayer2): number => {
+    // Sort by IsPlaying first (true comes before false)
+    if (a.IsPlaying !== b.IsPlaying) {
+      return a.IsPlaying ? -1 : 1;
+    }
+    // Then sort by Position (Defense before Forward)
+    if (a.Position !== b.Position) {
+      if (a.Position === PositionPreference.Defense) return -1;
+      if (b.Position === PositionPreference.Defense) return 1;
+      if (a.Position === PositionPreference.Forward) return -1;
+      if (b.Position === PositionPreference.Forward) return 1;
+    }
+    // Finally sort by FirstName
+    return (a.FirstName ?? '').localeCompare(b.FirstName ?? '');
+  };
+
   return (
     <Paper shadow='sm' p='md'>
       <Title order={3} mb='md'>
@@ -444,38 +460,40 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                   <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
                     {session.CurrentRosters?.filter(
                       (p) => p.TeamAssignment === TeamAssignment.Light,
-                    ).map((player, index) => (
-                      <Draggable
-                        key={`light-${player.UserId}-${index}`}
-                        draggableId={player.UserId ?? ''}
-                        index={index}
-                        isDragDisabled={!isDragEnabled}
-                      >
-                        {(provided, _snapshot) => (
-                          <>
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <Divider my={1} opacity={0.2} color='gray' />
-                              <PlayerCell
-                                player={player}
-                                session={session}
-                                onSessionUpdate={onSessionUpdate}
-                                editingPlayer={editingPlayer}
-                                onEditClick={(userId, currentPosition, currentTeam) =>
-                                  setEditingPlayer({ userId, currentPosition, currentTeam })
-                                }
-                                onPositionChange={handlePositionChange}
-                                onTeamChange={handleTeamChange}
-                                onClose={() => setEditingPlayer(null)}
-                              />
-                            </div>
-                          </>
-                        )}
-                      </Draggable>
-                    ))}
+                    )
+                      .sort(sortRosterPlayers)
+                      .map((player, index) => (
+                        <Draggable
+                          key={`light-${player.UserId}-${index}`}
+                          draggableId={player.UserId ?? ''}
+                          index={index}
+                          isDragDisabled={!isDragEnabled}
+                        >
+                          {(provided, _snapshot) => (
+                            <>
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <Divider my={1} opacity={0.2} color='gray' />
+                                <PlayerCell
+                                  player={player}
+                                  session={session}
+                                  onSessionUpdate={onSessionUpdate}
+                                  editingPlayer={editingPlayer}
+                                  onEditClick={(userId, currentPosition, currentTeam) =>
+                                    setEditingPlayer({ userId, currentPosition, currentTeam })
+                                  }
+                                  onPositionChange={handlePositionChange}
+                                  onTeamChange={handleTeamChange}
+                                  onClose={() => setEditingPlayer(null)}
+                                />
+                              </div>
+                            </>
+                          )}
+                        </Draggable>
+                      ))}
                     {provided.placeholder}
                   </Stack>
                 )}
@@ -525,40 +543,40 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
               <Droppable droppableId='2' isDropDisabled={!isDragEnabled}>
                 {(provided) => (
                   <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
-                    {session.CurrentRosters?.filter(
-                      (p) => p.TeamAssignment === TeamAssignment.Dark,
-                    ).map((player, index) => (
-                      <Draggable
-                        key={`dark-${player.UserId}-${index}`}
-                        draggableId={player.UserId ?? ''}
-                        index={index}
-                        isDragDisabled={!isDragEnabled}
-                      >
-                        {(provided, _snapshot) => (
-                          <>
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <Divider my={1} opacity={0.2} color='gray' />
-                              <PlayerCell
-                                player={player}
-                                session={session}
-                                onSessionUpdate={onSessionUpdate}
-                                editingPlayer={editingPlayer}
-                                onEditClick={(userId, currentPosition, currentTeam) =>
-                                  setEditingPlayer({ userId, currentPosition, currentTeam })
-                                }
-                                onPositionChange={handlePositionChange}
-                                onTeamChange={handleTeamChange}
-                                onClose={() => setEditingPlayer(null)}
-                              />
-                            </div>
-                          </>
-                        )}
-                      </Draggable>
-                    ))}
+                    {session.CurrentRosters?.filter((p) => p.TeamAssignment === TeamAssignment.Dark)
+                      .sort(sortRosterPlayers)
+                      .map((player, index) => (
+                        <Draggable
+                          key={`dark-${player.UserId}-${index}`}
+                          draggableId={player.UserId ?? ''}
+                          index={index}
+                          isDragDisabled={!isDragEnabled}
+                        >
+                          {(provided, _snapshot) => (
+                            <>
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <Divider my={1} opacity={0.2} color='gray' />
+                                <PlayerCell
+                                  player={player}
+                                  session={session}
+                                  onSessionUpdate={onSessionUpdate}
+                                  editingPlayer={editingPlayer}
+                                  onEditClick={(userId, currentPosition, currentTeam) =>
+                                    setEditingPlayer({ userId, currentPosition, currentTeam })
+                                  }
+                                  onPositionChange={handlePositionChange}
+                                  onTeamChange={handleTeamChange}
+                                  onClose={() => setEditingPlayer(null)}
+                                />
+                              </div>
+                            </>
+                          )}
+                        </Draggable>
+                      ))}
                     {provided.placeholder}
                   </Stack>
                 )}
