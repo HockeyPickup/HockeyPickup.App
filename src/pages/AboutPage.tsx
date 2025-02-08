@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
-import { Container, Stack, Text, Title } from '@mantine/core';
+import { Blockquote, Container, Stack, Text, Title } from '@mantine/core';
 import { JSX, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTitle } from '../layouts/TitleContext';
@@ -14,7 +14,7 @@ export const AboutPage = (): JSX.Element => {
   return (
     <Container size='md' py='sm' ml='sm' mr='sm' mb='sm'>
       <Stack gap='md'>
-        <Title order={1}>About Hockey Pickup</Title>
+        <Title order={1}>About John Bryan Hockey Pickup</Title>
         <Text>
           <p>
             <img src='/static/toyota_ice.jpg' width='250' alt='Toyota Sports Performance Center' />
@@ -28,13 +28,17 @@ export const AboutPage = (): JSX.Element => {
             </a>
             &nbsp;in El Segundo, California, USA.
           </p>
-          <p>
-            The mission since John Bryan founded this pickup was, and still is:&nbsp;
-            <b>
-              To provide a safe skate for pickup hockey where players can improve their skills and
-              have fun together.
-            </b>
-          </p>
+          <p>The mission since founding was, and still is:</p>
+          <Blockquote
+            color='blue'
+            iconSize={30}
+            mt='md'
+            mb='md'
+            styles={{ root: { fontSize: '1.2rem' } }}
+          >
+            To provide a safe skate for pickup hockey where players can improve their skills and
+            have fun together.
+          </Blockquote>
           <p>
             This portal is brought to you with ❤️ by&nbsp;
             <a href='https://brettmorrison.com'>Brett Morrison</a>.

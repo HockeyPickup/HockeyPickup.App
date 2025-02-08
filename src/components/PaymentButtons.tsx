@@ -26,7 +26,7 @@ interface PaymentButtonsProps {
   user: UserDetailedResponse;
   defaultAmount?: number;
   defaultDescription?: string;
-  onPaymentMethodClick?: (method: PaymentMethodType) => void;
+  onPaymentMethodClick?: (_method: PaymentMethodType) => void;
 }
 
 interface PaymentForm {

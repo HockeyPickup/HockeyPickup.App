@@ -148,6 +148,14 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
             {buyWindowDate}
           </Text>
         </Group>
+        {!user?.Active && (
+          <Group>
+            <Text>
+              You must be an Active player to Buy or Sell a spot. Contact the commissioner to
+              activate your account.
+            </Text>
+          </Group>
+        )}
         <Group justify='left'>
           {canBuySpot && (
             <Button onClick={() => setBuyModalOpen(true)} color='blue'>

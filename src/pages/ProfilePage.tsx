@@ -108,7 +108,11 @@ const HeaderSection = ({
               {profileUser.JerseyNumber !== 0 && ` #${profileUser.JerseyNumber}`}
             </Title>
             <Group gap={5}>
-              {profileUser.Active && <Badge color='green'>Active</Badge>}
+              {profileUser.Active ? (
+                <Badge color='green'>Active</Badge>
+              ) : (
+                <Badge color='red'>InActive</Badge>
+              )}
               {profileUser.Preferred && <Badge color='blue'>Preferred</Badge>}
               {profileUser.PreferredPlus && <Badge color='violet'>Preferred+</Badge>}
               {profileUser.LockerRoom13 && <Badge color='yellow'>LR13</Badge>}
