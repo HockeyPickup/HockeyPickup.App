@@ -312,6 +312,7 @@ const EditUserForm = ({
       JerseyNumber: profileUser.JerseyNumber ?? 0,
       NotificationPreference: profileUser.NotificationPreference ?? NotificationPreference.None,
       PositionPreference: profileUser.PositionPreference ?? PositionPreference.TBD,
+      Shoots: profileUser?.Shoots ?? ShootPreference.TBD,
       Active: profileUser.Active,
       Preferred: profileUser.Preferred,
       PreferredPlus: profileUser.PreferredPlus,
@@ -405,6 +406,18 @@ const EditUserForm = ({
                 'PositionPreference',
                 value ? (value as PositionPreference) : PositionPreference.TBD,
               )
+            }
+          />
+          <Select
+            label='Shoot Preference'
+            data={[
+              { value: ShootPreference.TBD, label: ShootPreference.TBD },
+              { value: ShootPreference.Left, label: ShootPreference.Left },
+              { value: ShootPreference.Right, label: ShootPreference.Right },
+            ]}
+            value={form.values.Shoots?.toString()}
+            onChange={(value) =>
+              form.setFieldValue('Shoots', value ? (value as ShootPreference) : ShootPreference.TBD)
             }
           />
           <Checkbox label='Active' {...form.getInputProps('Active', { type: 'checkbox' })} />
