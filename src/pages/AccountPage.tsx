@@ -662,6 +662,10 @@ const PreferencesSection = (): JSX.Element => {
       PositionPreference: user?.PositionPreference ?? PositionPreference.TBD,
       Shoots: user?.Shoots ?? ShootPreference.TBD,
     },
+    transformValues: (values) => ({
+      ...values,
+      EmergencyPhone: values.EmergencyPhone?.trim() ?? '',
+    }),
     validate: {
       FirstName: (value) => (!value ? 'First name is required' : null),
       LastName: (value) => (!value ? 'Last name is required' : null),
@@ -674,7 +678,7 @@ const PreferencesSection = (): JSX.Element => {
       },
       EmergencyPhone: (value) =>
         value
-          ? /^\+?1?\s*\(?[0-9]{3}\)?[-\s.]*[0-9]{3}[-\s.]*[0-9]{4}$/.test(value)
+          ? /^\+?1?\s*\(?[0-9]{3}\)?[-\s.]*[0-9]{3}[-\s.]*[0-9]{4}$/.test(value.trim())
             ? null
             : 'Invalid phone number'
           : null,
@@ -750,7 +754,7 @@ const PreferencesSection = (): JSX.Element => {
           />
           <TextInput
             label='Emergency Contact Phone'
-            placeholder='+1 234 567 8900'
+            placeholder='+1 (234) 567-8900'
             {...form.getInputProps('EmergencyPhone')}
           />
           <Select
