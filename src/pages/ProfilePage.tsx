@@ -175,18 +175,19 @@ const HeaderSection = ({
               </Text>
               <Text size='lg'>{ShootPreference[profileUser.Shoots ?? ShootPreference.TBD]}</Text>
             </Group>
-            {profileUser.PositionPreference != PositionPreference.Goalie && (
-              <Group gap={5}>
-                <Text size='sm' fw={500} w={150} ta='right'>
-                  Regular Player:
-                </Text>
-                <Text size='lg'>
-                  {[stats?.WednesdayRegular && 'Wednesday', stats?.FridayRegular && 'Friday']
-                    .filter(Boolean)
-                    .join(', ') || 'No'}
-                </Text>
-              </Group>
-            )}
+            {profileUser.PositionPreference != PositionPreference.Goalie &&
+              (stats?.WednesdayRegular || stats?.FridayRegular) && (
+                <Group gap={5}>
+                  <Text size='sm' fw={500} w={150} ta='right'>
+                    Regular Player:
+                  </Text>
+                  <Text size='lg'>
+                    {[stats?.WednesdayRegular && 'Wednesday', stats?.FridayRegular && 'Friday']
+                      .filter(Boolean)
+                      .join(', ') || 'No'}
+                  </Text>
+                </Group>
+              )}
             {showRatings && canViewRatings() && (
               <Group gap={5}>
                 <Text size='sm' fw={500} w={150} ta='right'>
