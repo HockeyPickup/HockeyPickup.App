@@ -177,9 +177,6 @@ export const SessionBuyingQueue = ({
             <Text size='sm' fw={500}>
               Buyer: {queue.BuyerName ?? 'TBD'}
             </Text>
-            {!(queue.BuyerUserId && queue.SellerUserId) && queue.TeamAssignment && (
-              <Text size='sm'>Team: {queue.TeamAssignment}</Text>
-            )}{' '}
             {queue.QueueStatus && <Text size='sm'>Queue: {queue.QueueStatus}</Text>}
           </div>
         </Group>
@@ -275,7 +272,6 @@ export const SessionBuyingQueue = ({
         {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
         {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}
       </Table.Td>
-      <Table.Td> {!(queue.BuyerUserId && queue.SellerUserId) ? queue.TeamAssignment : ''}</Table.Td>
       <Table.Td>{queue.QueueStatus}</Table.Td>
       <Table.Td>
         {queue.BuyerUserId && queue.SellerUserId && (
@@ -393,7 +389,6 @@ export const SessionBuyingQueue = ({
               <Table.Th>Seller</Table.Th>
               <Table.Th>Buyer</Table.Th>
               <Table.Th>Notes</Table.Th>
-              <Table.Th>Team</Table.Th>
               <Table.Th>Queue Position</Table.Th>
               <Table.Th>Payment Status</Table.Th>
               <Table.Th>Payment</Table.Th>
