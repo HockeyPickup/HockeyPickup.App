@@ -52,7 +52,7 @@ export const SessionCard = ({ session, image }: SessionCardProps): JSX.Element =
             </Group>
           </Stack>
 
-          <Text size='1.6rem' fw={700} c='white'>
+          <Text size='1.2rem' fw={700} c='white'>
             {session.Note}
           </Text>
 

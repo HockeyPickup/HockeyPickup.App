@@ -46,7 +46,7 @@ const SessionSection = ({
 }): JSX.Element => (
   <Box style={{ width: '100%', maxWidth: '1200px' }} px='md'>
     <Group justify='flex-end' w='100%'>
-      <Text size='2.1rem' fw='bold' style={{ marginRight: 'auto' }}>
+      <Text size='1.9rem' fw='bold' style={{ marginRight: 'auto' }}>
         {title}
       </Text>
       <Button
