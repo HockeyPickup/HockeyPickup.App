@@ -132,7 +132,7 @@ export const PaymentButtons = ({
           },
         }}
       >
-        Pay {user.FirstName}
+        PAY {user.FirstName}
       </Button>
 
       <Modal

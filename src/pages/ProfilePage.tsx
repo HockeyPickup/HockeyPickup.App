@@ -29,7 +29,6 @@ import { AvatarService } from '@/services/avatar';
 import { useQuery } from '@apollo/client';
 import {
   Avatar,
-  Badge,
   Button,
   Card,
   Checkbox,
@@ -109,37 +108,141 @@ const HeaderSection = ({
             </Title>
             <Group gap={5}>
               {profileUser.Active ? (
-                <Badge color='green'>Active</Badge>
+                <Button
+                  disabled
+                  size='xs'
+                  radius='xl'
+                  color='green'
+                  styles={{
+                    root: {
+                      paddingLeft: 14,
+                      paddingRight: 14,
+                      height: 22,
+                      cursor: 'default',
+                      backgroundColor: 'var(--mantine-color-green-filled)',
+                      color: 'var(--mantine-color-white)',
+                    },
+                  }}
+                >
+                  ACTIVE
+                </Button>
               ) : (
-                <Badge color='red'>InActive</Badge>
+                <Button
+                  disabled
+                  size='xs'
+                  radius='xl'
+                  color='red'
+                  styles={{
+                    root: {
+                      paddingLeft: 14,
+                      paddingRight: 14,
+                      height: 22,
+                      cursor: 'default',
+                      backgroundColor: 'var(--mantine-color-red-filled)',
+                      color: 'var(--mantine-color-white)',
+                    },
+                  }}
+                >
+                  INACTIVE
+                </Button>
               )}
-              {profileUser.Preferred && <Badge color='blue'>Preferred</Badge>}
-              {profileUser.PreferredPlus && <Badge color='violet'>Preferred+</Badge>}
-              {profileUser.LockerRoom13 && <Badge color='yellow'>LR13</Badge>}
-              <Badge
+              {profileUser.Preferred && (
+                <Button
+                  disabled
+                  size='xs'
+                  radius='xl'
+                  color='blue'
+                  styles={{
+                    root: {
+                      paddingLeft: 14,
+                      paddingRight: 14,
+                      height: 22,
+                      cursor: 'default',
+                      backgroundColor: 'var(--mantine-color-blue-filled)',
+                      color: 'var(--mantine-color-white)',
+                    },
+                  }}
+                >
+                  PREFERRED
+                </Button>
+              )}
+              {profileUser.PreferredPlus && (
+                <Button
+                  disabled
+                  size='xs'
+                  radius='xl'
+                  color='violet'
+                  styles={{
+                    root: {
+                      paddingLeft: 14,
+                      paddingRight: 14,
+                      height: 22,
+                      cursor: 'default',
+                      backgroundColor: 'var(--mantine-color-violet-filled)',
+                      color: 'var(--mantine-color-white)',
+                    },
+                  }}
+                >
+                  PREFERRED+
+                </Button>
+              )}
+              {profileUser.LockerRoom13 && (
+                <Button
+                  size='xs'
+                  radius='xl'
+                  color='yellow'
+                  styles={{
+                    root: {
+                      paddingLeft: 14,
+                      paddingRight: 14,
+                      height: 22,
+                    },
+                  }}
+                  onClick={() => navigate(`/lockerroom13`)}
+                >
+                  LR13
+                </Button>
+              )}
+              <Button
+                size='xs'
+                radius='xl'
                 color='cyan'
-                style={{ cursor: 'pointer' }}
+                styles={{
+                  root: {
+                    paddingLeft: 14,
+                    paddingRight: 14,
+                    height: 22,
+                  },
+                }}
                 onClick={() =>
                   navigate(`/game-pucks?search=${profileUser.FirstName} ${profileUser.LastName}`)
                 }
               >
-                Game Pucks
-              </Badge>
-              <Badge
+                GAME PUCKS
+              </Button>
+              <Button
+                size='xs'
+                radius='xl'
                 color='red'
-                style={{ cursor: 'pointer' }}
+                styles={{
+                  root: {
+                    paddingLeft: 14,
+                    paddingRight: 14,
+                    height: 22,
+                  },
+                }}
                 component='a'
                 href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
                   `"${YOUTUBE_NAME_OVERRIDES[`${profileUser.FirstName} ${profileUser.LastName}`] ?? profileUser.LastName}" from:pickupicehockey`,
                 )}`}
                 target='_blank'
               >
-                Videos
+                VIDEOS
                 <IconExternalLink
                   size={12}
-                  style={{ marginLeft: 2, verticalAlign: 'middle', marginBottom: 4 }}
+                  style={{ marginLeft: 2, marginTop: 4, verticalAlign: 'middle', marginBottom: 4 }}
                 />
-              </Badge>
+              </Button>
               {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}
             </Group>
           </div>
