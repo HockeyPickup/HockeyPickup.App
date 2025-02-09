@@ -117,6 +117,10 @@ export interface UserDetailedResponse {
   Rating: number;
   /** User's payment methods */
   PaymentMethods?: UserPaymentMethodResponse[] | null;
+  /** User's transactions as buyer */
+  BuyerTransactions?: BuySellResponse[] | null;
+  /** User's transactions as seller */
+  SellerTransactions?: BuySellResponse[] | null;
 }
 
 export enum NotificationPreference {
@@ -167,6 +171,100 @@ export enum PaymentMethodType {
   CashApp = 'CashApp',
   Zelle = 'Zelle',
   Bitcoin = 'Bitcoin',
+}
+
+export interface BuySellResponse {
+  /**
+   * Unique identifier for the BuySell
+   * @format int32
+   */
+  BuySellId: number;
+  /**
+   * Unique identifier for the session
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * Date and time when the session is scheduled
+   * @format date-time
+   * @minLength 1
+   */
+  SessionDate: string;
+  /**
+   * User Id of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User Id of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
+  /** Note from the seller */
+  SellerNote?: string | null;
+  /** Note from the buyer */
+  BuyerNote?: string | null;
+  /** Indicates if payment has been sent */
+  PaymentSent: boolean;
+  /** Indicates if payment has been received */
+  PaymentReceived: boolean;
+  /**
+   * Date and time of transaction creation
+   * @format date-time
+   * @minLength 1
+   */
+  CreateDateTime: string;
+  /**
+   * Date and time of last update
+   * @format date-time
+   * @minLength 1
+   */
+  UpdateDateTime: string;
+  /** Team assignment for the transaction */
+  TeamAssignment: TeamAssignment;
+  /**
+   * Price for the BuySell (from session)
+   * @format decimal
+   * @min 0
+   * @max 999.99
+   */
+  Price: number;
+  /** Payment method used to complete the BuySell */
+  PaymentMethod?: PaymentMethodType | null;
+  /**
+   * User Id creating BuySell
+   * @maxLength 128
+   */
+  CreateByUserId?: string | null;
+  /**
+   * User Id updating BuySell
+   * @maxLength 128
+   */
+  UpdateByUserId?: string | null;
+  /**
+   * Queue position of the Buyer
+   * @format int32
+   */
+  QueuePosition?: number;
+  /**
+   * Transaction status of BuySell
+   * @maxLength 128
+   */
+  TransactionStatus?: string | null;
+  /** Indicates if the seller note has been flagged */
+  SellerNoteFlagged: boolean;
+  /** Indicates if the buyer note has been flagged */
+  BuyerNoteFlagged: boolean;
+  /** Buyer details */
+  Buyer?: UserDetailedResponse | null;
+  /** Seller details */
+  Seller?: UserDetailedResponse | null;
+}
+
+export enum TeamAssignment {
+  TBD = 'TBD',
+  Light = 'Light',
+  Dark = 'Dark',
 }
 
 /** Generic API response wrapper */
@@ -307,12 +405,6 @@ export interface BuySell {
   Seller?: AspNetUser | null;
   CreateByUser?: AspNetUser | null;
   UpdateByUser?: AspNetUser | null;
-}
-
-export enum TeamAssignment {
-  TBD = 'TBD',
-  Light = 'Light',
-  Dark = 'Dark',
 }
 
 export interface Session {
@@ -695,83 +787,6 @@ export type ApiDataResponseOfBuySellResponse = ApiResponse & {
   /** Response data payload of type T */
   Data?: BuySellResponse | null;
 };
-
-export interface BuySellResponse {
-  /**
-   * Unique identifier for the BuySell
-   * @format int32
-   */
-  BuySellId: number;
-  /**
-   * User Id of the buyer
-   * @maxLength 128
-   */
-  BuyerUserId?: string | null;
-  /**
-   * User Id of the seller
-   * @maxLength 128
-   */
-  SellerUserId?: string | null;
-  /** Note from the seller */
-  SellerNote?: string | null;
-  /** Note from the buyer */
-  BuyerNote?: string | null;
-  /** Indicates if payment has been sent */
-  PaymentSent: boolean;
-  /** Indicates if payment has been received */
-  PaymentReceived: boolean;
-  /**
-   * Date and time of transaction creation
-   * @format date-time
-   * @minLength 1
-   */
-  CreateDateTime: string;
-  /**
-   * Date and time of last update
-   * @format date-time
-   * @minLength 1
-   */
-  UpdateDateTime: string;
-  /** Team assignment for the transaction */
-  TeamAssignment: TeamAssignment;
-  /**
-   * Price for the BuySell (from session)
-   * @format decimal
-   * @min 0
-   * @max 999.99
-   */
-  Price: number;
-  /** Payment method used to complete the BuySell */
-  PaymentMethod?: PaymentMethodType | null;
-  /**
-   * User Id creating BuySell
-   * @maxLength 128
-   */
-  CreateByUserId?: string | null;
-  /**
-   * User Id updating BuySell
-   * @maxLength 128
-   */
-  UpdateByUserId?: string | null;
-  /**
-   * Queue position of the Buyer
-   * @format int32
-   */
-  QueuePosition?: number;
-  /**
-   * Transaction status of BuySell
-   * @maxLength 128
-   */
-  TransactionStatus?: string | null;
-  /** Indicates if the seller note has been flagged */
-  SellerNoteFlagged: boolean;
-  /** Indicates if the buyer note has been flagged */
-  BuyerNoteFlagged: boolean;
-  /** Buyer details */
-  Buyer?: UserDetailedResponse | null;
-  /** Seller details */
-  Seller?: UserDetailedResponse | null;
-}
 
 export interface BuyRequest {
   /**

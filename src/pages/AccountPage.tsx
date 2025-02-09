@@ -40,11 +40,12 @@ import {
   IconWallet,
   IconX,
 } from '@tabler/icons-react';
+import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { BsCreditCard2Front } from 'react-icons/bs';
 import { FaBitcoin, FaPaypal } from 'react-icons/fa';
 import { Si1And1, SiCashapp, SiVenmo } from 'react-icons/si';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ChangePasswordRequest,
   ErrorDetail,
@@ -509,35 +510,107 @@ const PaymentMethodsSection = (): JSX.Element => {
   );
 };
 
-const PaymentsSection = (): JSX.Element => (
-  <Stack gap='xl'>
-    <PaymentMethodsSection />
+const PaymentsSection = (): JSX.Element => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-    {false && (
-      <>
-        <Paper withBorder shadow='md' p='xl' radius='md'>
-          <Stack gap='md'>
-            <Title order={2}>Payments Due</Title>
-            {/* Add your payments due table/list here */}
+  const unpaidBuyerTransactions =
+    user?.BuyerTransactions?.filter((bt) => !bt.PaymentSent && bt.SellerUserId) ?? [];
+  const unconfirmedSellerTransactions =
+    user?.SellerTransactions?.filter((bt) => !bt.PaymentReceived && bt.BuyerUserId) ?? [];
+
+  return (
+    <Stack gap='xl'>
+      <PaymentMethodsSection />
+
+      <Paper withBorder shadow='md' p='xl' radius='md'>
+        <Stack gap='md'>
+          <Title order={2}>Payments Due ({unpaidBuyerTransactions.length})</Title>
+          <Text mt={-15} size='xs'>
+            Sessions bought that are not marked as payment sent
+          </Text>
+          {unpaidBuyerTransactions.length > 0 ? (
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Session ID</Table.Th>
+                  <Table.Th>Session Date</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {unpaidBuyerTransactions
+                  .sort(
+                    (a, b) => new Date(b.SessionDate).getTime() - new Date(a.SessionDate).getTime(),
+                  )
+                  .map((transaction) => (
+                    <Table.Tr
+                      key={transaction.BuySellId}
+                      onClick={() => navigate(`/session/${transaction.SessionId}`)}
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#6E3CBC')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+                    >
+                      <Table.Td>{transaction.SessionId}</Table.Td>
+                      <Table.Td>
+                        {moment.utc(transaction.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+              </Table.Tbody>
+            </Table>
+          ) : (
             <Text size='sm' c='dimmed'>
               No payments due
             </Text>
-          </Stack>
-        </Paper>
+          )}
+        </Stack>
+      </Paper>
 
-        <Paper withBorder shadow='md' p='xl' radius='md'>
-          <Stack gap='md'>
-            <Title order={2}>Payment History</Title>
-            {/* Add your payment history table/list here */}
+      <Paper withBorder shadow='md' p='xl' radius='md'>
+        <Stack gap='md'>
+          <Title order={2}>Payments Unconfirmed ({unconfirmedSellerTransactions.length})</Title>
+          <Text mt={-15} size='xs'>
+            Sessions sold that are not marked as payment received
+          </Text>
+          {unconfirmedSellerTransactions.length > 0 ? (
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Session ID</Table.Th>
+                  <Table.Th>Session Date</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {unconfirmedSellerTransactions
+                  .sort(
+                    (a, b) => new Date(b.SessionDate).getTime() - new Date(a.SessionDate).getTime(),
+                  )
+                  .map((transaction) => (
+                    <Table.Tr
+                      key={transaction.BuySellId}
+                      onClick={() => navigate(`/session/${transaction.SessionId}`)}
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#6E3CBC')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+                    >
+                      <Table.Td>{transaction.SessionId}</Table.Td>
+                      <Table.Td>
+                        {moment.utc(transaction.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+              </Table.Tbody>
+            </Table>
+          ) : (
             <Text size='sm' c='dimmed'>
-              No previous payments
+              No payments unconfirmed
             </Text>
-          </Stack>
-        </Paper>
-      </>
-    )}
-  </Stack>
-);
+          )}
+        </Stack>
+      </Paper>
+    </Stack>
+  );
+};
 
 const PasswordSection = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);

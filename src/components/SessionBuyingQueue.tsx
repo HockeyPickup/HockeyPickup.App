@@ -24,15 +24,17 @@ export const SessionBuyingQueue = ({
     variables: { SessionId: session.SessionId },
     skip: true, // Skip initial fetch
   });
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [lastUsedPaymentMethod, setLastUsedPaymentMethod] = useState<{
     [key: number]: PaymentMethodType;
   }>({});
+  const [loadingStates, setLoadingStates] = useState<{ [key: number]: boolean }>({});
 
   const handlePaymentSentToggle = async (
     buySellId: number,
     currentStatus: boolean,
   ): Promise<void> => {
+    setLoadingStates((prev) => ({ ...prev, [buySellId]: true }));
     try {
       const response = currentStatus
         ? await buySellService.unConfirmPaymentSent(buySellId)
@@ -44,6 +46,7 @@ export const SessionBuyingQueue = ({
       if (data?.Session) {
         onSessionUpdate(data.Session);
       }
+      await refreshUser();
       notifications.show({
         position: 'top-center',
         autoClose: 5000,
@@ -65,6 +68,8 @@ export const SessionBuyingQueue = ({
         message: errorMessage,
         color: 'red',
       });
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [buySellId]: false }));
     }
   };
 
@@ -72,6 +77,7 @@ export const SessionBuyingQueue = ({
     buySellId: number,
     currentStatus: boolean,
   ): Promise<void> => {
+    setLoadingStates((prev) => ({ ...prev, [buySellId]: true }));
     try {
       const response = currentStatus
         ? await buySellService.unConfirmPaymentReceived(buySellId)
@@ -80,6 +86,7 @@ export const SessionBuyingQueue = ({
       if (data?.Session) {
         onSessionUpdate(data.Session);
       }
+      await refreshUser();
       notifications.show({
         position: 'top-center',
         autoClose: 5000,
@@ -101,16 +108,20 @@ export const SessionBuyingQueue = ({
         message: errorMessage,
         color: 'red',
       });
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [buySellId]: false }));
     }
   };
 
   const handleCancelSell = async (buySellId: number): Promise<void> => {
+    setLoadingStates((prev) => ({ ...prev, [buySellId]: true }));
     try {
       const response = await buySellService.cancelSell(buySellId);
       const { data } = await refetch();
       if (data?.Session) {
         onSessionUpdate(data.Session);
       }
+      await refreshUser();
       notifications.show({
         position: 'top-center',
         autoClose: 5000,
@@ -132,16 +143,20 @@ export const SessionBuyingQueue = ({
         message: errorMessage,
         color: 'red',
       });
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [buySellId]: false }));
     }
   };
 
   const handleCancelBuy = async (buySellId: number): Promise<void> => {
+    setLoadingStates((prev) => ({ ...prev, [buySellId]: true }));
     try {
       const response = await buySellService.cancelBuy(buySellId);
       const { data } = await refetch();
       if (data?.Session) {
         onSessionUpdate(data.Session);
       }
+      await refreshUser();
       notifications.show({
         position: 'top-center',
         autoClose: 5000,
@@ -163,6 +178,8 @@ export const SessionBuyingQueue = ({
         message: errorMessage,
         color: 'red',
       });
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [buySellId]: false }));
     }
   };
 
@@ -220,6 +237,7 @@ export const SessionBuyingQueue = ({
                   label={queue.PaymentSent ? 'Unmark as Paid' : 'Mark as Paid'}
                   checked={queue.PaymentSent}
                   onChange={() => handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)}
+                  disabled={loadingStates[queue.BuySellId]}
                 />
               </div>
             )}
@@ -229,6 +247,7 @@ export const SessionBuyingQueue = ({
                 label={queue.PaymentReceived ? 'Unmark as Received' : 'Mark as Received'}
                 checked={queue.PaymentReceived}
                 onChange={() => handlePaymentReceivedToggle(queue.BuySellId, queue.PaymentReceived)}
+                disabled={loadingStates[queue.BuySellId]}
               />
             )}
           </Group>
@@ -243,6 +262,7 @@ export const SessionBuyingQueue = ({
               onClick={() => handleCancelBuy(queue.BuySellId)}
               leftSection={<IconTrash size={14} />}
               ml={-10}
+              loading={loadingStates[queue.BuySellId]}
             >
               Remove Buy
             </Button>
@@ -255,6 +275,7 @@ export const SessionBuyingQueue = ({
               onClick={() => handleCancelSell(queue.BuySellId)}
               leftSection={<IconTrash size={14} />}
               ml={-10}
+              loading={loadingStates[queue.BuySellId]}
             >
               Remove Sell
             </Button>
@@ -314,6 +335,7 @@ export const SessionBuyingQueue = ({
                     }
                     checked={queue.PaymentSent}
                     onChange={() => handlePaymentSentToggle(queue.BuySellId, queue.PaymentSent)}
+                    disabled={loadingStates[queue.BuySellId]}
                   />
                 </div>
               </Group>
@@ -335,6 +357,7 @@ export const SessionBuyingQueue = ({
                   onChange={() =>
                     handlePaymentReceivedToggle(queue.BuySellId, queue.PaymentReceived)
                   }
+                  disabled={loadingStates[queue.BuySellId]}
                 />
               </div>
             )}
@@ -352,6 +375,7 @@ export const SessionBuyingQueue = ({
                 onClick={() => handleCancelBuy(queue.BuySellId)}
                 pl={0}
                 leftSection={<IconTrash size={14} />}
+                loading={loadingStates[queue.BuySellId]}
               >
                 Remove Buy
               </Button>
@@ -366,6 +390,7 @@ export const SessionBuyingQueue = ({
                 onClick={() => handleCancelSell(queue.BuySellId)}
                 pl={0}
                 leftSection={<IconTrash size={14} />}
+                loading={loadingStates[queue.BuySellId]}
               >
                 Remove Sell
               </Button>
