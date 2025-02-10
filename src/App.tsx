@@ -15,6 +15,7 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { TitleProvider } from './layouts/TitleContext';
 import { VersionChecker } from './layouts/VersionChecker';
 import { AuthProvider, useAuth } from './lib/auth';
+import useGoogleAnalytics from './lib/googleAnalytics';
 import { theme } from './lib/theme';
 import { apolloClient } from './services/api';
 
@@ -38,6 +39,12 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }): JSX.Element =
   return <>{children}</>;
 };
 
+const GoogleAnalyticsWrapper = (): JSX.Element => {
+  useGoogleAnalytics();
+
+  return <></>;
+};
+
 const App = (): JSX.Element => {
   return (
     <ApolloProvider client={apolloClient}>
@@ -47,6 +54,7 @@ const App = (): JSX.Element => {
           <Notifications position='top-right' zIndex={1000} />
           <VersionChecker />
           <BrowserRouter>
+            <GoogleAnalyticsWrapper />
             <TitleProvider>
               <AuthProvider>
                 <AuthWrapper>
