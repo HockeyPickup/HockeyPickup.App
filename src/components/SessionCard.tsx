@@ -21,7 +21,7 @@ export const SessionCard = ({ session, image }: SessionCardProps): JSX.Element =
       bg='dark.6'
       style={{
         width: '1000px', // Fixed width on desktop
-        '@media (max-width: 768px)': {
+        '@media (maxWidth: 768px)': {
           width: '100%', // Responsive on mobile
         },
       }}
@@ -30,7 +30,7 @@ export const SessionCard = ({ session, image }: SessionCardProps): JSX.Element =
       <Group
         gap='xl'
         style={{
-          '@media (max-width: 768px)': {
+          '@media (maxWidth: 768px)': {
             flexDirection: 'column',
           },
         }}
