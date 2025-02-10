@@ -1,6 +1,12 @@
 {
   "newsletters": [
     {
+      "id": "11",
+      "title": "February 2025 - v2 Hockey Pickup Site - Launched!",
+      "date": "02-10-2025",
+      "url": "https://hockeypickupstorage.blob.core.windows.net/newsletters/02-10-2025.html"
+    },
+    {
       "id": "10",
       "title": "December 2024 - Pickup Hockey Bulletin",
       "date": "12-11-2024",
