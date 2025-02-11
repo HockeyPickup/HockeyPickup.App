@@ -2,7 +2,7 @@ import styles from '@/App.module.css';
 import {
   PlayerStatus,
   PositionPreference,
-  RosterPlayer2,
+  RosterPlayer,
   SessionDetailedResponse,
   TeamAssignment,
   UpdateRosterPositionRequest,
@@ -41,7 +41,7 @@ interface SessionRosterProps {
 }
 
 interface PlayerCellProps {
-  player: RosterPlayer2 | undefined;
+  player: RosterPlayer | undefined;
   session: SessionDetailedResponse;
   onSessionUpdate: (_session: SessionDetailedResponse) => void;
   editingPlayer: {
@@ -417,7 +417,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
     }
   };
 
-  const sortRosterPlayers = (a: RosterPlayer2, b: RosterPlayer2): number => {
+  const sortRosterPlayers = (a: RosterPlayer, b: RosterPlayer): number => {
     // Sort by IsPlaying first (true comes before false)
     if (a.IsPlaying !== b.IsPlaying) {
       return a.IsPlaying ? -1 : 1;

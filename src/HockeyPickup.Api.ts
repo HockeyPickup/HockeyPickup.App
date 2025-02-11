@@ -426,7 +426,7 @@ export interface Session {
   RegularSet?: RegularSet | null;
   BuySells?: BuySell[];
   ActivityLogs?: ActivityLog[];
-  CurrentRosters?: RosterPlayer[];
+  CurrentSessionRoster?: CurrentSessionRoster[];
   BuyingQueues?: BuyingQueue[];
 }
 
@@ -466,7 +466,7 @@ export interface ActivityLog {
   User?: AspNetUser | null;
 }
 
-export interface RosterPlayer {
+export interface CurrentSessionRoster {
   /** @format int32 */
   SessionRosterId?: number;
   UserId?: string;
@@ -1125,7 +1125,7 @@ export type SessionDetailedResponse = SessionBasicResponse & {
   /** Regular set details for the session */
   RegularSet?: RegularSetResponse | null;
   /** Current roster state for the session */
-  CurrentRosters?: RosterPlayer2[] | null;
+  CurrentRosters?: RosterPlayer[] | null;
   /** Buying queue for the session */
   BuyingQueues?: BuyingQueueItem[] | null;
 };
@@ -1199,7 +1199,7 @@ export interface RegularResponse {
   User?: UserDetailedResponse | null;
 }
 
-export interface RosterPlayer2 {
+export interface RosterPlayer {
   /**
    * Unique identifier for the roster entry
    * @format int32
