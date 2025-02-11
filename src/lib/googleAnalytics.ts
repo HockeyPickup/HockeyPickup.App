@@ -1,8 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const useGoogleAnalytics = (): {
-  trackEvent: (_action: string, _category: string, _label?: string) => void;
+  trackEvent: (action: string, category: string, label?: string) => void;
 } => {
   const location = useLocation();
 
