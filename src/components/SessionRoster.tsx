@@ -1,5 +1,6 @@
 import styles from '@/App.module.css';
 import {
+  PlayerStatus,
   PositionPreference,
   RosterPlayer2,
   SessionDetailedResponse,
@@ -171,6 +172,9 @@ const PlayerCell = ({
           player.Rating !== undefined &&
           player.Rating !== null &&
           `, ${player.Rating.toFixed(1)}`}
+        {canViewRatings() && showRatings && player.PlayerStatus === PlayerStatus.Substitute && (
+          <span style={{ color: 'yellow' }}> *</span>
+        )}
       </Text>
       {isAdmin() && showRatings && (
         <Popover
@@ -516,6 +520,9 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                     const avg = team?.length ? total / team.length : 0;
                     return `Total: ${total.toFixed(1)}, Average: ${avg.toFixed(2)}`;
                   })()}
+                  <Text size='sm' c='dimmed' mt={5}>
+                    <span style={{ color: 'yellow' }}> *</span> - Substitute
+                  </Text>
                 </Text>
               )}
             </Grid.Col>
@@ -599,6 +606,9 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                     const avg = team?.length ? total / team.length : 0;
                     return `Total: ${total.toFixed(1)}, Average: ${avg.toFixed(2)}`;
                   })()}
+                  <Text size='sm' c='dimmed' mt={5}>
+                    <span style={{ color: 'yellow' }}> *</span> - Substitute
+                  </Text>
                 </Text>
               )}
             </Grid.Col>
