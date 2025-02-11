@@ -1,4 +1,5 @@
 import { useTitle } from '@/layouts/TitleContext';
+import useGoogleAnalytics from '@/lib/googleAnalytics';
 import {
   Anchor,
   Button,
@@ -27,6 +28,7 @@ export const LoginPage = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+  const { trackEvent } = useGoogleAnalytics();
 
   const form = useForm<LoginRequest>({
     initialValues: {
@@ -46,10 +48,12 @@ export const LoginPage = (): JSX.Element => {
       if (response.Success && response.Data) {
         setUser(response.Data.UserDetailedResponse);
         await refreshUser(); // Refresh user data after login
+        trackEvent('login', 'authentication', values.UserName);
         navigate(from); // Navigate to the stored path
       }
     } catch (error) {
       console.error('Login failed:', error);
+      trackEvent('login_failed', 'authentication', values.UserName);
       form.setErrors({ UserName: 'Invalid credentials' });
     } finally {
       setIsLoading(false);
