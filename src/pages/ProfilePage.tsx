@@ -46,7 +46,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconExternalLink } from '@tabler/icons-react';
+import { IconExternalLink, IconMail } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -244,6 +244,23 @@ const HeaderSection = ({
                 />
               </Button>
               {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}
+              <Button
+                size='xs'
+                radius='xl'
+                color='gray'
+                component='a'
+                href={`mailto:${profileUser.Email}`}
+                styles={{
+                  root: {
+                    paddingLeft: 14,
+                    paddingRight: 14,
+                    height: 22,
+                  },
+                }}
+              >
+                <IconMail size={12} style={{ marginRight: 4 }} />
+                EMAIL {profileUser.FirstName}
+              </Button>
             </Group>
           </div>
         </Group>
