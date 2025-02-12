@@ -90,7 +90,7 @@ const HeaderSection = ({
       radius='md'
       withBorder
       style={{
-        maxWidth: 800,
+        maxWidth: 820,
         background:
           'linear-gradient(45deg, var(--mantine-color-dark-7), var(--mantine-color-dark-6))',
         border: '2px solid var(--mantine-color-dark-4)',
@@ -99,36 +99,129 @@ const HeaderSection = ({
       {/* Header Section */}
       <Group justify='space-between' mb='md'>
         <Group>
-          <Avatar src={avatarUrl} size={120} radius='md' />
-          <div>
-            <Title order={2} mb={5}>
-              {profileUser.FirstName} {profileUser.LastName}
-              {profileUser.Id === user?.Id && ' (Me)'}
-              {profileUser.JerseyNumber !== 0 && ` #${profileUser.JerseyNumber}`}
-            </Title>
-            <Group gap={5}>
-              {profileUser.Active ? (
+          <Stack gap='xs'>
+            <Avatar src={avatarUrl} size={180} radius='md' />
+            <div>
+              <Title order={2} mb={15}>
+                {profileUser.FirstName} {profileUser.LastName}
+                {profileUser.Id === user?.Id && ' (Me)'}
+                {profileUser.JerseyNumber !== 0 && ` #${profileUser.JerseyNumber}`}
+              </Title>
+              <Group gap={5}>
+                {profileUser.Active ? (
+                  <Button
+                    disabled
+                    size='xs'
+                    radius='xl'
+                    color='green'
+                    styles={{
+                      root: {
+                        paddingLeft: 14,
+                        paddingRight: 14,
+                        height: 22,
+                        cursor: 'default',
+                        backgroundColor: 'var(--mantine-color-green-filled)',
+                        color: 'var(--mantine-color-white)',
+                      },
+                    }}
+                  >
+                    ACTIVE
+                  </Button>
+                ) : (
+                  <Button
+                    disabled
+                    size='xs'
+                    radius='xl'
+                    color='red'
+                    styles={{
+                      root: {
+                        paddingLeft: 14,
+                        paddingRight: 14,
+                        height: 22,
+                        cursor: 'default',
+                        backgroundColor: 'var(--mantine-color-red-filled)',
+                        color: 'var(--mantine-color-white)',
+                      },
+                    }}
+                  >
+                    INACTIVE
+                  </Button>
+                )}
+                {profileUser.Preferred && (
+                  <Button
+                    disabled
+                    size='xs'
+                    radius='xl'
+                    color='blue'
+                    styles={{
+                      root: {
+                        paddingLeft: 14,
+                        paddingRight: 14,
+                        height: 22,
+                        cursor: 'default',
+                        backgroundColor: 'var(--mantine-color-blue-filled)',
+                        color: 'var(--mantine-color-white)',
+                      },
+                    }}
+                  >
+                    PREFERRED
+                  </Button>
+                )}
+                {profileUser.PreferredPlus && (
+                  <Button
+                    disabled
+                    size='xs'
+                    radius='xl'
+                    color='violet'
+                    styles={{
+                      root: {
+                        paddingLeft: 14,
+                        paddingRight: 14,
+                        height: 22,
+                        cursor: 'default',
+                        backgroundColor: 'var(--mantine-color-violet-filled)',
+                        color: 'var(--mantine-color-white)',
+                      },
+                    }}
+                  >
+                    PREFERRED+
+                  </Button>
+                )}
+                {profileUser.LockerRoom13 && (
+                  <Button
+                    size='xs'
+                    radius='xl'
+                    color='yellow'
+                    styles={{
+                      root: {
+                        paddingLeft: 14,
+                        paddingRight: 14,
+                        height: 22,
+                      },
+                    }}
+                    onClick={() => navigate(`/lockerroom13`)}
+                  >
+                    LR13
+                  </Button>
+                )}
                 <Button
-                  disabled
                   size='xs'
                   radius='xl'
-                  color='green'
+                  color='cyan'
                   styles={{
                     root: {
                       paddingLeft: 14,
                       paddingRight: 14,
                       height: 22,
-                      cursor: 'default',
-                      backgroundColor: 'var(--mantine-color-green-filled)',
-                      color: 'var(--mantine-color-white)',
                     },
                   }}
+                  onClick={() =>
+                    navigate(`/game-pucks?search=${profileUser.FirstName} ${profileUser.LastName}`)
+                  }
                 >
-                  ACTIVE
+                  GAME PUCKS
                 </Button>
-              ) : (
                 <Button
-                  disabled
                   size='xs'
                   radius='xl'
                   color='red'
@@ -137,60 +230,32 @@ const HeaderSection = ({
                       paddingLeft: 14,
                       paddingRight: 14,
                       height: 22,
-                      cursor: 'default',
-                      backgroundColor: 'var(--mantine-color-red-filled)',
-                      color: 'var(--mantine-color-white)',
                     },
                   }}
+                  component='a'
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
+                    `"${YOUTUBE_NAME_OVERRIDES[`${profileUser.FirstName} ${profileUser.LastName}`] ?? profileUser.LastName}" from:pickupicehockey`,
+                  )}`}
+                  target='_blank'
                 >
-                  INACTIVE
+                  VIDEOS
+                  <IconExternalLink
+                    size={12}
+                    style={{
+                      marginLeft: 2,
+                      marginTop: 4,
+                      verticalAlign: 'middle',
+                      marginBottom: 4,
+                    }}
+                  />
                 </Button>
-              )}
-              {profileUser.Preferred && (
-                <Button
-                  disabled
-                  size='xs'
-                  radius='xl'
-                  color='blue'
-                  styles={{
-                    root: {
-                      paddingLeft: 14,
-                      paddingRight: 14,
-                      height: 22,
-                      cursor: 'default',
-                      backgroundColor: 'var(--mantine-color-blue-filled)',
-                      color: 'var(--mantine-color-white)',
-                    },
-                  }}
-                >
-                  PREFERRED
-                </Button>
-              )}
-              {profileUser.PreferredPlus && (
-                <Button
-                  disabled
-                  size='xs'
-                  radius='xl'
-                  color='violet'
-                  styles={{
-                    root: {
-                      paddingLeft: 14,
-                      paddingRight: 14,
-                      height: 22,
-                      cursor: 'default',
-                      backgroundColor: 'var(--mantine-color-violet-filled)',
-                      color: 'var(--mantine-color-white)',
-                    },
-                  }}
-                >
-                  PREFERRED+
-                </Button>
-              )}
-              {profileUser.LockerRoom13 && (
+                {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}
                 <Button
                   size='xs'
                   radius='xl'
-                  color='yellow'
+                  color='gray'
+                  component='a'
+                  href={`mailto:${profileUser.Email}`}
                   styles={{
                     root: {
                       paddingLeft: 14,
@@ -198,71 +263,13 @@ const HeaderSection = ({
                       height: 22,
                     },
                   }}
-                  onClick={() => navigate(`/lockerroom13`)}
                 >
-                  LR13
+                  <IconMail size={12} style={{ marginRight: 4 }} />
+                  EMAIL {profileUser.FirstName}
                 </Button>
-              )}
-              <Button
-                size='xs'
-                radius='xl'
-                color='cyan'
-                styles={{
-                  root: {
-                    paddingLeft: 14,
-                    paddingRight: 14,
-                    height: 22,
-                  },
-                }}
-                onClick={() =>
-                  navigate(`/game-pucks?search=${profileUser.FirstName} ${profileUser.LastName}`)
-                }
-              >
-                GAME PUCKS
-              </Button>
-              <Button
-                size='xs'
-                radius='xl'
-                color='red'
-                styles={{
-                  root: {
-                    paddingLeft: 14,
-                    paddingRight: 14,
-                    height: 22,
-                  },
-                }}
-                component='a'
-                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
-                  `"${YOUTUBE_NAME_OVERRIDES[`${profileUser.FirstName} ${profileUser.LastName}`] ?? profileUser.LastName}" from:pickupicehockey`,
-                )}`}
-                target='_blank'
-              >
-                VIDEOS
-                <IconExternalLink
-                  size={12}
-                  style={{ marginLeft: 2, marginTop: 4, verticalAlign: 'middle', marginBottom: 4 }}
-                />
-              </Button>
-              {user?.Id !== profileUser.Id && <PaymentButtons user={profileUser} />}
-              <Button
-                size='xs'
-                radius='xl'
-                color='gray'
-                component='a'
-                href={`mailto:${profileUser.Email}`}
-                styles={{
-                  root: {
-                    paddingLeft: 14,
-                    paddingRight: 14,
-                    height: 22,
-                  },
-                }}
-              >
-                <IconMail size={12} style={{ marginRight: 4 }} />
-                EMAIL {profileUser.FirstName}
-              </Button>
-            </Group>
-          </div>
+              </Group>
+            </div>
+          </Stack>
         </Group>
         <Card
           p='md'
