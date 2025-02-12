@@ -38,14 +38,17 @@ export const ForgotPasswordPage = (): JSX.Element => {
 
   if (isSubmitted) {
     return (
-      <Container size={420} my={40}>
-        <Title ta='center'>Check Your Email</Title>
-        <Text c='dimmed' size='sm' ta='center' mt={20}>
-          If your account exists, we&apos;ve sent password reset instructions to your email address.
-        </Text>
-        <Button fullWidth mt='xl' onClick={() => navigate('/login')}>
-          Return to Login
-        </Button>
+      <Container style={{ width: '800px' }} my={40}>
+        <div style={{ maxWidth: 380, margin: '0 auto' }}>
+          <Title ta='center'>Check Your Email</Title>
+          <Text c='dimmed' size='sm' ta='center' mt={20}>
+            If your account exists, we&apos;ve sent password reset instructions to your email
+            address.
+          </Text>
+          <Button fullWidth mt='xs' onClick={() => navigate('/login')}>
+            Return to Login
+          </Button>
+        </div>
       </Container>
     );
   }

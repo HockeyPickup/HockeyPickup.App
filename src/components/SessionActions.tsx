@@ -158,7 +158,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         )}
         <Group justify='left'>
           {canBuySpot && (
-            <Button onClick={() => setBuyModalOpen(true)} color='blue'>
+            <Button onClick={() => setBuyModalOpen(true)} color='green'>
               {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
             </Button>
           )}
@@ -193,7 +193,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
           >
             Cancel
           </Button>
-          <Button color='blue' onClick={handleBuy}>
+          <Button color='green' onClick={handleBuy}>
             Buy Spot
           </Button>
         </Group>
