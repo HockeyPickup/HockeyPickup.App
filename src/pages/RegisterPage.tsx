@@ -38,14 +38,22 @@ export const RegisterPage = (): JSX.Element => {
       InviteCode: '',
     },
     validate: {
-      Email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      Email: (value) => (/^\S+@\S+$/.test(value.trim()) ? null : 'Invalid email'),
       Password: (value) => (value.length >= 6 ? null : 'Password must be at least 6 characters'),
       ConfirmPassword: (value, values) =>
         value !== values.Password ? 'Passwords do not match' : null,
-      FirstName: (value) => (value.length < 2 ? 'First name is too short' : null),
-      LastName: (value) => (value.length < 2 ? 'Last name is too short' : null),
-      InviteCode: (value) => (value.length < 2 ? 'Invite code is too short' : null),
+      FirstName: (value) => (value.trim().length < 2 ? 'First name is too short' : null),
+      LastName: (value) => (value.trim().length < 2 ? 'Last name is too short' : null),
+      InviteCode: (value) => (value.trim().length < 2 ? 'Invite code is too short' : null),
     },
+    transformValues: (values) => ({
+      ...values,
+      Email: values.Email.trim(),
+      FirstName: values.FirstName.trim(),
+      LastName: values.LastName.trim(),
+      InviteCode: values.InviteCode.trim(),
+      // Don't trim passwords as they might legitimately have spaces
+    }),
   });
 
   const handleSubmit = async (values: RegisterRequest): Promise<void> => {

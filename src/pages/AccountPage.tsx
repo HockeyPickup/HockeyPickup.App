@@ -92,6 +92,11 @@ const PaymentMethodModal = ({
       PreferenceOrder: 1,
       IsActive: true,
     },
+    // Add transform values to trim the Identifier
+    transformValues: (values) => ({
+      ...values,
+      Identifier: values.Identifier.trim(),
+    }),
   });
 
   // Reset form when modal opens/closes or initialValues change
