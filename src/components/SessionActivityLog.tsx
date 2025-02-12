@@ -14,7 +14,7 @@ export const SessionActivityLog = ({ session }: SessionActivityLogProps): JSX.El
       <Title order={3} mb='md'>
         Activity Log
       </Title>
-      <Table striped highlightOnHover className={styles.table}>
+      <Table striped className={styles.table}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Date</Table.Th>

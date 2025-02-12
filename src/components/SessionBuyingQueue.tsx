@@ -408,7 +408,7 @@ export const SessionBuyingQueue = ({
       </Title>
       <div className={styles.mobileOnly}>{session.BuyingQueues?.map(renderMobileRow)}</div>
       <div className={styles.desktopOnly}>
-        <Table striped highlightOnHover className={styles.table}>
+        <Table striped className={styles.table}>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Seller</Table.Th>
