@@ -2,6 +2,7 @@ import {
   ApiDataResponseOfBoolean,
   ApiDataResponseOfSessionDetailedResponse,
   CreateSessionRequest,
+  UpdateRosterPlayingStatusRequest,
   UpdateRosterPositionRequest,
   UpdateRosterTeamRequest,
   UpdateSessionRequest,
@@ -25,6 +26,17 @@ export const sessionService = {
   ): Promise<ApiDataResponseOfSessionDetailedResponse> {
     const response = await api.put<ApiDataResponseOfSessionDetailedResponse>(
       '/Session/update-roster-team',
+      request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async updateRosterPlayingStatus(
+    request: UpdateRosterPlayingStatusRequest,
+  ): Promise<ApiDataResponseOfSessionDetailedResponse> {
+    const response = await api.put<ApiDataResponseOfSessionDetailedResponse>(
+      '/Session/update-roster-playing-status',
       request,
     );
     console.info(response);

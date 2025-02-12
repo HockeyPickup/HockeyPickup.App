@@ -1467,6 +1467,26 @@ export interface UpdateRosterTeamRequest {
   NewTeamAssignment: TeamAssignment;
 }
 
+export interface UpdateRosterPlayingStatusRequest {
+  /**
+   * Session Id
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * User Id
+   * @minLength 1
+   */
+  UserId: string;
+  /** Playing status true | false */
+  IsPlaying: boolean;
+  /**
+   * Notes about the session
+   * @maxLength 4000
+   */
+  Note?: string | null;
+}
+
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfBoolean = ApiResponse & {
   /** Response data payload of type T */

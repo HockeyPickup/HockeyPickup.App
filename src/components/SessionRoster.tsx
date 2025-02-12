@@ -5,6 +5,7 @@ import {
   RosterPlayer,
   SessionDetailedResponse,
   TeamAssignment,
+  UpdateRosterPlayingStatusRequest,
   UpdateRosterPositionRequest,
   UpdateRosterTeamRequest,
 } from '@/HockeyPickup.Api';
@@ -26,6 +27,7 @@ import {
   Radio,
   Stack,
   Text,
+  Textarea,
   Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -56,6 +58,7 @@ interface PlayerCellProps {
   ) => void;
   onPositionChange: (_userId: string, _newPosition: PositionPreference) => Promise<void>;
   onTeamChange: (_userId: string, _newTeam: TeamAssignment) => Promise<void>;
+  onPlayingStatusChange: (_userId: string, _isPlaying: boolean, _note?: string) => Promise<void>;
   onClose: () => void;
 }
 
@@ -67,6 +70,7 @@ const PlayerCell = ({
   onEditClick,
   onPositionChange,
   onTeamChange,
+  onPlayingStatusChange,
   onClose,
 }: PlayerCellProps): JSX.Element | null => {
   const { isAdmin, canViewRatings } = useAuth();
@@ -78,7 +82,11 @@ const PlayerCell = ({
   const [checkedTeam, setCheckedTeam] = useState<TeamAssignment>(
     player?.TeamAssignment ?? TeamAssignment.Light,
   );
+  const [isPlaying, setIsPlaying] = useState(player?.IsPlaying ?? true);
+  const [isNoteExpanded, setIsNoteExpanded] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [note, setNote] = useState('');
+
   useEffect(() => {
     const loadAvatar = async (): Promise<void> => {
       const url = await AvatarService.getAvatarUrl(player?.PhotoUrl);
@@ -101,6 +109,16 @@ const PlayerCell = ({
     setIsSaving(true);
     try {
       await onTeamChange(editingPlayer?.userId ?? '', newTeam);
+    } finally {
+      setIsSaving(false);
+      onClose();
+    }
+  };
+
+  const handlePlayingStatusChange = async (newStatus: boolean): Promise<void> => {
+    setIsSaving(true);
+    try {
+      await onPlayingStatusChange(editingPlayer?.userId ?? '', newStatus, note);
     } finally {
       setIsSaving(false);
       onClose();
@@ -213,6 +231,9 @@ const PlayerCell = ({
                 loaderProps={{ children: <LoadingSpinner mini /> }}
               />
               <Stack>
+                <Title order={4}>
+                  {player.FirstName} {player.LastName}
+                </Title>
                 <Text size='sm' fw={500}>
                   Position
                 </Text>
@@ -267,6 +288,46 @@ const PlayerCell = ({
                     />
                   </Stack>
                 </Radio.Group>
+                <Divider my='xs' />
+                <Text size='sm' fw={500}>
+                  Playing Status
+                </Text>
+                <Radio.Group
+                  value={isPlaying.toString()}
+                  onChange={(value) => {
+                    const newStatus = value === 'true';
+                    setIsPlaying(newStatus);
+                    handlePlayingStatusChange(newStatus);
+                  }}
+                >
+                  <Stack>
+                    <Radio value='true' label='Playing' disabled={isSaving} />
+                    <Radio value='false' label='Not Playing' disabled={isSaving} />
+                  </Stack>
+                </Radio.Group>
+                <Group justify='space-between'>
+                  <Text size='sm' fw={500}>
+                    Optional Note
+                  </Text>
+                  <Button
+                    variant='subtle'
+                    size='xs'
+                    onClick={() => setIsNoteExpanded(!isNoteExpanded)}
+                  >
+                    {isNoteExpanded ? 'Hide' : 'Show'}
+                  </Button>
+                </Group>
+                {isNoteExpanded && (
+                  <Textarea
+                    placeholder='Playing status note...'
+                    value={note}
+                    onChange={(event) => setNote(event.currentTarget.value)}
+                    minRows={2}
+                    maxRows={4}
+                    autosize
+                    disabled={isSaving}
+                  />
+                )}
                 <Divider my='xs' />
                 <Button
                   color='red'
@@ -417,6 +478,47 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
     }
   };
 
+  const handlePlayingStatusChange = async (
+    userId: string,
+    isPlaying: boolean,
+    note?: string,
+  ): Promise<void> => {
+    try {
+      const request: UpdateRosterPlayingStatusRequest = {
+        SessionId: session.SessionId ?? 0,
+        UserId: userId,
+        IsPlaying: isPlaying,
+        Note: note,
+      };
+
+      const result = await sessionService.updateRosterPlayingStatus(request);
+      if (result.Data !== null && result.Data !== undefined) {
+        onSessionUpdate(result.Data);
+      }
+
+      setEditingPlayer(null);
+
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Playing Status Updated',
+        message: `Player status updated to ${isPlaying ? 'Playing' : 'Not Playing'}`,
+        color: 'green',
+      });
+    } catch (error) {
+      console.error('Failed to update playing status:', error);
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to update playing status. Please try again.',
+        color: 'red',
+      });
+    }
+  };
+
   const sortRosterPlayers = (a: RosterPlayer, b: RosterPlayer): number => {
     // Sort by IsPlaying first (true comes before false)
     if (a.IsPlaying !== b.IsPlaying) {
@@ -491,6 +593,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                                   }
                                   onPositionChange={handlePositionChange}
                                   onTeamChange={handleTeamChange}
+                                  onPlayingStatusChange={handlePlayingStatusChange}
                                   onClose={() => setEditingPlayer(null)}
                                 />
                               </div>
@@ -577,6 +680,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                                   }
                                   onPositionChange={handlePositionChange}
                                   onTeamChange={handleTeamChange}
+                                  onPlayingStatusChange={handlePlayingStatusChange}
                                   onClose={() => setEditingPlayer(null)}
                                 />
                               </div>
