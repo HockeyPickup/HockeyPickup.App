@@ -22,8 +22,10 @@ export const SessionsPage = (): JSX.Element => {
 
   return (
     <Container size='xl' mb='lg'>
-      <Group justify='space-between' mb='md'>
-        <Title order={2}>Upcoming Sessions</Title>
+      <Group justify='space-between'>
+        <Title order={2} ml='xs'>
+          Upcoming Sessions
+        </Title>
         {isAdmin() && showRatings && (
           <Button leftSection={<IconPlus size={16} />} onClick={() => navigate('/sessions/new')}>
             New Session
@@ -31,7 +33,7 @@ export const SessionsPage = (): JSX.Element => {
         )}
       </Group>
       <SessionsTable display={SessionDisplay.Future} />
-      <Title order={2} mt='xl' mb='md'>
+      <Title order={2} mt='xl' ml='xs'>
         Past Sessions
       </Title>
       <SessionsTable display={SessionDisplay.Past} />
