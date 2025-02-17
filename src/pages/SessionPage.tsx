@@ -9,10 +9,7 @@ export const SessionPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
 
   useEffect(() => {
-    setPageInfo(
-      'Session Detail',
-      sessionId ? `Hockey Pickup session ${sessionId}` : 'Hockey Pickup session',
-    );
+    setPageInfo(sessionId ? `Session - ${sessionId}` : 'Session');
   }, [sessionId, setPageInfo]);
   return (
     <Container size='xl' mb={55}>

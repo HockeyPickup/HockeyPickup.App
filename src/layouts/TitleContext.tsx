@@ -24,8 +24,8 @@ export const TitleProvider: FC<{ children: ReactNode }> = ({ children }) => {
     if (ogTitle) {
       ogTitle.setAttribute('content', displayTitle);
     }
-    if (ogDescription && description) {
-      ogDescription.setAttribute('content', description);
+    if (ogDescription) {
+      ogDescription.setAttribute('content', description ?? displayTitle);
     }
   };
 

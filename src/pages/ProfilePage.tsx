@@ -661,11 +661,15 @@ export const ProfilePage = (): JSX.Element => {
   };
 
   useEffect(() => {
-    setPageInfo('Player Profile');
     getUserById(userId)
       .then((response) => {
         setProfileUser(response);
         setLoading(false);
+        setPageInfo(
+          response
+            ? `Player Profile - ${response.FirstName} ${response.LastName}`
+            : 'Player Profile',
+        );
       })
       .catch(() => {
         setProfileUser(null);
