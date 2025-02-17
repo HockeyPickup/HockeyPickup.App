@@ -665,11 +665,11 @@ export const ProfilePage = (): JSX.Element => {
       .then((response) => {
         setProfileUser(response);
         setLoading(false);
-        setPageInfo(
-          response
-            ? `Player Profile - ${response.FirstName} ${response.LastName}`
-            : 'Player Profile',
-        );
+        const isMobile = window.innerWidth <= 768;
+        const title = isMobile
+          ? `${response.FirstName} ${response.LastName}`
+          : `Player Profile - ${response.FirstName} ${response.LastName}`;
+        setPageInfo(response ? title : '');
       })
       .catch(() => {
         setProfileUser(null);
