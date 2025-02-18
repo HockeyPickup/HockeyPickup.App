@@ -751,7 +751,7 @@ const PreferencesSection = (): JSX.Element => {
         if (value === null || value === undefined) return null;
         const num = Number(value);
         if (!Number.isInteger(num)) return 'Must be a whole number';
-        if (num < 1 || num > 98) return 'Must be between 1 and 98';
+        if (num < 0 || num > 98) return 'Must be between 0 and 98';
         return null;
       },
       EmergencyPhone: (value) =>
