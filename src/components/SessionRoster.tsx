@@ -196,11 +196,14 @@ const PlayerCell = ({
       </Text>
       {isAdmin() && showRatings && (
         <Popover
-          position='top'
           withArrow
           shadow='md'
           opened={editingPlayer?.userId === player.UserId}
           onClose={() => !isSaving && onClose()}
+          middlewares={{ shift: true, flip: true }}
+          position='center'
+          offset={8}
+          zIndex={1000}
         >
           <Popover.Target>
             <ActionIcon
@@ -222,7 +225,17 @@ const PlayerCell = ({
               <IconPencil size={16} />
             </ActionIcon>
           </Popover.Target>
-          <Popover.Dropdown>
+          <Popover.Dropdown
+            style={{
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              maxWidth: '90vw',
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
             <Paper pos='relative'>
               <LoadingOverlay
                 visible={isSaving}
