@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/auth';
 import { GET_SESSION, SESSION_UPDATED } from '@/lib/queries';
 import { useQuery, useSubscription } from '@apollo/client';
 import { Stack, Text } from '@mantine/core';
+import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';
 
 interface SessionTableProps {
@@ -48,13 +49,18 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   if (!session) return <></>;
   console.info(session);
 
+  const localString = session.SessionDate.replace('Z', '');
+  const sessionDate = moment(localString);
+  const now = moment.tz('America/Los_Angeles');
+  const isSessionFuture: boolean = sessionDate.isAfter(now);
+
   return (
-    <Stack gap='md' mb='xl'>
+    <Stack>
       <SessionDetails session={session} />
+      {isSessionFuture && <SessionActions session={session} onSessionUpdate={setSession} />}
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <SessionRoster session={session} onSessionUpdate={setSession} />
       )}
-      <SessionActions session={session} onSessionUpdate={setSession} />
       {session.BuyingQueues && session.BuyingQueues.length > 0 && (
         <SessionBuyingQueue session={session} onSessionUpdate={setSession} />
       )}

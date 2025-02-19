@@ -138,9 +138,9 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   };
 
   return (
-    <>
-      <Paper shadow='sm' p='md'>
-        <Group mt='md'>
+    <div style={{ marginTop: -16 }}>
+      <Paper shadow='sm' p='xs' style={{ marginTop: 0, marginBottom: 0 }}>
+        <Group>
           <Text fw={700}>
             Buy Window
             {user?.PreferredPlus ? ' (Preferred Plus)' : user?.Preferred ? ' (Preferred)' : ''}
@@ -156,7 +156,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
             </Text>
           </Group>
         )}
-        <Group justify='left'>
+        <Group justify='left' mt='sm'>
           {canBuySpot && (
             <Button onClick={() => setBuyModalOpen(true)} color='green'>
               {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
@@ -226,7 +226,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
             Sell Spot
           </Button>
         </Group>
-      </Modal>{' '}
-    </>
+      </Modal>
+    </div>
   );
 };
