@@ -475,7 +475,7 @@ export const RegularsPage = (): JSX.Element => {
             <Avatar
               src={avatars[regular.UserId]}
               alt={`${regular.User?.FirstName} ${regular.User?.LastName}`}
-              radius='md'
+              radius='xl'
               className={styles.rosterAvatar}
             />
           </Link>

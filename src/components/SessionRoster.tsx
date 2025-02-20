@@ -169,7 +169,7 @@ const PlayerCell = ({
         <Avatar
           src={avatarUrl}
           alt={`${player.FirstName} ${player.LastName}`}
-          radius='md'
+          radius='xl'
           className={styles.rosterAvatar}
         />
       </Link>
