@@ -26,6 +26,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [sellModalOpen, setSellModalOpen] = useState(false);
   const [note, setNote] = useState('');
+  const [isTransacting, setIsTransacting] = useState(false);
 
   useEffect(() => {
     const checkPermissions = async (): Promise<void> => {
@@ -64,7 +65,9 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   const buyWindowDate = moment.utc(getBuyWindowDate()).format('dddd, MM/DD/yyyy, HH:mm');
 
   const handleBuy = async (): Promise<void> => {
+    if (isTransacting) return;
     try {
+      setIsTransacting(true);
       const response = await buySellService.buySpot({
         SessionId: session.SessionId,
         Note: note,
@@ -97,11 +100,15 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         message: errorMessage,
         color: 'red',
       });
+    } finally {
+      setIsTransacting(false);
     }
   };
 
   const handleSell = async (): Promise<void> => {
+    if (isTransacting) return;
     try {
+      setIsTransacting(true);
       const response = await buySellService.sellSpot({
         SessionId: session.SessionId,
         Note: note,
@@ -134,6 +141,8 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         message: errorMessage,
         color: 'red',
       });
+    } finally {
+      setIsTransacting(false);
     }
   };
 
@@ -158,12 +167,12 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         )}
         <Group justify='left' mt='sm'>
           {canBuySpot && (
-            <Button onClick={() => setBuyModalOpen(true)} color='green'>
+            <Button onClick={() => setBuyModalOpen(true)} color='green' loading={isTransacting}>
               {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
             </Button>
           )}
           {canSellSpot && (
-            <Button onClick={() => setSellModalOpen(true)} color='red'>
+            <Button onClick={() => setSellModalOpen(true)} color='red' loading={isTransacting}>
               Sell Spot
             </Button>
           )}
