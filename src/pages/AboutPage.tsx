@@ -19,6 +19,24 @@ export const AboutPage = (): JSX.Element => {
           <p>
             <img src='/static/toyota_ice.jpg' width='250' alt='Toyota Sports Performance Center' />
           </p>
+          <Blockquote
+            color='green'
+            iconSize={30}
+            mt='md'
+            mb='md'
+            styles={{ root: { fontSize: '1.2rem' } }}
+          >
+            "JB hockey pickup, a twice weekly skate widely considered one of the best pickup hockey
+            groups in North America"
+            <br />
+            <br />
+            <Text size='sm'>
+              Source:&nbsp;
+              <a href='https://www.nhl.com/news/la-strong-game-full-circle-moment-for-first-responder-roger-sackaroff'>
+                nhl.com
+              </a>
+            </Text>
+          </Blockquote>
           <p>
             Our founder, John Bryan, started this pickup skate in 2004 to enable novice skaters to
             improve their skills. 20+ years later, our pickup has become a lifestyle and we're still
