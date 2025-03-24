@@ -1,7 +1,7 @@
 import styles from '@/App.module.css';
 import { RatingsToggle } from '@/components/RatingsToggle';
 import { useZoom } from '@/hooks/useZoom';
-import { AppShell, Avatar, Burger, Group, Menu, Text } from '@mantine/core';
+import { AppShell, Avatar, Burger, Group, Menu, Paper, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { FC, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -18,6 +18,14 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { title } = useTitle();
   const { canViewRatings, isAdmin, isSubAdmin } = useAuth();
   useZoom(false);
+
+  const unpaidBuyerTransactions =
+    user?.BuyerTransactions?.filter((bt) => !bt.PaymentSent && bt.SellerUserId) ?? [];
+  const unconfirmedSellerTransactions =
+    user?.SellerTransactions?.filter((bt) => !bt.PaymentReceived && bt.BuyerUserId) ?? [];
+
+  const hasPendingTransactions =
+    unpaidBuyerTransactions.length > 0 || unconfirmedSellerTransactions.length > 0;
 
   useEffect(() => {
     // Update the document title whenever the title changes
@@ -133,6 +141,45 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           </Group>
         </div>
       </AppShell.Header>
+      {hasPendingTransactions && (
+        <Paper
+          withBorder
+          shadow='sm'
+          p='xs'
+          radius='md'
+          mb='md'
+          bg='yellow.1'
+          style={{
+            position: 'sticky',
+            top: 60,
+            zIndex: 100,
+            borderLeft: '4px solid #FFD700',
+          }}
+        >
+          <Group justify='center' gap='xs'>
+            <Text size='sm' c='dark.7' fw={500}>
+              You have{' '}
+              {unpaidBuyerTransactions.length > 0 && (
+                <>
+                  {unpaidBuyerTransactions.length} unpaid session
+                  {unpaidBuyerTransactions.length !== 1 ? 's' : ''}
+                  {unconfirmedSellerTransactions.length > 0 ? ' and ' : ''}
+                </>
+              )}
+              {unconfirmedSellerTransactions.length > 0 &&
+                `${unconfirmedSellerTransactions.length} payment${unconfirmedSellerTransactions.length !== 1 ? 's' : ''} marked unconfirmed`}
+              .{' '}
+              <Link
+                to='/account'
+                style={{ color: '#228be6', textDecoration: 'underline', fontWeight: 600 }}
+              >
+                View
+              </Link>{' '}
+              to resolve.
+            </Text>
+          </Group>
+        </Paper>
+      )}
       <AppShell.Main className={styles.main}>{children}</AppShell.Main>
       <AppShell.Footer className={styles.footer}>
         <Group justify='center' gap='xs'>
