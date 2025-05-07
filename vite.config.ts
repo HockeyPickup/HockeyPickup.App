@@ -21,6 +21,23 @@ export default defineConfig(({ mode }) => ({
     alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
   },
   plugins: [react(), basicSsl()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: [
+            'react',
+            'react-dom',
+            '@mantine/core',
+            '@mantine/hooks',
+            '@hello-pangea/dnd',
+            '@mantine/notifications',
+            '@tabler/icons-react',
+          ],
+        },
+      },
+    },
+  },
   css: {
     modules: {
       localsConvention: 'camelCase',
