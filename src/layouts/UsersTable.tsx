@@ -59,7 +59,7 @@ export const UsersTable = (): JSX.Element => {
   useEffect(() => {
     const loadAvatars = async (): Promise<void> => {
       const newAvatars: Record<string, string> = {};
-      for (const user of data?.UsersEx || []) {
+      for (const user of data?.UsersEx ?? []) {
         const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl);
         newAvatars[user.Id] = avatarUrl;
       }
@@ -73,8 +73,8 @@ export const UsersTable = (): JSX.Element => {
   if (loading) return <LoadingSpinner />;
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
-  const activeUsers = data?.UsersEx.filter((user: User) => user.Active) || [];
-  const inactiveUsers = data?.UsersEx.filter((user: User) => !user.Active) || [];
+  const activeUsers = data?.UsersEx.filter((user: User) => user.Active) ?? [];
+  const inactiveUsers = data?.UsersEx.filter((user: User) => !user.Active) ?? [];
 
   const getAllEmails = (users: User[]): string => {
     return users.map((user: User) => user.Email).join('\n');

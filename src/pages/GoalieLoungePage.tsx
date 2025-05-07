@@ -156,7 +156,7 @@ export const GoalieLoungePage = (): JSX.Element => {
   useEffect(() => {
     const loadAvatars = async (): Promise<void> => {
       const newAvatars: Record<string, string> = {};
-      for (const user of data?.UsersEx || []) {
+      for (const user of data?.UsersEx ?? []) {
         const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl);
         newAvatars[user.Id] = avatarUrl;
       }
@@ -174,7 +174,7 @@ export const GoalieLoungePage = (): JSX.Element => {
   const goalies =
     data?.UsersEx.filter(
       (user: User) => user.Active && user.PositionPreference == PositionPreference.Goalie,
-    ) || [];
+    ) ?? [];
   return (
     <Container size='xl' mb='lg'>
       <Paper shadow='sm' p='md'>
@@ -184,7 +184,7 @@ export const GoalieLoungePage = (): JSX.Element => {
         <GoalieTableComponent
           goalies={goalies}
           avatars={avatars}
-          sessions={sessionsData?.Sessions || []}
+          sessions={sessionsData?.Sessions ?? []}
         />
       </Paper>
     </Container>

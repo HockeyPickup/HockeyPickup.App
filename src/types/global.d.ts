@@ -1,3 +1,3 @@
 interface Window {
-  gtag: (command: string, target: string, config?: Record<string, any>) => void;
+  gtag: (_command: string, _target: string, _config?: Record<string, unknown>) => void;
 }

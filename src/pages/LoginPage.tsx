@@ -27,7 +27,7 @@ export const LoginPage = (): JSX.Element => {
   const { setUser, refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname ?? '/';
   const { trackEvent } = useGoogleAnalytics();
 
   const form = useForm<LoginRequest>({

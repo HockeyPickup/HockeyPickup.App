@@ -1,5 +1,5 @@
 import { Modal, Paper, Stack, Table, Title } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useTitle } from '../layouts/TitleContext';
 
 interface Newsletter {
@@ -9,7 +9,7 @@ interface Newsletter {
   url: string;
 }
 
-export const NewslettersPage = () => {
+export const NewslettersPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [selectedNewsletter, setSelectedNewsletter] = useState<string | null>(null);
