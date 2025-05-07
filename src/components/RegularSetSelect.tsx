@@ -95,6 +95,7 @@ export const RegularSetSelect = ({
             value={value}
             onChange={onChange}
             disabled={loading}
+            required
           />
           {selectedPresetData && (
             <Text size='sm' c='dimmed' ml='sm'>
