@@ -232,10 +232,14 @@ export const SessionFormPage = (): JSX.Element => {
               leftSection={<IconCalendar size={16} />}
               required
               clearable={false}
-              valueFormat='MM/DD/YYYY HH:mm'
-              timeInputProps={{ type: '24' }}
+              valueFormat='dddd MM/DD/YYYY HH:mm'
               withSeconds={false}
-              {...form.getInputProps('SessionDate')}
+              value={form.values.SessionDate}
+              onChange={(date) => {
+                if (date) {
+                  form.setFieldValue('SessionDate', new Date(date));
+                }
+              }}
             />
             <RegularSetSelect
               value={form.values.RegularSetId}
