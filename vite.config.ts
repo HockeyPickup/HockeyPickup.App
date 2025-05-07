@@ -14,8 +14,8 @@ export default defineConfig(({ mode }) => ({
       '@mantine/hooks',
       '@hello-pangea/dnd',
       '@mantine/notifications',
-      '@tabler/icons-react'
-    ]
+      '@tabler/icons-react',
+    ],
   },
   resolve: {
     alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
@@ -34,10 +34,10 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     hmr: {
-      overlay: false  // Disable the error overlay
+      overlay: false, // Disable the error overlay
     },
     fs: {
-      strict: false  // Allows importing from outside the root
+      strict: false, // Allows importing from outside the root
     },
     proxy: {
       '/api': {
