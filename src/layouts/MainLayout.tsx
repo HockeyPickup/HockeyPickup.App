@@ -167,7 +167,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
                 </>
               )}
               {unconfirmedSellerTransactions.length > 0 &&
-                `${unconfirmedSellerTransactions.length} payment${unconfirmedSellerTransactions.length !== 1 ? 's' : ''} marked unconfirmed`}
+                `${unconfirmedSellerTransactions.length} payment${unconfirmedSellerTransactions.length !== 1 ? 's' : ''} not marked received`}
               .{' '}
               <Link
                 to='/account'
