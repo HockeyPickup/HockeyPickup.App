@@ -1,5 +1,4 @@
 import styles from '@/App.module.css';
-import { AvatarUpload } from '@/components/AvatarUpload';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/error';
@@ -800,25 +799,6 @@ const PreferencesSection = (): JSX.Element => {
       <Title size='xl'>Preferences</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
-          <AvatarUpload onUploadSuccess={refreshUser} />
-          <Stack>
-            <Avatar
-              src={avatarUrl}
-              alt={`${user?.FirstName} ${user?.LastName}`}
-              size={120}
-              radius='sm'
-            />
-          </Stack>
-          <TextInput
-            label='First Name'
-            placeholder='Your first name'
-            {...form.getInputProps('FirstName')}
-          />
-          <TextInput
-            label='Last Name'
-            placeholder='Your last name'
-            {...form.getInputProps('LastName')}
-          />
           <TextInput
             label='Jersey Number'
             placeholder='0'
