@@ -200,8 +200,12 @@ export const SessionBuyingQueue = ({
 
         {(queue.SellerNote ?? queue.BuyerNote) && (
           <div>
-            {queue.SellerNote && <Text size='sm'>Seller Note: {queue.SellerNote}</Text>}
-            {queue.BuyerNote && <Text size='sm'>Buyer Note: {queue.BuyerNote}</Text>}
+            {queue.SellerNote && !queue.SellerNoteFlagged && (
+              <Text size='sm'>Seller Note: {queue.SellerNote}</Text>
+            )}
+            {queue.BuyerNote && !queue.BuyerNoteFlagged && (
+              <Text size='sm'>Buyer Note: {queue.BuyerNote}</Text>
+            )}
           </div>
         )}
 
@@ -290,8 +294,12 @@ export const SessionBuyingQueue = ({
       <Table.Td>{queue.SellerName ?? 'TBD'}</Table.Td>
       <Table.Td>{queue.BuyerName ?? 'TBD'}</Table.Td>
       <Table.Td>
-        {queue.SellerNote && <Text size='xs'>Seller: {queue.SellerNote}</Text>}
-        {queue.BuyerNote && <Text size='xs'>Buyer: {queue.BuyerNote}</Text>}
+        {queue.SellerNote && !queue.SellerNoteFlagged && (
+          <Text size='xs'>Seller: {queue.SellerNote}</Text>
+        )}
+        {queue.BuyerNote && !queue.BuyerNoteFlagged && (
+          <Text size='xs'>Buyer: {queue.BuyerNote}</Text>
+        )}
       </Table.Td>
       <Table.Td>{queue.QueueStatus}</Table.Td>
       <Table.Td>

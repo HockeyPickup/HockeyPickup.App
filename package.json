@@ -9,8 +9,8 @@
     "lint": "eslint . --config eslint.config.cjs",
     "format": "prettier --write \"**/*.{ts,tsx}\" --config ./.prettierrc",
     "preview": "vite preview",
-    "refresh-api:local": "curl --insecure --output HockeyPickup.Api.swagger.json https://localhost:7042/swagger/v1/swagger.json && npx swagger-typescript-api --no-client --path ./HockeyPickup.Api.swagger.json --output ./src --name HockeyPickup.Api.ts",
-    "refresh-api:prod": "npx swagger-typescript-api --no-client --path https://api.HockeyPickup.org/swagger/v1/swagger.json --output ./src --name HockeyPickup.Api.ts",
+    "refresh-api:local": "curl --insecure --output HockeyPickup.Api.swagger.json https://localhost:7042/swagger/v1/swagger.json && npx swagger-typescript-api generate --no-client --path ./HockeyPickup.Api.swagger.json --output ./src --name HockeyPickup.Api.ts",
+    "refresh-api:prod": "npx swagger-typescript-api generate --no-client --path https://api.HockeyPickup.org/swagger/v1/swagger.json --output ./src --name HockeyPickup.Api.ts",
     "build-version": "bash ./scripts/build-version.sh",
     "update-packages": "ncu -u",
     "check-deps": "npx depcheck"

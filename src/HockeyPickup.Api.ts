@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -8,6 +9,47 @@
  * ## SOURCE: https://github.com/acacode/swagger-typescript-api ##
  * ---------------------------------------------------------------
  */
+
+export enum PlayerStatus {
+  NotPlaying = "NotPlaying",
+  Regular = "Regular",
+  Substitute = "Substitute",
+  InQueue = "InQueue",
+}
+
+export enum TeamAssignment {
+  TBD = "TBD",
+  Light = "Light",
+  Dark = "Dark",
+}
+
+export enum PaymentMethodType {
+  Unknown = "Unknown",
+  PayPal = "PayPal",
+  Venmo = "Venmo",
+  CashApp = "CashApp",
+  Zelle = "Zelle",
+  Bitcoin = "Bitcoin",
+}
+
+export enum ShootPreference {
+  TBD = "TBD",
+  Left = "Left",
+  Right = "Right",
+}
+
+export enum PositionPreference {
+  TBD = "TBD",
+  Forward = "Forward",
+  Defense = "Defense",
+  Goalie = "Goalie",
+}
+
+export enum NotificationPreference {
+  None = "None",
+  All = "All",
+  OnlyMyBuySell = "OnlyMyBuySell",
+}
 
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfLoginResponse = ApiResponse & {
@@ -123,25 +165,6 @@ export interface UserDetailedResponse {
   SellerTransactions?: BuySellResponse[] | null;
 }
 
-export enum NotificationPreference {
-  None = 'None',
-  All = 'All',
-  OnlyMyBuySell = 'OnlyMyBuySell',
-}
-
-export enum PositionPreference {
-  TBD = 'TBD',
-  Forward = 'Forward',
-  Defense = 'Defense',
-  Goalie = 'Goalie',
-}
-
-export enum ShootPreference {
-  TBD = 'TBD',
-  Left = 'Left',
-  Right = 'Right',
-}
-
 export interface UserPaymentMethodResponse {
   /**
    * Unique identifier for the payment method
@@ -162,15 +185,6 @@ export interface UserPaymentMethodResponse {
   PreferenceOrder: number;
   /** Whether this payment method is currently active */
   IsActive: boolean;
-}
-
-export enum PaymentMethodType {
-  Unknown = 'Unknown',
-  PayPal = 'PayPal',
-  Venmo = 'Venmo',
-  CashApp = 'CashApp',
-  Zelle = 'Zelle',
-  Bitcoin = 'Bitcoin',
 }
 
 export interface BuySellResponse {
@@ -259,12 +273,6 @@ export interface BuySellResponse {
   Buyer?: UserDetailedResponse | null;
   /** Seller details */
   Seller?: UserDetailedResponse | null;
-}
-
-export enum TeamAssignment {
-  TBD = 'TBD',
-  Light = 'Light',
-  Dark = 'Dark',
 }
 
 /** Generic API response wrapper */
@@ -369,10 +377,15 @@ export type AspNetRole = IdentityRoleOfString & {
   Users?: AspNetUser[];
 };
 
+/** Represents a role in the identity system */
 export interface IdentityRoleOfString {
+  /** Gets or sets the primary key for this role. */
   Id?: string | null;
+  /** Gets or sets the name for this role. */
   Name?: string | null;
+  /** Gets or sets the normalized name for this role. */
   NormalizedName?: string | null;
+  /** A random value that should change whenever a role is persisted to the store */
   ConcurrencyStamp?: string | null;
 }
 
@@ -397,8 +410,10 @@ export interface BuySell {
   /** @format decimal */
   Price?: number | null;
   PaymentMethod?: PaymentMethodType | null;
-  CreateByUserId?: string | null;
-  UpdateByUserId?: string | null;
+  /** @minLength 1 */
+  CreateByUserId: string;
+  /** @minLength 1 */
+  UpdateByUserId: string;
   TransactionStatus?: string;
   Session?: Session | null;
   Buyer?: AspNetUser | null;
@@ -510,6 +525,8 @@ export interface BuyingQueue {
   PaymentReceived?: boolean;
   BuyerNote?: string | null;
   SellerNote?: string | null;
+  BuyerNoteFlagged?: boolean;
+  SellerNoteFlagged?: boolean;
   Buyer?: AspNetUser | null;
   Seller?: AspNetUser | null;
 }
@@ -538,23 +555,43 @@ export interface UserPaymentMethod {
   User?: AspNetUser;
 }
 
+/** Represents a user in the identity system */
 export interface IdentityUserOfString {
+  /** Gets or sets the primary key for this user. */
   Id?: string | null;
+  /** Gets or sets the user name for this user. */
   UserName?: string | null;
+  /** Gets or sets the normalized user name for this user. */
   NormalizedUserName?: string | null;
+  /** Gets or sets the email address for this user. */
   Email?: string | null;
+  /** Gets or sets the normalized email address for this user. */
   NormalizedEmail?: string | null;
+  /** Gets or sets a flag indicating if a user has confirmed their email address. */
   EmailConfirmed?: boolean;
+  /** Gets or sets a salted and hashed representation of the password for this user. */
   PasswordHash?: string | null;
+  /** A random value that must change whenever a users credentials change (password changed, login removed) */
   SecurityStamp?: string | null;
+  /** A random value that must change whenever a user is persisted to the store */
   ConcurrencyStamp?: string | null;
+  /** Gets or sets a telephone number for the user. */
   PhoneNumber?: string | null;
+  /** Gets or sets a flag indicating if a user has confirmed their telephone address. */
   PhoneNumberConfirmed?: boolean;
+  /** Gets or sets a flag indicating if two factor authentication is enabled for this user. */
   TwoFactorEnabled?: boolean;
-  /** @format date-time */
+  /**
+   * Gets or sets the date and time, in UTC, when any user lockout ends.
+   * @format date-time
+   */
   LockoutEnd?: string | null;
+  /** Gets or sets a flag indicating if the user could be locked out. */
   LockoutEnabled?: boolean;
-  /** @format int32 */
+  /**
+   * Gets or sets the number of failed login attempts for the current user.
+   * @format int32
+   */
   AccessFailedCount?: number;
 }
 
@@ -1279,13 +1316,6 @@ export interface RosterPlayer {
   JoinedDateTime: string;
 }
 
-export enum PlayerStatus {
-  NotPlaying = 'NotPlaying',
-  Regular = 'Regular',
-  Substitute = 'Substitute',
-  InQueue = 'InQueue',
-}
-
 export interface BuyingQueueItem {
   /**
    * Unique identifier for the buy/sell transaction
@@ -1345,6 +1375,10 @@ export interface BuyingQueueItem {
    * @maxLength 4000
    */
   SellerNote?: string | null;
+  /** Indicates if the seller note has been flagged */
+  SellerNoteFlagged?: boolean;
+  /** Indicates if the buyer note has been flagged */
+  BuyerNoteFlagged?: boolean;
   /** Buyer details */
   Buyer?: UserDetailedResponse | null;
   /** Seller details */
@@ -1520,10 +1554,11 @@ export interface UserPaymentMethodRequest {
 }
 
 /** Generic API response wrapper with typed data payload */
-export type ApiDataResponseOfIEnumerableOfUserPaymentMethodResponse = ApiResponse & {
-  /** Response data payload of type T */
-  Data?: UserPaymentMethodResponse[] | null;
-};
+export type ApiDataResponseOfIEnumerableOfUserPaymentMethodResponse =
+  ApiResponse & {
+    /** Response data payload of type T */
+    Data?: UserPaymentMethodResponse[] | null;
+  };
 
 export interface LockerRoom13Players {
   /**

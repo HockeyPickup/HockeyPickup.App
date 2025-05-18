@@ -59,8 +59,10 @@ export const GET_SESSION = gql`
         BuySellId
         BuyerUserId
         SellerUserId
-        SellerNote
         BuyerNote
+        SellerNote
+        SellerNoteFlagged
+        BuyerNoteFlagged
         PaymentSent
         PaymentReceived
         CreateDateTime
@@ -167,6 +169,8 @@ export const GET_SESSION = gql`
         PaymentReceived
         BuyerNote
         SellerNote
+        BuyerNoteFlagged
+        SellerNoteFlagged
         Buyer {
           Id
           UserName
@@ -336,8 +340,10 @@ export const SESSION_UPDATED = gql`
         BuySellId
         BuyerUserId
         SellerUserId
-        SellerNote
         BuyerNote
+        SellerNote
+        BuyerNoteFlagged
+        SellerNoteFlagged
         PaymentSent
         PaymentReceived
         CreateDateTime
@@ -444,6 +450,8 @@ export const SESSION_UPDATED = gql`
         PaymentReceived
         BuyerNote
         SellerNote
+        BuyerNoteFlagged
+        SellerNoteFlagged
         Buyer {
           Id
           UserName
