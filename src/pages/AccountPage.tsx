@@ -713,20 +713,10 @@ const PreferencesSection = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
   const { setUser, user } = useAuth();
-  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   const refreshUser = async (): Promise<void> => {
     await authService.refreshUser(setUser);
   };
-
-  const refreshAvatar = async (): Promise<void> => {
-    const url = await AvatarService.getAvatarUrl(user?.PhotoUrl ?? '');
-    setAvatarUrl(url);
-  };
-
-  useEffect(() => {
-    refreshAvatar();
-  }, [user]);
 
   const form = useForm<SaveUserRequest>({
     initialValues: {
