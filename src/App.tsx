@@ -1,4 +1,4 @@
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import '@mantine/carousel/styles.css';
 import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';

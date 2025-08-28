@@ -5,7 +5,7 @@ import { UserDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_USERS } from '@/lib/queries';
 import { UsersQueryResult } from '@/types/graphql';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { Avatar, Paper, Table, Text } from '@mantine/core';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

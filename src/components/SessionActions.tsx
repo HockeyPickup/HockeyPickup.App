@@ -2,7 +2,7 @@ import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { SessionQueryResult } from '@/types/graphql';
 import { Button, Group, Modal, Paper, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';

@@ -6,7 +6,7 @@ import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSIONS } from '@/lib/queries';
 import { SessionsQueryResult } from '@/types/graphql';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { Box, Button, Container, Group, Image, Stack, Text } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import moment from 'moment';

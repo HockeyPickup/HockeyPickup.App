@@ -3,7 +3,7 @@ import { PositionPreference, Session, UserDetailedResponse } from '@/HockeyPicku
 import { useTitle } from '@/layouts/TitleContext';
 import { GET_SESSIONS, GET_USERS } from '@/lib/queries';
 import { SessionsQueryResult, UsersQueryResult } from '@/types/graphql';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { Avatar, Container, Paper, Table, Text } from '@mantine/core';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';

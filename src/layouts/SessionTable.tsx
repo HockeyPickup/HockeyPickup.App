@@ -10,7 +10,7 @@ import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSION, SESSION_UPDATED } from '@/lib/queries';
 import { SessionQueryResult } from '@/types/graphql';
-import { useQuery, useSubscription } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client/react';
 import { Stack, Text } from '@mantine/core';
 import moment from 'moment';
 import { JSX, useEffect, useState } from 'react';

@@ -5,7 +5,7 @@ import { Session } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSIONS } from '@/lib/queries';
 import { SessionsQueryResult } from '@/types/graphql';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { Paper, Table, Text } from '@mantine/core';
 import moment from 'moment-timezone';
 import { JSX, useEffect } from 'react';

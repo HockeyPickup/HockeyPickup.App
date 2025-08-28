@@ -11,7 +11,7 @@ import { GET_SESSION } from '@/lib/queries';
 import { sessionService } from '@/lib/session';
 import { isApiErrorResponse } from '@/services/api-helpers';
 import { SessionQueryResult } from '@/types/graphql';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import {
   Button,
   Container,

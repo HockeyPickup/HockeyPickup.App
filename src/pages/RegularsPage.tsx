@@ -15,7 +15,7 @@ import { useAuth } from '@/lib/auth';
 import { GET_REGULARSETS, GET_USERS } from '@/lib/queries';
 import { regularService } from '@/lib/regular';
 import { AvatarService } from '@/services/avatar';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { RegularSetsQueryResult, UsersQueryResult } from '@/types/graphql';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import {

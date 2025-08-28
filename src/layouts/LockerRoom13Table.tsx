@@ -3,7 +3,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { LockerRoom13Players, LockerRoom13Response, PlayerStatus } from '@/HockeyPickup.Api';
 import { GET_LOCKERROOM13 } from '@/lib/queries';
 import { LockerRoom13QueryResult } from '@/types/graphql';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { Paper, rem, Table, Text } from '@mantine/core';
 import { IconCheck, IconQuestionMark, IconX } from '@tabler/icons-react';
 import moment from 'moment';

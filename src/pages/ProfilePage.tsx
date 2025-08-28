@@ -26,7 +26,7 @@ import {
   revertImpersonation,
 } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { UserStatsQueryResult } from '@/types/graphql';
 import {
   Avatar,

@@ -1,6 +1,6 @@
 import { RegularSetDetailedResponse } from '@/HockeyPickup.Api';
 import { GET_REGULARSETS } from '@/lib/queries';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { Button, Checkbox, Group, Modal, Select, Stack, Text } from '@mantine/core';
 import { IconFilter } from '@tabler/icons-react';
 import { JSX, useState } from 'react';
