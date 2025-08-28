@@ -10,6 +10,7 @@ import { useTitle } from '@/layouts/TitleContext';
 import { GET_SESSION } from '@/lib/queries';
 import { sessionService } from '@/lib/session';
 import { isApiErrorResponse } from '@/services/api-helpers';
+import { SessionQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client';
 import {
   Button,
@@ -79,7 +80,7 @@ export const SessionFormPage = (): JSX.Element => {
 
   const isEditMode = !!sessionId;
 
-  const { loading: sessionLoading, data: sessionData } = useQuery(GET_SESSION, {
+  const { loading: sessionLoading, data: sessionData } = useQuery<SessionQueryResult>(GET_SESSION, {
     variables: { SessionId: parseInt(sessionId ?? '0') },
     skip: !isEditMode,
     fetchPolicy: 'network-only',

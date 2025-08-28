@@ -27,6 +27,7 @@ import {
 } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
 import { useQuery } from '@apollo/client';
+import { UserStatsQueryResult } from '@/types/graphql';
 import {
   Avatar,
   Button,
@@ -61,12 +62,12 @@ const HeaderSection = ({
   const { showRatings } = useRatingsVisibility();
   const navigate = useNavigate();
 
-  const { data: statsData } = useQuery(GET_USERSTATS, {
+  const { data: statsData } = useQuery<UserStatsQueryResult>(GET_USERSTATS, {
     variables: { UserId: profileUser?.Id },
     skip: !profileUser?.Id,
   });
 
-  const stats: UserStatsResponse = statsData?.UserStats;
+  const stats: UserStatsResponse | undefined = statsData?.UserStats;
 
   const refreshAvatar = async (): Promise<void> => {
     const url = await AvatarService.getAvatarUrl(profileUser?.PhotoUrl ?? '');

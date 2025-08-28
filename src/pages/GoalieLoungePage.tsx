@@ -1,7 +1,8 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { PositionPreference, Session, User } from '@/HockeyPickup.Api';
+import { PositionPreference, Session, UserDetailedResponse } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { GET_SESSIONS, GET_USERS } from '@/lib/queries';
+import { SessionsQueryResult, UsersQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client';
 import { Avatar, Container, Paper, Table, Text } from '@mantine/core';
 import moment from 'moment';
@@ -13,7 +14,7 @@ const UpcomingGames = ({
   goalie,
   sessions,
 }: {
-  goalie: User;
+  goalie: UserDetailedResponse;
   sessions: Session[];
 }): JSX.Element => {
   const goalieFirstThree = (goalie.FirstName ?? '').slice(0, 3).toLowerCase();
@@ -65,7 +66,7 @@ const GoalieTableComponent = ({
   avatars,
   sessions,
 }: {
-  goalies: User[];
+  goalies: UserDetailedResponse[];
   avatars: Record<string, string>;
   sessions: Session[];
 }): JSX.Element => {
@@ -99,38 +100,40 @@ const GoalieTableComponent = ({
       <Table.Tbody>
         {Array.from({ length: Math.ceil(goalies.length / 2) }, (_, rowIndex) => (
           <Table.Tr key={rowIndex}>
-            {sortedGoalies.slice(rowIndex * 2, rowIndex * 2 + 2).map((goalie: User) => (
-              <Table.Td key={goalie.Id} style={{ width: '50%', verticalAlign: 'top' }}>
-                <Link
-                  to={`/profile/${goalie.Id}`}
-                  style={{
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
-                >
-                  <div
+            {sortedGoalies
+              .slice(rowIndex * 2, rowIndex * 2 + 2)
+              .map((goalie: UserDetailedResponse) => (
+                <Table.Td key={goalie.Id} style={{ width: '50%', verticalAlign: 'top' }}>
+                  <Link
+                    to={`/profile/${goalie.Id}`}
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.5rem',
-                      alignItems: 'center', // This centers the children horizontally
+                      textDecoration: 'none',
+                      color: 'inherit',
                     }}
                   >
-                    <Avatar
-                      src={avatars[goalie.Id]}
-                      alt={`${goalie.FirstName} ${goalie.LastName}`}
-                      radius='xl'
-                      size={96}
-                    />
-                    <Text size='lg'>
-                      {`${goalie.FirstName} ${goalie.LastName}`}
-                      {goalie.JerseyNumber !== 0 && ` #${goalie.JerseyNumber}`}
-                    </Text>
-                  </div>
-                </Link>
-                <UpcomingGames goalie={goalie} sessions={sessions} />
-              </Table.Td>
-            ))}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                        alignItems: 'center', // This centers the children horizontally
+                      }}
+                    >
+                      <Avatar
+                        src={avatars[goalie.Id]}
+                        alt={`${goalie.FirstName} ${goalie.LastName}`}
+                        radius='xl'
+                        size={96}
+                      />
+                      <Text size='lg'>
+                        {`${goalie.FirstName} ${goalie.LastName}`}
+                        {goalie.JerseyNumber !== 0 && ` #${goalie.JerseyNumber}`}
+                      </Text>
+                    </div>
+                  </Link>
+                  <UpcomingGames goalie={goalie} sessions={sessions} />
+                </Table.Td>
+              ))}
             {rowIndex * 2 + 1 >= goalies.length && <Table.Td style={{ width: '50%' }} />}
           </Table.Tr>
         ))}
@@ -141,12 +144,12 @@ const GoalieTableComponent = ({
 
 export const GoalieLoungePage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
-  const { loading, error, data } = useQuery(GET_USERS);
+  const { loading, error, data } = useQuery<UsersQueryResult>(GET_USERS);
   const {
     loading: sessionsLoading,
     error: sessionsError,
     data: sessionsData,
-  } = useQuery(GET_SESSIONS);
+  } = useQuery<SessionsQueryResult>(GET_SESSIONS);
   const [avatars, setAvatars] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -157,7 +160,7 @@ export const GoalieLoungePage = (): JSX.Element => {
     const loadAvatars = async (): Promise<void> => {
       const newAvatars: Record<string, string> = {};
       for (const user of data?.UsersEx ?? []) {
-        const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl);
+        const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl ?? '');
         newAvatars[user.Id] = avatarUrl;
       }
       setAvatars(newAvatars);
@@ -173,7 +176,8 @@ export const GoalieLoungePage = (): JSX.Element => {
 
   const goalies =
     data?.UsersEx.filter(
-      (user: User) => user.Active && user.PositionPreference == PositionPreference.Goalie,
+      (user: UserDetailedResponse) =>
+        user.Active && user.PositionPreference == PositionPreference.Goalie,
     ) ?? [];
   return (
     <Container size='xl' mb='lg'>

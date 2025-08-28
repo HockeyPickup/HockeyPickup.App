@@ -1,9 +1,10 @@
 import styles from '@/App.module.css';
 import { EmailList } from '@/components/EmailList';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { User } from '@/HockeyPickup.Api';
+import { UserDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_USERS } from '@/lib/queries';
+import { UsersQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client';
 import { Avatar, Paper, Table, Text } from '@mantine/core';
 import { JSX, useEffect, useState } from 'react';
@@ -14,7 +15,7 @@ const UsersTableComponent = ({
   users,
   avatars,
 }: {
-  users: User[];
+  users: UserDetailedResponse[];
   avatars: Record<string, string>;
 }): JSX.Element => (
   <div style={{ overflowX: 'auto', width: '100%' }}>
@@ -27,7 +28,7 @@ const UsersTableComponent = ({
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
-        {users.map((user: User) => (
+        {users.map((user: UserDetailedResponse) => (
           <Table.Tr key={user.Id}>
             <Table.Td>
               <Link to={`/profile/${user.Id}`}>
@@ -52,7 +53,7 @@ const UsersTableComponent = ({
 );
 
 export const UsersTable = (): JSX.Element => {
-  const { loading, error, data } = useQuery(GET_USERS);
+  const { loading, error, data } = useQuery<UsersQueryResult>(GET_USERS);
   const [avatars, setAvatars] = useState<Record<string, string>>({});
   const { isAdmin } = useAuth();
 
@@ -60,7 +61,7 @@ export const UsersTable = (): JSX.Element => {
     const loadAvatars = async (): Promise<void> => {
       const newAvatars: Record<string, string> = {};
       for (const user of data?.UsersEx ?? []) {
-        const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl);
+        const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl ?? '');
         newAvatars[user.Id] = avatarUrl;
       }
       setAvatars(newAvatars);
@@ -73,11 +74,11 @@ export const UsersTable = (): JSX.Element => {
   if (loading) return <LoadingSpinner />;
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
-  const activeUsers = data?.UsersEx.filter((user: User) => user.Active) ?? [];
-  const inactiveUsers = data?.UsersEx.filter((user: User) => !user.Active) ?? [];
+  const activeUsers = data?.UsersEx.filter((user: UserDetailedResponse) => user.Active) ?? [];
+  const inactiveUsers = data?.UsersEx.filter((user: UserDetailedResponse) => !user.Active) ?? [];
 
-  const getAllEmails = (users: User[]): string => {
-    return users.map((user: User) => user.Email).join('\n');
+  const getAllEmails = (users: UserDetailedResponse[]): string => {
+    return users.map((user: UserDetailedResponse) => user.Email).join('\n');
   };
 
   return (

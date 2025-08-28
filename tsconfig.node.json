@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "isolatedModules": true,
     "noEmit": true,
 

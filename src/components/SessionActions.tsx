@@ -3,6 +3,7 @@ import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client';
+import { SessionQueryResult } from '@/types/graphql';
 import { Button, Group, Modal, Paper, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import moment from 'moment';
@@ -14,7 +15,7 @@ interface SessionActionsProps {
 }
 
 export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps): JSX.Element => {
-  const { refetch } = useQuery(GET_SESSION, {
+  const { refetch } = useQuery<SessionQueryResult>(GET_SESSION, {
     variables: { SessionId: session.SessionId },
     skip: true, // Skip initial fetch
   });

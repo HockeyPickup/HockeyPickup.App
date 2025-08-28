@@ -5,6 +5,7 @@ import { Session } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSIONS } from '@/lib/queries';
+import { SessionsQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client';
 import { Box, Button, Container, Group, Image, Stack, Text } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
@@ -13,7 +14,7 @@ import { JSX, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export const useUpcomingSessions = (): { sessions: Session[]; loading: boolean } => {
-  const { data, loading } = useQuery(GET_SESSIONS, {
+  const { data, loading } = useQuery<SessionsQueryResult>(GET_SESSIONS, {
     fetchPolicy: 'network-only',
   });
 

@@ -42,16 +42,16 @@ export const RegularSetSelect = ({
 
   const regularSetOptions =
     data?.RegularSets?.filter(
-      (s) =>
+      (s: RegularSetDetailedResponse) =>
         (includeArchived || !s.Archived) &&
         (!selectedDayFilter || s.DayOfWeek.toString() === selectedDayFilter),
-    ).map((s) => ({
+    ).map((s: RegularSetDetailedResponse) => ({
       value: s.RegularSetId.toString(),
       label: s.Description ?? '',
     })) ?? [];
 
   const selectedPresetData = data?.RegularSets?.find(
-    (set) => set.RegularSetId.toString() === value,
+    (set: RegularSetDetailedResponse) => set.RegularSetId.toString() === value,
   );
 
   const FilterModal = (): JSX.Element => (

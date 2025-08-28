@@ -9,6 +9,7 @@ import { SessionRoster } from '@/components/SessionRoster';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSION, SESSION_UPDATED } from '@/lib/queries';
+import { SessionQueryResult } from '@/types/graphql';
 import { useQuery, useSubscription } from '@apollo/client';
 import { Stack, Text } from '@mantine/core';
 import moment from 'moment';
@@ -19,14 +20,14 @@ interface SessionTableProps {
 }
 
 export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
-  const { loading, error, data } = useQuery(GET_SESSION, {
+  const { loading, error, data } = useQuery<SessionQueryResult>(GET_SESSION, {
     variables: { SessionId: sessionId },
     fetchPolicy: 'network-only',
   });
 
   useSubscription(SESSION_UPDATED, {
     variables: { SessionId: sessionId },
-    onData: ({ data }) => {
+    onData: ({ data }: { data: any }) => {
       console.debug('Session update received:', data?.data?.SessionUpdated);
       if (data?.data?.SessionUpdated) {
         setSession(data.data.SessionUpdated);

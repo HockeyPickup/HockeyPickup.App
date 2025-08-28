@@ -3,6 +3,7 @@ import { BuyingQueueItem, PaymentMethodType, SessionDetailedResponse } from '@/H
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
+import { SessionQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client';
 import { Button, Checkbox, Group, Paper, Table, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -20,7 +21,7 @@ export const SessionBuyingQueue = ({
   session,
   onSessionUpdate,
 }: SessionBuyingQueueProps): JSX.Element => {
-  const { refetch } = useQuery(GET_SESSION, {
+  const { refetch } = useQuery<SessionQueryResult>(GET_SESSION, {
     variables: { SessionId: session.SessionId },
     skip: true, // Skip initial fetch
   });

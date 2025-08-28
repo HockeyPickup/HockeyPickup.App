@@ -8,7 +8,7 @@ import {
   RegularDetailedResponse,
   RegularSetDetailedResponse,
   TeamAssignment,
-  User,
+  UserDetailedResponse,
 } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { useAuth } from '@/lib/auth';
@@ -16,6 +16,7 @@ import { GET_REGULARSETS, GET_USERS } from '@/lib/queries';
 import { regularService } from '@/lib/regular';
 import { AvatarService } from '@/services/avatar';
 import { useQuery } from '@apollo/client';
+import { RegularSetsQueryResult, UsersQueryResult } from '@/types/graphql';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import {
   ActionIcon,
@@ -217,7 +218,7 @@ export const RegularsPage = (): JSX.Element => {
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [creatingRegularSet, setCreatingRegularSet] = useState(false);
 
-  const { loading, data, refetch } = useQuery<{ RegularSets: RegularSetDetailedResponse[] }>(
+  const { loading, data, refetch } = useQuery<RegularSetsQueryResult>(
     GET_REGULARSETS,
   );
 
@@ -228,7 +229,7 @@ export const RegularsPage = (): JSX.Element => {
   if (loading) return <LoadingSpinner />;
 
   const selectedPresetData = data?.RegularSets?.find(
-    (set) => set.RegularSetId.toString() === selectedPreset,
+    (set: RegularSetDetailedResponse) => set.RegularSetId.toString() === selectedPreset,
   );
 
   const handleEditComplete = async (): Promise<void> => {
@@ -238,9 +239,9 @@ export const RegularsPage = (): JSX.Element => {
 
   const getTeamRegulars = (team: TeamAssignment): RegularDetailedResponse[] => {
     return (
-      selectedPresetData?.Regulars?.filter((regular) => {
+      selectedPresetData?.Regulars?.filter((regular: RegularDetailedResponse) => {
         return regular.TeamAssignment === team;
-      }).sort((a, b) => {
+      }).sort((a: RegularDetailedResponse, b: RegularDetailedResponse) => {
         if (a.PositionPreference !== b.PositionPreference) {
           // Defense sorts before Forward
           return a.PositionPreference === PositionPreference.Defense ? -1 : 1;
@@ -270,8 +271,8 @@ export const RegularsPage = (): JSX.Element => {
       if (!selectedPreset) return;
 
       const player = data?.RegularSets?.find(
-        (set) => set.RegularSetId.toString() === selectedPreset,
-      )?.Regulars?.find((p) => p.UserId === userId);
+        (set: RegularSetDetailedResponse) => set.RegularSetId.toString() === selectedPreset,
+      )?.Regulars?.find((p: RegularDetailedResponse) => p.UserId === userId);
 
       const currentPosition = player?.PositionPreference ?? PositionPreference.TBD;
 
@@ -311,8 +312,8 @@ export const RegularsPage = (): JSX.Element => {
       if (!selectedPreset) return;
 
       const player = data?.RegularSets?.find(
-        (set) => set.RegularSetId.toString() === selectedPreset,
-      )?.Regulars?.find((p) => p.UserId === userId);
+        (set: RegularSetDetailedResponse) => set.RegularSetId.toString() === selectedPreset,
+      )?.Regulars?.find((p: RegularDetailedResponse) => p.UserId === userId);
 
       const currentTeamName =
         player?.TeamAssignment === TeamAssignment.Light ? 'Rockets (Light)' : 'Beauties (Dark)';
@@ -675,7 +676,7 @@ export const RegularsPage = (): JSX.Element => {
     try {
       const regularSetId = parseInt(selectedPreset);
       const sourceDescription = data?.RegularSets?.find(
-        (set) => set.RegularSetId.toString() === selectedPreset,
+        (set: RegularSetDetailedResponse) => set.RegularSetId.toString() === selectedPreset,
       )?.Description;
       const response = await regularService.duplicateRegularSet(
         regularSetId,
@@ -776,14 +777,14 @@ export const RegularsPage = (): JSX.Element => {
       },
     });
 
-    const { data: allUsers } = useQuery(GET_USERS); // Use existing GET_USERS query
+    const { data: allUsers } = useQuery<UsersQueryResult>(GET_USERS); // Use existing GET_USERS query
 
     const availableUsers =
       allUsers?.UsersEx?.filter(
-        (user: User) =>
+        (user: UserDetailedResponse) =>
           user.Active && // Only active users
           !existingRegulars.some((regular) => regular.UserId === user.Id),
-      ).sort((a: User, b: User) => (a.FirstName ?? '').localeCompare(b.FirstName ?? '')) ?? [];
+      ).sort((a: UserDetailedResponse, b: UserDetailedResponse) => (a.FirstName ?? '').localeCompare(b.FirstName ?? '')) ?? [];
 
     const handleSubmit = async (values: typeof form.values): Promise<void> => {
       setLoading(true);
@@ -827,7 +828,7 @@ export const RegularsPage = (): JSX.Element => {
             <Select
               label='Player'
               placeholder='Select player'
-              data={availableUsers.map((user: User) => ({
+              data={availableUsers.map((user: UserDetailedResponse) => ({
                 value: user.Id,
                 label: `${user.FirstName} ${user.LastName}`,
               }))}

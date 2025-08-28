@@ -4,6 +4,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Session } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSIONS } from '@/lib/queries';
+import { SessionsQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client';
 import { Paper, Table, Text } from '@mantine/core';
 import moment from 'moment-timezone';
@@ -17,7 +18,7 @@ export enum SessionDisplay {
 }
 
 export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Element => {
-  const { loading, error, data, refetch } = useQuery(GET_SESSIONS, {
+  const { loading, error, data, refetch } = useQuery<SessionsQueryResult>(GET_SESSIONS, {
     fetchPolicy: 'network-only',
   });
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {filteredSessions.map((session: Session) => (
+          {filteredSessions?.map((session: Session) => (
             <Table.Tr
               key={session.SessionId}
               onClick={() => navigate(`/session/${session.SessionId}`)}
