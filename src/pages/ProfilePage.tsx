@@ -26,8 +26,8 @@ import {
   revertImpersonation,
 } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
-import { useQuery } from '@apollo/client/react';
 import { UserStatsQueryResult } from '@/types/graphql';
+import { useQuery } from '@apollo/client/react';
 import {
   Avatar,
   Button,
@@ -308,7 +308,7 @@ const HeaderSection = ({
               <Text size='lg'>{ShootPreference[profileUser.Shoots ?? ShootPreference.TBD]}</Text>
             </Group>
             {profileUser.PositionPreference != PositionPreference.Goalie &&
-              (stats?.WednesdayRegular || stats?.FridayRegular) && (
+              (stats?.WednesdayRegular ?? stats?.FridayRegular) && (
                 <Group gap={5}>
                   <Text size='sm' fw={500} w={150} ta='right'>
                     Regular Player:

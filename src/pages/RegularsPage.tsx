@@ -218,9 +218,7 @@ export const RegularsPage = (): JSX.Element => {
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [creatingRegularSet, setCreatingRegularSet] = useState(false);
 
-  const { loading, data, refetch } = useQuery<RegularSetsQueryResult>(
-    GET_REGULARSETS,
-  );
+  const { loading, data, refetch } = useQuery<RegularSetsQueryResult>(GET_REGULARSETS);
 
   useEffect(() => {
     setPageInfo('Regulars', 'Hockey Pickup Regulars');
@@ -784,7 +782,9 @@ export const RegularsPage = (): JSX.Element => {
         (user: UserDetailedResponse) =>
           user.Active && // Only active users
           !existingRegulars.some((regular) => regular.UserId === user.Id),
-      ).sort((a: UserDetailedResponse, b: UserDetailedResponse) => (a.FirstName ?? '').localeCompare(b.FirstName ?? '')) ?? [];
+      ).sort((a: UserDetailedResponse, b: UserDetailedResponse) =>
+        (a.FirstName ?? '').localeCompare(b.FirstName ?? ''),
+      ) ?? [];
 
     const handleSubmit = async (values: typeof form.values): Promise<void> => {
       setLoading(true);

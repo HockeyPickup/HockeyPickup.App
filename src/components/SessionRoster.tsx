@@ -614,7 +614,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 &nbsp; Players
               </Text>
               {canViewRatings() && showRatings && (
-                <Text size='sm' fw={500}>
+                <Text size='sm' fw={500} component='div'>
                   {((): string => {
                     const team = session.CurrentRosters?.filter(
                       (p) => p.TeamAssignment === TeamAssignment.Light && p.Rating && p.IsPlaying,
@@ -701,7 +701,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 &nbsp; Players
               </Text>
               {canViewRatings() && showRatings && (
-                <Text size='sm' fw={500}>
+                <Text size='sm' fw={500} component='div'>
                   {((): string => {
                     const team = session.CurrentRosters?.filter(
                       (p) => p.TeamAssignment === TeamAssignment.Dark && p.Rating && p.IsPlaying,

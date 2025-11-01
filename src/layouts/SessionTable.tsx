@@ -19,15 +19,19 @@ interface SessionTableProps {
   sessionId: number;
 }
 
+interface SessionUpdatedSubscriptionResult {
+  SessionUpdated: SessionDetailedResponse;
+}
+
 export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   const { loading, error, data } = useQuery<SessionQueryResult>(GET_SESSION, {
     variables: { SessionId: sessionId },
     fetchPolicy: 'network-only',
   });
 
-  useSubscription(SESSION_UPDATED, {
+  useSubscription<SessionUpdatedSubscriptionResult>(SESSION_UPDATED, {
     variables: { SessionId: sessionId },
-    onData: ({ data }: { data: any }) => {
+    onData: ({ data }) => {
       console.debug('Session update received:', data?.data?.SessionUpdated);
       if (data?.data?.SessionUpdated) {
         setSession(data.data.SessionUpdated);

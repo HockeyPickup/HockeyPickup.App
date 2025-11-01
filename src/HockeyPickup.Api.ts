@@ -11,9 +11,13 @@
  */
 
 export enum PlayerStatus {
+  /** Player no longer in the roster */
   NotPlaying = "NotPlaying",
+  /** Regular player in the roster */
   Regular = "Regular",
+  /** Substitute player in the roster */
   Substitute = "Substitute",
+  /** Player in the queue */
   InQueue = "InQueue",
 }
 
