@@ -183,7 +183,7 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
       <AppShell.Main className={styles.main}>{children}</AppShell.Main>
       <AppShell.Footer className={styles.footer}>
         <Group justify='center' gap='xs'>
-          <Text size='xs'>© {new Date().getFullYear()} Hockey Pickup, Est. 2004</Text>
+          <Text size='xs'>© {new Date().getFullYear()} John Bryan Pickup Hockey, Est. 2004</Text>
           <Text size='xs'>•</Text>
           <Link to='/privacy' className={styles.footerLink}>
             Privacy
