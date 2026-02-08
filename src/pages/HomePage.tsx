@@ -76,7 +76,7 @@ export const HomePage = (): JSX.Element => {
   const { sessions: nextSessions, loading } = useUpcomingSessions();
 
   useEffect(() => {
-    setPageInfo('Home', 'John Bryan Pickup Hockey Home');
+    setPageInfo('Home', "John Bryan's Pickup Hockey Home");
   }, [setPageInfo]);
 
   return (
@@ -88,7 +88,7 @@ export const HomePage = (): JSX.Element => {
           className={styles.headerLogo}
         />
         <Text size='xl' ta='center'>
-          Welcome to John Bryan Pickup Hockey
+          Welcome to John Bryan&apos;s Pickup Hockey
         </Text>
         <Text size='lg' c='gray.2' ta='center' maw={700} px='md' mb='lg'>
           <b>Our Mission</b>: To provide a safe skate for pickup hockey where players can improve

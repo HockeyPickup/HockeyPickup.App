@@ -14,7 +14,7 @@ export const AboutPage = (): JSX.Element => {
   return (
     <Container size='md' py='sm' ml='sm' mr='sm' mb='sm'>
       <Stack gap='md'>
-        <Title order={1}>About John Bryan Hockey Pickup</Title>
+        <Title order={1}>About John Bryan's Pickup Hockey</Title>
         <Text>
           <p>
             <img src='/static/toyota_ice.jpg' width='250' alt='Toyota Sports Performance Center' />
