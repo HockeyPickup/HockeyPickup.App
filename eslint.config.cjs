@@ -51,7 +51,7 @@ module.exports = [
     },
     settings: {
       react: {
-        version: 'detect', // Automatically detect the React version
+        version: '19.2', // Explicit version - "detect" uses getFilename API incompatible with ESLint 10
       },
     },
     files: ['**/*.ts', '**/*.tsx'],
