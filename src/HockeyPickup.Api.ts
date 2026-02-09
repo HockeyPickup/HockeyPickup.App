@@ -381,15 +381,10 @@ export type AspNetRole = IdentityRoleOfString & {
   Users?: AspNetUser[];
 };
 
-/** Represents a role in the identity system */
 export interface IdentityRoleOfString {
-  /** Gets or sets the primary key for this role. */
   Id?: string | null;
-  /** Gets or sets the name for this role. */
   Name?: string | null;
-  /** Gets or sets the normalized name for this role. */
   NormalizedName?: string | null;
-  /** A random value that should change whenever a role is persisted to the store */
   ConcurrencyStamp?: string | null;
 }
 
@@ -559,43 +554,23 @@ export interface UserPaymentMethod {
   User?: AspNetUser;
 }
 
-/** Represents a user in the identity system */
 export interface IdentityUserOfString {
-  /** Gets or sets the primary key for this user. */
   Id?: string | null;
-  /** Gets or sets the user name for this user. */
   UserName?: string | null;
-  /** Gets or sets the normalized user name for this user. */
   NormalizedUserName?: string | null;
-  /** Gets or sets the email address for this user. */
   Email?: string | null;
-  /** Gets or sets the normalized email address for this user. */
   NormalizedEmail?: string | null;
-  /** Gets or sets a flag indicating if a user has confirmed their email address. */
   EmailConfirmed?: boolean;
-  /** Gets or sets a salted and hashed representation of the password for this user. */
   PasswordHash?: string | null;
-  /** A random value that must change whenever a users credentials change (password changed, login removed) */
   SecurityStamp?: string | null;
-  /** A random value that must change whenever a user is persisted to the store */
   ConcurrencyStamp?: string | null;
-  /** Gets or sets a telephone number for the user. */
   PhoneNumber?: string | null;
-  /** Gets or sets a flag indicating if a user has confirmed their telephone address. */
   PhoneNumberConfirmed?: boolean;
-  /** Gets or sets a flag indicating if two factor authentication is enabled for this user. */
   TwoFactorEnabled?: boolean;
-  /**
-   * Gets or sets the date and time, in UTC, when any user lockout ends.
-   * @format date-time
-   */
+  /** @format date-time */
   LockoutEnd?: string | null;
-  /** Gets or sets a flag indicating if the user could be locked out. */
   LockoutEnabled?: boolean;
-  /**
-   * Gets or sets the number of failed login attempts for the current user.
-   * @format int32
-   */
+  /** @format int32 */
   AccessFailedCount?: number;
 }
 
