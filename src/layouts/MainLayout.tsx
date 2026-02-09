@@ -186,7 +186,10 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
           <Text size='xs'>
             © {new Date().getFullYear()} John Bryan&apos;s Pickup Hockey, Est. 2004
           </Text>
-          <Text size='xs'>•</Text>
+          <Text size='xs' className={styles.footerBulletDesktop}>
+            •
+          </Text>
+          <span className={styles.footerMobileBreak} />
           <Link to='/privacy' className={styles.footerLink}>
             Privacy
           </Link>

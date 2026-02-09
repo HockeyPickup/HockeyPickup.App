@@ -247,6 +247,33 @@
 .footerLink:hover {
   color: var(--mantine-color-blue-4);
 }
+
+.footerBulletDesktop {
+  display: inline;
+}
+
+.footerMobileBreak {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .footerBulletDesktop {
+    display: none;
+  }
+
+  .footerMobileBreak {
+    display: block;
+    flex-basis: 100%;
+    width: 100%;
+    height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer :global(.mantine-Group-root) {
+    row-gap: 0;
+  }
+}
 .pageTitle {
   color: var(--mantine-color-gray-0);
   font-size: var(--mantine-font-size-xl);
