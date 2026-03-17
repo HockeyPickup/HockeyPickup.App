@@ -24,8 +24,8 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: [
+        manualChunks(id) {
+          const vendorPackages = [
             'react',
             'react-dom',
             '@mantine/core',
@@ -33,7 +33,10 @@ export default defineConfig(({ mode }) => ({
             '@hello-pangea/dnd',
             '@mantine/notifications',
             '@tabler/icons-react',
-          ],
+          ];
+          if (vendorPackages.some((pkg) => id.includes(`node_modules/${pkg}`))) {
+            return 'vendor';
+          }
         },
       },
     },
