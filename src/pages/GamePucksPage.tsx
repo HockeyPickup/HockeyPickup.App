@@ -5,6 +5,28 @@ import { IconX } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+/** Flickr REST API does not send CORS headers; JSONP bypasses CORS by loading via script tag. */
+function flickrJsonp<T>(baseUrl: string): Promise<T> {
+  const url = baseUrl.replace('nojsoncallback=1', '').replace(/&$/, '');
+  const separator = url.includes('?') ? '&' : '?';
+  const callbackName = `flickrJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  return new Promise<T>((resolve, reject) => {
+    const script = document.createElement('script');
+    (window as unknown as Record<string, (data: T) => void>)[callbackName] = (data: T) => {
+      delete (window as unknown as Record<string, unknown>)[callbackName];
+      if (script.parentNode) document.body.removeChild(script);
+      resolve(data);
+    };
+    script.src = `${url}${separator}jsoncallback=${callbackName}`;
+    script.onerror = () => {
+      delete (window as unknown as Record<string, unknown>)[callbackName];
+      if (script.parentNode) document.body.removeChild(script);
+      reject(new Error('Flickr JSONP request failed'));
+    };
+    document.body.appendChild(script);
+  });
+}
+
 interface FlickrPhoto {
   id: string;
   farm: number;
@@ -46,9 +68,7 @@ export const GamePucksPage = (): JSX.Element => {
       createdDate: Date;
     }>[] = [];
 
-    fetch(flickrUrl)
-      .then((response) => response.json())
-      .then((data) => {
+    flickrJsonp<{ photoset?: { photo: FlickrPhoto[] } }>(flickrUrl).then((data) => {
         // Add error handling
         if (!data.photoset?.photo) {
           console.error('Failed to fetch photos:', data);
@@ -61,9 +81,7 @@ export const GamePucksPage = (): JSX.Element => {
           const flickrPhotoId = photo.id;
           const flickrPhotoInfoUrl = `https://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${flickrPhotoId}&format=json&nojsoncallback=1`;
 
-          const photoPromise = fetch(flickrPhotoInfoUrl)
-            .then((response) => response.json())
-            .then((data) => {
+          const photoPromise = flickrJsonp<{ photo: PhotoInfo }>(flickrPhotoInfoUrl).then((data) => {
               const photoInfo = data.photo;
               const createdDate = new Date(photoInfo.dates.taken);
               return { photo, photoInfo, createdDate };
@@ -78,7 +96,8 @@ export const GamePucksPage = (): JSX.Element => {
           setPhotos(photoData);
           setIsLoading(false);
         });
-      });
+      })
+      .catch(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
