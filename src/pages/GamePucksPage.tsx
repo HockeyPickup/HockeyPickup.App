@@ -27,17 +27,17 @@ function flickrJsonp<T>(baseUrl: string): Promise<T> {
   });
 }
 
-interface FlickrPhoto {
+/** Photo from flickr.photosets.getPhotos with extras=date_taken,owner_name,title,path_alias */
+interface FlickrPhotoInSet {
   id: string;
   farm: number;
   server: string;
   secret: string;
-}
-
-interface PhotoInfo {
-  owner: { username: string };
-  title: { _content: string };
-  dates: { taken: string };
+  title: string;
+  date_taken: string;
+  owner_name: string;
+  path_alias?: string;
+  owner: string;
 }
 
 export const GamePucksPage = (): JSX.Element => {
@@ -45,13 +45,7 @@ export const GamePucksPage = (): JSX.Element => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '');
   const [isLoading, setIsLoading] = useState(true);
-  const [photos, setPhotos] = useState<
-    Array<{
-      photo: FlickrPhoto;
-      photoInfo: PhotoInfo;
-      createdDate: Date;
-    }>
-  >([]);
+  const [photos, setPhotos] = useState<FlickrPhotoInSet[]>([]);
 
   useEffect(() => {
     setPageInfo('Game Pucks', 'Hockey Pickup Game Pucks');
@@ -60,44 +54,21 @@ export const GamePucksPage = (): JSX.Element => {
   useEffect(() => {
     const apiKey = '80ce3a61ed9e788c8e4e31641582fc0a';
     const flickrAlbumId = '72177720312370541';
-    const flickrUrl = `https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${flickrAlbumId}&format=json&nojsoncallback=1`;
+    const extras = 'date_taken,owner_name,title,path_alias';
+    const flickrUrl = `https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${flickrAlbumId}&extras=${extras}&format=json&nojsoncallback=1`;
 
-    const photoPromises: Promise<{
-      photo: FlickrPhoto;
-      photoInfo: PhotoInfo;
-      createdDate: Date;
-    }>[] = [];
-
-    flickrJsonp<{ photoset?: { photo: FlickrPhoto[] } }>(flickrUrl).then((data) => {
-        // Add error handling
+    flickrJsonp<{ photoset?: { photo: FlickrPhotoInSet[] } }>(flickrUrl)
+      .then((data) => {
         if (!data.photoset?.photo) {
           console.error('Failed to fetch photos:', data);
-          setIsLoading(false);
           return;
         }
-        const photos = data.photoset.photo;
-
-        photos.forEach((photo: FlickrPhoto) => {
-          const flickrPhotoId = photo.id;
-          const flickrPhotoInfoUrl = `https://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${flickrPhotoId}&format=json&nojsoncallback=1`;
-
-          const photoPromise = flickrJsonp<{ photo: PhotoInfo }>(flickrPhotoInfoUrl).then((data) => {
-              const photoInfo = data.photo;
-              const createdDate = new Date(photoInfo.dates.taken);
-              return { photo, photoInfo, createdDate };
-            });
-
-          photoPromises.push(photoPromise);
-        });
-
-        Promise.all(photoPromises).then((photoData) => {
-          photoData.sort((a, b) => a.createdDate.getTime() - b.createdDate.getTime());
-          photoData.reverse();
-          setPhotos(photoData);
-          setIsLoading(false);
-        });
+        const list = data.photoset.photo;
+        list.sort((a, b) => new Date(b.date_taken).getTime() - new Date(a.date_taken).getTime());
+        setPhotos(list);
       })
-      .catch(() => setIsLoading(false));
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -112,8 +83,8 @@ export const GamePucksPage = (): JSX.Element => {
     setSearchParams(value ? { search: value } : {});
   };
 
-  const filteredPhotos = photos.filter((photoData) =>
-    photoData.photoInfo.title._content.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredPhotos = photos.filter((photo) =>
+    photo.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -148,20 +119,23 @@ export const GamePucksPage = (): JSX.Element => {
             margin: '20px auto',
           }}
         >
-          {filteredPhotos.map(({ photo, photoInfo }) => (
-            <a
-              key={photo.id}
-              href={`https://www.flickr.com/photos/${photoInfo.owner.username}/${photo.id}`}
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              <img
-                src={`https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg`}
-                alt={photoInfo.title._content}
-              />
-              <p>{photoInfo.title._content}</p>
-            </a>
-          ))}
+          {filteredPhotos.map((photo) => {
+            const ownerPath = photo.path_alias ?? photo.owner;
+            return (
+              <a
+                key={photo.id}
+                href={`https://www.flickr.com/photos/${ownerPath}/${photo.id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <img
+                  src={`https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg`}
+                  alt={photo.title}
+                />
+                <p>{photo.title}</p>
+              </a>
+            );
+          })}
         </div>
         <style>
           {`
