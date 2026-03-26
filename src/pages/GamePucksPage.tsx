@@ -7,18 +7,20 @@ import { useSearchParams } from 'react-router-dom';
 
 /** Flickr REST API does not send CORS headers; JSONP bypasses CORS by loading via script tag. */
 function flickrJsonp<T>(baseUrl: string): Promise<T> {
+  type FlickrJsonpCallback = (_: T) => void;
+
   const url = baseUrl.replace('nojsoncallback=1', '').replace(/&$/, '');
   const separator = url.includes('?') ? '&' : '?';
   const callbackName = `flickrJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   return new Promise<T>((resolve, reject) => {
     const script = document.createElement('script');
-    (window as unknown as Record<string, (data: T) => void>)[callbackName] = (data: T) => {
+    (window as unknown as Record<string, FlickrJsonpCallback>)[callbackName] = (data: T): void => {
       delete (window as unknown as Record<string, unknown>)[callbackName];
       if (script.parentNode) document.body.removeChild(script);
       resolve(data);
     };
     script.src = `${url}${separator}jsoncallback=${callbackName}`;
-    script.onerror = () => {
+    script.onerror = (): void => {
       delete (window as unknown as Record<string, unknown>)[callbackName];
       if (script.parentNode) document.body.removeChild(script);
       reject(new Error('Flickr JSONP request failed'));

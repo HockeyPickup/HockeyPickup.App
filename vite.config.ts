@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        manualChunks(id: string): string | undefined {
           const vendorPackages = [
             'react',
             'react-dom',
@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => ({
           if (vendorPackages.some((pkg) => id.includes(`node_modules/${pkg}`))) {
             return 'vendor';
           }
+          return undefined;
         },
       },
     },
