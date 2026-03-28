@@ -2,7 +2,7 @@ import { useTitle } from '@/layouts/TitleContext';
 import versionJson from '@/version.json';
 import { Container, Group, ScrollArea, Stack, Text } from '@mantine/core';
 import { FC, useEffect } from 'react';
-import ReactJson from 'react-json-view';
+import ReactJson from '@microlink/react-json-view';
 
 export const VersionPage: FC = () => {
   const { setPageInfo } = useTitle();
