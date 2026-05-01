@@ -1,13 +1,15 @@
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
+import { executeBuySpotVerification } from '@/lib/humanVerification';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client/react';
 import { SessionQueryResult } from '@/types/graphql';
 import { Button, Group, Modal, Paper, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import moment from 'moment';
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
+import styles from '@/App.module.css';
 
 interface SessionActionsProps {
   session: SessionDetailedResponse;
@@ -28,6 +30,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   const [sellModalOpen, setSellModalOpen] = useState(false);
   const [note, setNote] = useState('');
   const [isTransacting, setIsTransacting] = useState(false);
+  const buyTurnstileContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const checkPermissions = async (): Promise<void> => {
@@ -69,9 +72,14 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     if (isTransacting) return;
     try {
       setIsTransacting(true);
+      const humanVerificationToken = await executeBuySpotVerification(
+        session.SessionId,
+        buyTurnstileContainerRef.current,
+      );
       const response = await buySellService.buySpot({
         SessionId: session.SessionId,
         Note: note,
+        HumanVerificationToken: humanVerificationToken,
       });
       const { data } = await refetch();
       if (data?.Session) {
@@ -193,6 +201,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
           onChange={(event) => setNote(event.currentTarget.value)}
           mb='md'
         />
+        <div ref={buyTurnstileContainerRef} className={styles.turnstileContainer} />
         <Group justify='flex-end'>
           <Button
             variant='outline'
@@ -203,7 +212,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
           >
             Cancel
           </Button>
-          <Button color='green' onClick={handleBuy}>
+          <Button color='green' onClick={handleBuy} loading={isTransacting}>
             Buy Spot
           </Button>
         </Group>

@@ -34,6 +34,16 @@ Serve up the instance of the app locally, using [Vite](https://vitejs.dev/).
 
 Vite expects the local HockeyPickup.Api to be listening on port `7042`. See [vite.config.mjs](vite.config.mjs).
 
+### Human verification
+
+The buy flow can submit Cloudflare Turnstile tokens when the API enables bot protection. Configure the app deployment with:
+
+```text
+VITE_TURNSTILE_SITE_KEY=<Cloudflare Turnstile site key>
+```
+
+Local development still works without this value when the API `BotProtection:Enabled` setting is `false`.
+
 ## 🎛️ Updating data models from the Api
 
 HockeyPickup.App uses very strict static typing, and data models referenced are generated from the Api using the OpenApi standard. To update the data models from the latest Api, simply run the `refresh-api` command to the Production or Local instance of the Api. This will update the [HockeyPickup.Api.ts](src/HockeyPickup.Api.ts) file.

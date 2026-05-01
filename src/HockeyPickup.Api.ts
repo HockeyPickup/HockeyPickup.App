@@ -815,6 +815,11 @@ export interface BuyRequest {
    * @maxLength 4000
    */
   Note?: string | null;
+  /**
+   * Human verification token for protected buy requests
+   * @maxLength 2048
+   */
+  HumanVerificationToken?: string | null;
 }
 
 export interface SellRequest {
