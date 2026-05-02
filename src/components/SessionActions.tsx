@@ -201,6 +201,9 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
           onChange={(event) => setNote(event.currentTarget.value)}
           mb='md'
         />
+        <Text size='xs' c='dimmed' mb='xs'>
+          Complete this check to complete your Buy Spot request.
+        </Text>
         <div ref={buyTurnstileContainerRef} className={styles.turnstileContainer} />
         <Group justify='flex-end'>
           <Button
