@@ -1,6 +1,6 @@
 import { ApolloProvider } from '@apollo/client/react';
 import '@mantine/carousel/styles.css';
-import { MantineProvider } from '@mantine/core';
+import { MantineProvider, v8CssVariablesResolver } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
@@ -49,7 +49,7 @@ const App = (): JSX.Element => {
   return (
     <ApolloProvider client={apolloClient}>
       <QueryClientProvider client={queryClient}>
-        <MantineProvider theme={theme} defaultColorScheme='dark'>
+        <MantineProvider theme={theme} defaultColorScheme='dark' cssVariablesResolver={v8CssVariablesResolver}>
           <ModalsProvider />
           <Notifications position='top-right' zIndex={1000} />
           <VersionChecker />

@@ -932,19 +932,10 @@ export const RegularsPage = (): JSX.Element => {
                     loaderProps={{ children: <LoadingSpinner medium /> }}
                   />
                   <Grid>
-                    <Grid.Col span={6}>
+                    <Grid.Col span={6} style={{ borderRight: '2px solid var(--mantine-color-dark-4)', paddingRight: 'var(--mantine-spacing-md)' }}>
                       <TeamSection team={TeamAssignment.Light} />
                     </Grid.Col>
-                    <div
-                      style={{
-                        width: '2px',
-                        backgroundColor: 'var(--mantine-color-dark-4)',
-                        margin: '0 -1px', // negative margin to not affect overall layout
-                        alignSelf: 'stretch',
-                        opacity: 0.5, // make it subtle
-                      }}
-                    />
-                    <Grid.Col span={6}>
+                    <Grid.Col span={6} style={{ paddingLeft: 'var(--mantine-spacing-md)' }}>
                       <TeamSection team={TeamAssignment.Dark} />
                     </Grid.Col>
                   </Grid>
