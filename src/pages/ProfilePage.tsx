@@ -334,7 +334,7 @@ const HeaderSection = ({
 
       {/* Stats Grid */}
       {profileUser.PositionPreference != PositionPreference.Goalie && (
-        <Grid grow gutter='sm'>
+        <Grid grow gap='sm'>
           <Grid.Col span={{ base: 5 }}>
             <Stack gap='xs'>
               <Title order={4} c='dimmed'>

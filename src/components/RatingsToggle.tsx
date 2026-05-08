@@ -63,7 +63,7 @@ export const useRatingsVisibility = (): { showRatings: boolean } => {
     };
 
     // Only start interval if ratings are showing
-    let interval: NodeJS.Timeout | undefined;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (showRatings) {
       interval = setInterval(() => {
         const cookieExists = isRatingsCookieSet();

@@ -16,7 +16,7 @@ export const EmailList = ({ getEmails }: EmailListProps): JSX.Element => {
           {showEmails ? 'Hide Emails' : 'Show Emails'}
         </Button>
       </Group>
-      <Collapse in={showEmails}>
+      <Collapse expanded={showEmails}>
         <Group align='center'>
           <Text size='sm'>Emails:</Text>
           <CopyButton value={getEmails()}>

@@ -61,7 +61,7 @@ export const VersionChecker: FC = (): JSX.Element => {
     };
     window.addEventListener('focus', onFocus);
 
-    const interval: NodeJS.Timeout = setInterval(checkForNewVersion, VERSION_CHECK_INTERVAL);
+    const interval: ReturnType<typeof setInterval> = setInterval(checkForNewVersion, VERSION_CHECK_INTERVAL);
 
     checkForNewVersion();
 

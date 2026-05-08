@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn update-packages *)",
+      "Bash(yarn install *)",
+      "Bash(yarn build *)"
+    ]
+  }
+}
