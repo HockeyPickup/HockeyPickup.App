@@ -3,7 +3,21 @@
     "allow": [
       "Bash(yarn update-packages *)",
       "Bash(yarn install *)",
-      "Bash(yarn build *)"
+      "Bash(yarn build *)",
+      "Bash(yarn dev *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174/)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(node -e ' *)",
+      "Bash(npx playwright *)",
+      "Bash(npm root *)",
+      "Bash(ls \"C:\\\\Users\\\\b\\\\AppData\\\\Roaming\\\\npm\\\\node_modules\" 2>&1 | grep -i playwright)",
+      "Read(//c/Users/b/AppData/Roaming/npm/node_modules/**)",
+      "Bash(ls \"C:\\\\Users\\\\b\\\\AppData\\\\Local\\\\Temp\" | grep -i play 2>&1 && find /c/Users/b -name \"playwright\" -type d 2>/dev/null | head -5)",
+      "Read(//c/Users/b/**)",
+      "Bash(cd /tmp)",
+      "Bash(npm install *)",
+      "Bash(cp /tmp/verify-menu-open.png /c/Users/b/AppData/Local/Temp/verify-menu-open.png)",
+      "Bash(cp /tmp/verify-about.png /c/Users/b/AppData/Local/Temp/verify-about.png)"
     ]
   }
 }
