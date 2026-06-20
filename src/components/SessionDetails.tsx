@@ -1,9 +1,4 @@
-import {
-  LotteryClass,
-  LotteryEntrantResponse,
-  LotteryEntrantStatus,
-  SessionDetailedResponse,
-} from '@/HockeyPickup.Api';
+import { LotteryClass, LotteryEntrantStatus, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { ActionIcon, Group, Paper, Text, Title } from '@mantine/core';
 import { IconPencil } from '@tabler/icons-react';
@@ -21,11 +16,16 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
   const navigate = useNavigate();
   const { showRatings } = useRatingsVisibility();
 
-  // Active entrants (anyone who entered and did not withdraw) for a tier.
-  const entrantsForClass = (lotteryClass: LotteryClass): LotteryEntrantResponse[] =>
+  // Count active entrants (anyone who entered and did not withdraw) for a tier.
+  const entrantCountForClass = (lotteryClass: LotteryClass): number =>
     session.LotteryEntrants?.filter(
       (e) => e.LotteryClass === lotteryClass && e.Status !== LotteryEntrantStatus.Withdrawn,
-    ) ?? [];
+    ).length ?? 0;
+
+  // Current Pacific wall-clock for comparing against the (Pacific) window times.
+  const nowPacificWallClock = moment.utc(moment().tz('America/Los_Angeles').format('YYYY-MM-DDTHH:mm:ss'));
+  const isPast = (windowTime: string | undefined): boolean =>
+    nowPacificWallClock.isSameOrAfter(moment.utc(windowTime));
 
   return (
     <Paper shadow='sm' p='md'>
@@ -62,14 +62,12 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
               { label: 'Standard', lotteryClass: LotteryClass.Standard, open: session.LotteryEntryOpenStandard, draw: session.LotteryDrawStandard },
             ] as const
           ).map((tier) => {
-            const entrants = entrantsForClass(tier.lotteryClass);
-            const names = entrants.map((e) => `${e.FirstName} ${e.LastName}`).join(', ');
+            const entrantCount = entrantCountForClass(tier.lotteryClass);
             return (
               <Text key={tier.label} size='sm'>
-                <strong>{tier.label}:</strong> Entry {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')} — Draw{' '}
-                {moment.utc(tier.draw).format('dddd, MM/DD/yyyy, HH:mm')}
-                {entrants.length > 0 &&
-                  ` — ${entrants.length} ${entrants.length === 1 ? 'entrant' : 'entrants'}: ${names}`}
+                <strong>{tier.label}:</strong> Entry {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')} —{' '}
+                {isPast(tier.draw) ? 'Drew' : 'Draw'} {moment.utc(tier.draw).format('dddd, MM/DD/yyyy, HH:mm')}
+                {entrantCount > 0 && ` — ${entrantCount} ${entrantCount === 1 ? 'entrant' : 'entrants'}`}
               </Text>
             );
           })}
