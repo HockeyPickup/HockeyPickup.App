@@ -107,6 +107,9 @@ export const GET_SESSION = gql`
       }
       LotteryEntrants {
         LotteryEntrantId
+        UserId
+        FirstName
+        LastName
         LotteryClass
         Status
       }
@@ -401,6 +404,9 @@ export const SESSION_UPDATED = gql`
       }
       LotteryEntrants {
         LotteryEntrantId
+        UserId
+        FirstName
+        LastName
         LotteryClass
         Status
       }

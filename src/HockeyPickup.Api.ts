@@ -1308,6 +1308,15 @@ export interface LotteryEntrantResponse {
    * @format int32
    */
   LotteryEntrantId: number;
+  /**
+   * User Id of the entrant
+   * @maxLength 128
+   */
+  UserId?: string | null;
+  /** First name of the entrant */
+  FirstName?: string | null;
+  /** Last name of the entrant */
+  LastName?: string | null;
   /** Lottery tier the entrant is entered in */
   LotteryClass: LotteryClass;
   /** Status of the lottery entrant */
