@@ -1,4 +1,4 @@
-import { SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { BuyActionState, BuySellStatusResponse, LotteryClass, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
@@ -7,7 +7,7 @@ import { SessionQueryResult } from '@/types/graphql';
 import { Button, Group, Modal, Paper, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import moment from 'moment';
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useCallback, useEffect, useState } from 'react';
 
 interface SessionActionsProps {
   session: SessionDetailedResponse;
@@ -20,7 +20,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     skip: true, // Skip initial fetch
   });
   const { user } = useAuth();
-  const [canBuySpot, setCanBuySpot] = useState(false);
+  const [buyStatus, setBuyStatus] = useState<BuySellStatusResponse | null>(null);
   const [canSellSpot, setCanSellSpot] = useState(false);
   const [, setIsLoading] = useState(true);
   const [isAdminBuying, setIsAdminBuying] = useState(false);
@@ -29,29 +29,29 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   const [note, setNote] = useState('');
   const [isTransacting, setIsTransacting] = useState(false);
 
+  const checkPermissions = useCallback(async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const [buyResponse, sellResponse] = await Promise.all([
+        buySellService.canBuy(session.SessionId ?? 0),
+        buySellService.canSell(session.SessionId ?? 0),
+      ]);
+
+      setBuyStatus(buyResponse.Data ?? null);
+      setCanSellSpot(sellResponse.Data?.IsAllowed ?? false);
+      setIsAdminBuying(buyResponse.Data?.Reason === 'Admins can buy spots regardless of time window');
+    } catch (error) {
+      console.error('Failed to check buy/sell permissions:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session.SessionId]);
+
   useEffect(() => {
-    const checkPermissions = async (): Promise<void> => {
-      try {
-        setIsLoading(true);
-        const [buyResponse, sellResponse] = await Promise.all([
-          buySellService.canBuy(session.SessionId ?? 0),
-          buySellService.canSell(session.SessionId ?? 0),
-        ]);
-
-        setCanBuySpot(buyResponse.Data?.IsAllowed ?? false);
-        setCanSellSpot(sellResponse.Data?.IsAllowed ?? false);
-        setIsAdminBuying(
-          buyResponse.Data?.Reason === 'Admins can buy spots regardless of time window',
-        );
-      } catch (error) {
-        console.error('Failed to check buy/sell permissions:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     checkPermissions();
-  }, [session]);
+  }, [checkPermissions]);
+
+  const buyActionState = buyStatus?.BuyActionState;
 
   const getBuyWindowDate = (): string | undefined => {
     if (user?.PreferredPlus) {
@@ -65,6 +65,51 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   const buyWindowOpen = moment().tz('America/Los_Angeles') >= moment.utc(getBuyWindowDate());
   const buyWindowDate = moment.utc(getBuyWindowDate()).format('dddd, MM/DD/yyyy, HH:mm');
 
+  const getLotteryDrawTime = (lotteryClass?: LotteryClass | null): string | undefined => {
+    switch (lotteryClass) {
+      case LotteryClass.PreferredPlus:
+        return session.LotteryDrawPreferredPlus;
+      case LotteryClass.Preferred:
+        return session.LotteryDrawPreferred;
+      case LotteryClass.Standard:
+        return session.LotteryDrawStandard;
+      default:
+        return undefined;
+    }
+  };
+
+  const refreshAfterAction = async (): Promise<void> => {
+    const { data } = await refetch();
+    if (data?.Session) {
+      onSessionUpdate(data.Session);
+    }
+    await checkPermissions();
+  };
+
+  const showError = (error: unknown, fallback: string): void => {
+    const errorMessage =
+      (error as { response?: { data: { Message: string } } }).response?.data?.Message ?? fallback;
+    notifications.show({
+      position: 'top-center',
+      autoClose: 5000,
+      style: { marginTop: '60px' },
+      title: 'Error',
+      message: errorMessage,
+      color: 'red',
+    });
+  };
+
+  const showSuccess = (message: string | null | undefined): void => {
+    notifications.show({
+      position: 'top-center',
+      autoClose: 5000,
+      style: { marginTop: '60px' },
+      title: 'Success',
+      message,
+      color: 'green',
+    });
+  };
+
   const handleBuy = async (): Promise<void> => {
     if (isTransacting) return;
     try {
@@ -73,34 +118,13 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         SessionId: session.SessionId,
         Note: note,
       });
-      const { data } = await refetch();
-      if (data?.Session) {
-        onSessionUpdate(data.Session);
-      }
-
-      notifications.show({
-        position: 'top-center',
-        autoClose: 5000,
-        style: { marginTop: '60px' },
-        title: 'Success',
-        message: response.Message,
-        color: 'green',
-      });
+      await refreshAfterAction();
+      showSuccess(response.Message);
       setBuyModalOpen(false);
       setNote('');
     } catch (error) {
       console.error('Failed to buy transaction:', error);
-      const errorMessage =
-        (error as { response?: { data: { Message: string } } }).response?.data?.Message ??
-        'Failed to buy transaction';
-      notifications.show({
-        position: 'top-center',
-        autoClose: 5000,
-        style: { marginTop: '60px' },
-        title: 'Error',
-        message: errorMessage,
-        color: 'red',
-      });
+      showError(error, 'Failed to buy transaction');
     } finally {
       setIsTransacting(false);
     }
@@ -114,34 +138,43 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         SessionId: session.SessionId,
         Note: note,
       });
-      const { data } = await refetch();
-      if (data?.Session) {
-        onSessionUpdate(data.Session);
-      }
-
-      notifications.show({
-        position: 'top-center',
-        autoClose: 5000,
-        style: { marginTop: '60px' },
-        title: 'Success',
-        message: response.Message,
-        color: 'green',
-      });
+      await refreshAfterAction();
+      showSuccess(response.Message);
       setSellModalOpen(false);
       setNote('');
     } catch (error) {
       console.error('Failed to sell transaction:', error);
-      const errorMessage =
-        (error as { response?: { data: { Message: string } } }).response?.data?.Message ??
-        'Failed to sell transaction';
-      notifications.show({
-        position: 'top-center',
-        autoClose: 5000,
-        style: { marginTop: '60px' },
-        title: 'Error',
-        message: errorMessage,
-        color: 'red',
-      });
+      showError(error, 'Failed to sell transaction');
+    } finally {
+      setIsTransacting(false);
+    }
+  };
+
+  const handleEnterLottery = async (): Promise<void> => {
+    if (isTransacting) return;
+    try {
+      setIsTransacting(true);
+      const response = await buySellService.lotteryEnter(session.SessionId ?? 0);
+      await refreshAfterAction();
+      showSuccess(response.Message);
+    } catch (error) {
+      console.error('Failed to enter lottery:', error);
+      showError(error, 'Failed to enter lottery');
+    } finally {
+      setIsTransacting(false);
+    }
+  };
+
+  const handleLeaveLottery = async (): Promise<void> => {
+    if (isTransacting) return;
+    try {
+      setIsTransacting(true);
+      const response = await buySellService.lotteryWithdraw(session.SessionId ?? 0);
+      await refreshAfterAction();
+      showSuccess(response.Message);
+    } catch (error) {
+      console.error('Failed to leave lottery:', error);
+      showError(error, 'Failed to leave lottery');
     } finally {
       setIsTransacting(false);
     }
@@ -166,10 +199,28 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
             </Text>
           </Group>
         )}
+        {buyActionState === BuyActionState.InLottery && (
+          <Group mt='xs'>
+            <Text c='blue' fw={600}>
+              You&apos;re in the {buyStatus?.LotteryClass} lottery — draw at{' '}
+              {moment.utc(getLotteryDrawTime(buyStatus?.LotteryClass)).format('dddd, MM/DD/yyyy, HH:mm')}
+            </Text>
+          </Group>
+        )}
         <Group justify='left' mt='sm'>
-          {canBuySpot && (
+          {buyActionState === BuyActionState.BuyNow && (
             <Button onClick={() => setBuyModalOpen(true)} color='green' loading={isTransacting}>
               {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
+            </Button>
+          )}
+          {buyActionState === BuyActionState.EnterLottery && (
+            <Button onClick={handleEnterLottery} color='blue' loading={isTransacting}>
+              Enter Lottery
+            </Button>
+          )}
+          {buyActionState === BuyActionState.InLottery && (
+            <Button onClick={handleLeaveLottery} variant='outline' color='blue' loading={isTransacting}>
+              Leave Lottery
             </Button>
           )}
           {canSellSpot && (

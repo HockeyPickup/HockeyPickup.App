@@ -14,6 +14,7 @@ import { SessionQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client/react';
 import {
   Button,
+  Checkbox,
   Container,
   Group,
   NumberInput,
@@ -93,6 +94,8 @@ export const SessionFormPage = (): JSX.Element => {
       RegularSetId: '0',
       BuyDayMinimum: 6,
       Cost: 27,
+      LotteryEnabled: true,
+      LotteryEntryWindowMinutes: 30,
     },
     validate: {
       SessionDate: (value: Date | null) => (!value ? 'Session date is required' : null),
@@ -101,6 +104,10 @@ export const SessionFormPage = (): JSX.Element => {
         !value || value < 0 || value > 365 ? 'Buy day minimum must be between 0 and 365' : null,
       Cost: (value: number | undefined) =>
         !value || value < 0 || value > 1000 ? 'Cost must be between $0 and $1000' : null,
+      LotteryEntryWindowMinutes: (value: number | undefined) =>
+        value === undefined || value < 1 || value > 1440
+          ? 'Lottery entry window must be between 1 and 1440 minutes'
+          : null,
     },
   });
 
@@ -115,6 +122,8 @@ export const SessionFormPage = (): JSX.Element => {
         RegularSetId: session.RegularSetId?.toString() ?? '0', // Convert to string
         BuyDayMinimum: session.BuyDayMinimum ?? 6,
         Cost: session.Cost ?? 27,
+        LotteryEnabled: session.LotteryEnabled ?? true,
+        LotteryEntryWindowMinutes: session.LotteryEntryWindowMinutes ?? 30,
       };
 
       // Only update if values are different
@@ -267,6 +276,22 @@ export const SessionFormPage = (): JSX.Element => {
               prefix='$'
               {...form.getInputProps('Cost')}
             />
+            <Checkbox
+              label='Enable Lottery'
+              description='Collect entrants during each tier window and run a random draw'
+              {...form.getInputProps('LotteryEnabled', { type: 'checkbox' })}
+            />
+            {form.values.LotteryEnabled && (
+              <NumberInput
+                label='Lottery Entry Window (minutes)'
+                placeholder='Minutes each tier accepts entries before the draw'
+                leftSection={<IconClock size={16} />}
+                required
+                min={1}
+                max={1440}
+                {...form.getInputProps('LotteryEntryWindowMinutes')}
+              />
+            )}
             <Textarea
               label='Notes'
               placeholder='Enter notes'

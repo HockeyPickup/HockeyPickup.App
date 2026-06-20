@@ -39,6 +39,25 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
           <Text style={{ whiteSpace: 'pre-wrap' }}>{session.Note ?? ''}</Text>
         </Group>
       </Paper>
+      {session.LotteryEnabled && (
+        <Paper withBorder p='xs' mt='md' bg='rgba(255, 255, 255, 0.05)'>
+          <Title order={5} mb='xs'>
+            Lottery Windows
+          </Title>
+          {(
+            [
+              { label: 'Preferred Plus', open: session.LotteryEntryOpenPreferredPlus, draw: session.LotteryDrawPreferredPlus },
+              { label: 'Preferred', open: session.LotteryEntryOpenPreferred, draw: session.LotteryDrawPreferred },
+              { label: 'Standard', open: session.LotteryEntryOpenStandard, draw: session.LotteryDrawStandard },
+            ] as const
+          ).map((tier) => (
+            <Text key={tier.label} size='sm'>
+              <strong>{tier.label}:</strong> entry {moment.utc(tier.open).format('MM/DD/yyyy, HH:mm')} — draw{' '}
+              {moment.utc(tier.draw).format('MM/DD/yyyy, HH:mm')}
+            </Text>
+          ))}
+        </Paper>
+      )}
     </Paper>
   );
 };

@@ -54,6 +54,14 @@ export const GET_SESSION = gql`
       BuyWindow
       BuyWindowPreferred
       BuyWindowPreferredPlus
+      LotteryEnabled
+      LotteryEntryWindowMinutes
+      LotteryEntryOpenStandard
+      LotteryEntryOpenPreferred
+      LotteryEntryOpenPreferredPlus
+      LotteryDrawStandard
+      LotteryDrawPreferred
+      LotteryDrawPreferredPlus
       Cost
       BuySells {
         BuySellId
@@ -335,6 +343,14 @@ export const SESSION_UPDATED = gql`
       BuyWindow
       BuyWindowPreferred
       BuyWindowPreferredPlus
+      LotteryEnabled
+      LotteryEntryWindowMinutes
+      LotteryEntryOpenStandard
+      LotteryEntryOpenPreferred
+      LotteryEntryOpenPreferredPlus
+      LotteryDrawStandard
+      LotteryDrawPreferred
+      LotteryDrawPreferredPlus
       Cost
       BuySells {
         BuySellId
