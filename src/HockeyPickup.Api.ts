@@ -1270,6 +1270,8 @@ export type SessionDetailedResponse = SessionBasicResponse & {
   BuySells?: BuySellResponse[] | null;
   /** Activity logs associated with the session */
   ActivityLogs?: ActivityLogResponse[] | null;
+  /** Lottery entrants associated with the session */
+  LotteryEntrants?: LotteryEntrantResponse[] | null;
   /** Regular set details for the session */
   RegularSet?: RegularSetResponse | null;
   /** Current roster state for the session */
@@ -1298,6 +1300,18 @@ export interface ActivityLogResponse {
   Activity?: string | null;
   /** User details */
   User?: UserDetailedResponse | null;
+}
+
+export interface LotteryEntrantResponse {
+  /**
+   * Unique identifier for the lottery entrant
+   * @format int32
+   */
+  LotteryEntrantId: number;
+  /** Lottery tier the entrant is entered in */
+  LotteryClass: LotteryClass;
+  /** Status of the lottery entrant */
+  Status: LotteryEntrantStatus;
 }
 
 export interface RegularSetResponse {

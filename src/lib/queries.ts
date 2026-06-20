@@ -105,6 +105,11 @@ export const GET_SESSION = gql`
           LastName
         }
       }
+      LotteryEntrants {
+        LotteryEntrantId
+        LotteryClass
+        Status
+      }
       RegularSet {
         RegularSetId
         Description
@@ -393,6 +398,11 @@ export const SESSION_UPDATED = gql`
           FirstName
           LastName
         }
+      }
+      LotteryEntrants {
+        LotteryEntrantId
+        LotteryClass
+        Status
       }
       RegularSet {
         RegularSetId

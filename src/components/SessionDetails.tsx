@@ -1,4 +1,8 @@
-import { SessionDetailedResponse } from '@/HockeyPickup.Api';
+import {
+  LotteryClass,
+  LotteryEntrantStatus,
+  SessionDetailedResponse,
+} from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { ActionIcon, Group, Paper, Text, Title } from '@mantine/core';
 import { IconPencil } from '@tabler/icons-react';
@@ -15,6 +19,12 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const { showRatings } = useRatingsVisibility();
+
+  // Count active entrants (anyone who entered and did not withdraw) for a tier.
+  const entrantCountForClass = (lotteryClass: LotteryClass): number =>
+    session.LotteryEntrants?.filter(
+      (e) => e.LotteryClass === lotteryClass && e.Status !== LotteryEntrantStatus.Withdrawn,
+    ).length ?? 0;
 
   return (
     <Paper shadow='sm' p='md'>
@@ -46,16 +56,20 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
           </Title>
           {(
             [
-              { label: 'Preferred Plus', open: session.LotteryEntryOpenPreferredPlus, draw: session.LotteryDrawPreferredPlus },
-              { label: 'Preferred', open: session.LotteryEntryOpenPreferred, draw: session.LotteryDrawPreferred },
-              { label: 'Standard', open: session.LotteryEntryOpenStandard, draw: session.LotteryDrawStandard },
+              { label: 'Preferred Plus', lotteryClass: LotteryClass.PreferredPlus, open: session.LotteryEntryOpenPreferredPlus, draw: session.LotteryDrawPreferredPlus },
+              { label: 'Preferred', lotteryClass: LotteryClass.Preferred, open: session.LotteryEntryOpenPreferred, draw: session.LotteryDrawPreferred },
+              { label: 'Standard', lotteryClass: LotteryClass.Standard, open: session.LotteryEntryOpenStandard, draw: session.LotteryDrawStandard },
             ] as const
-          ).map((tier) => (
-            <Text key={tier.label} size='sm'>
-              <strong>{tier.label}:</strong> Entry {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')} — Draw{' '}
-              {moment.utc(tier.draw).format('dddd, MM/DD/yyyy, HH:mm')}
-            </Text>
-          ))}
+          ).map((tier) => {
+            const entrantCount = entrantCountForClass(tier.lotteryClass);
+            return (
+              <Text key={tier.label} size='sm'>
+                <strong>{tier.label}:</strong> Entry {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')} — Draw{' '}
+                {moment.utc(tier.draw).format('dddd, MM/DD/yyyy, HH:mm')}
+                {entrantCount > 0 && ` — ${entrantCount} ${entrantCount === 1 ? 'entrant' : 'entrants'}`}
+              </Text>
+            );
+          })}
         </Paper>
       )}
     </Paper>
