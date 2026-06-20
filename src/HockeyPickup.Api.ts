@@ -1291,6 +1291,10 @@ export interface ActivityLogResponse {
    * @maxLength 128
    */
   UserId?: string | null;
+  /** First name of the user associated with the activity (null for system actions) */
+  FirstName?: string | null;
+  /** Last name of the user associated with the activity (null for system actions) */
+  LastName?: string | null;
   /**
    * Date and time of the activity
    * @format date-time

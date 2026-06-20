@@ -50,29 +50,36 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
           <Text style={{ whiteSpace: 'pre-wrap' }}>{session.Note ?? ''}</Text>
         </Group>
       </Paper>
-      {session.LotteryEnabled && (
-        <Paper withBorder p='xs' mt='md' bg='rgba(255, 255, 255, 0.05)'>
-          <Title order={5} mb='xs'>
-            Lottery Windows
-          </Title>
-          {(
-            [
-              { label: 'Preferred Plus', lotteryClass: LotteryClass.PreferredPlus, open: session.LotteryEntryOpenPreferredPlus, draw: session.LotteryDrawPreferredPlus },
-              { label: 'Preferred', lotteryClass: LotteryClass.Preferred, open: session.LotteryEntryOpenPreferred, draw: session.LotteryDrawPreferred },
-              { label: 'Standard', lotteryClass: LotteryClass.Standard, open: session.LotteryEntryOpenStandard, draw: session.LotteryDrawStandard },
-            ] as const
-          ).map((tier) => {
-            const entrantCount = entrantCountForClass(tier.lotteryClass);
+      <Paper withBorder p='xs' mt='md' bg='rgba(255, 255, 255, 0.05)'>
+        <Title order={5} mb='xs'>
+          {session.LotteryEnabled ? 'Lottery Windows' : 'Buy Windows'}
+        </Title>
+        {(
+          [
+            { label: 'Preferred Plus', lotteryClass: LotteryClass.PreferredPlus, open: session.LotteryEntryOpenPreferredPlus, draw: session.LotteryDrawPreferredPlus },
+            { label: 'Preferred', lotteryClass: LotteryClass.Preferred, open: session.LotteryEntryOpenPreferred, draw: session.LotteryDrawPreferred },
+            { label: 'Standard', lotteryClass: LotteryClass.Standard, open: session.LotteryEntryOpenStandard, draw: session.LotteryDrawStandard },
+          ] as const
+        ).map((tier) => {
+          if (!session.LotteryEnabled) {
+            // Buy window opens at the same instant as the lottery entry window would.
             return (
               <Text key={tier.label} size='sm'>
-                <strong>{tier.label}:</strong> Entry {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')} —{' '}
-                {isPast(tier.draw) ? 'Drew' : 'Draw'} {moment.utc(tier.draw).format('dddd, MM/DD/yyyy, HH:mm')}
-                {entrantCount > 0 && ` — ${entrantCount} ${entrantCount === 1 ? 'entrant' : 'entrants'}`}
+                <strong>{tier.label}:</strong> {isPast(tier.open) ? 'Opened' : 'Opens'}{' '}
+                {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')}
               </Text>
             );
-          })}
-        </Paper>
-      )}
+          }
+          const entrantCount = entrantCountForClass(tier.lotteryClass);
+          return (
+            <Text key={tier.label} size='sm'>
+              <strong>{tier.label}:</strong> Entry {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')}:{' '}
+              {isPast(tier.draw) ? 'Drew' : 'Draw'} {moment.utc(tier.draw).format('dddd, MM/DD/yyyy, HH:mm')}
+              {entrantCount > 0 && `: ${entrantCount} ${entrantCount === 1 ? 'entrant' : 'entrants'}`}
+            </Text>
+          );
+        })}
+      </Paper>
     </Paper>
   );
 };

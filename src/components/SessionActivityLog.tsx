@@ -23,10 +23,10 @@ export const SessionActivityLog = ({ session }: SessionActivityLogProps): JSX.El
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {session.ActivityLogs?.map((log: ActivityLogResponse) => {
+          {session.ActivityLogs?.filter(Boolean).map((log: ActivityLogResponse) => {
             const userName =
-              log.User?.FirstName || log.User?.LastName
-                ? `${log.User?.FirstName ?? ''} ${log.User?.LastName ?? ''}`.trim()
+              log.FirstName || log.LastName
+                ? `${log.FirstName ?? ''} ${log.LastName ?? ''}`.trim()
                 : 'System';
             return (
               <Table.Tr key={log.ActivityLogId}>

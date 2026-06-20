@@ -95,15 +95,10 @@ export const GET_SESSION = gql`
       ActivityLogs {
         ActivityLogId
         UserId
+        FirstName
+        LastName
         CreateDateTime
         Activity
-        User {
-          Id
-          UserName
-          Email
-          FirstName
-          LastName
-        }
       }
       LotteryEntrants {
         LotteryEntrantId
@@ -392,15 +387,10 @@ export const SESSION_UPDATED = gql`
       ActivityLogs {
         ActivityLogId
         UserId
+        FirstName
+        LastName
         CreateDateTime
         Activity
-        User {
-          Id
-          UserName
-          Email
-          FirstName
-          LastName
-        }
       }
       LotteryEntrants {
         LotteryEntrantId
