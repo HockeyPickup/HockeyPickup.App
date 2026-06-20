@@ -62,7 +62,10 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     return session.BuyWindow;
   };
 
-  const buyWindowOpen = moment().tz('America/Los_Angeles') >= moment.utc(getBuyWindowDate());
+  // Window times are Pacific wall-clock (parsed with moment.utc for display). Compare against the *current*
+  // Pacific wall-clock in the same naive frame so a future window isn't reported as already open.
+  const nowPacificWallClock = moment.utc(moment().tz('America/Los_Angeles').format('YYYY-MM-DDTHH:mm:ss'));
+  const buyWindowOpen = nowPacificWallClock.isSameOrAfter(moment.utc(getBuyWindowDate()));
   const buyWindowDate = moment.utc(getBuyWindowDate()).format('dddd, MM/DD/yyyy, HH:mm');
 
   const getLotteryDrawTime = (lotteryClass?: LotteryClass | null): string | undefined => {
