@@ -202,7 +202,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
         {buyActionState === BuyActionState.InLottery && (
           <Group mt='xs'>
             <Text c='blue' fw={600}>
-              You&apos;re in the {buyStatus?.LotteryClass} lottery — draw at{' '}
+              You&apos;re in the {buyStatus?.LotteryClass} lottery — Draw at{' '}
               {moment.utc(getLotteryDrawTime(buyStatus?.LotteryClass)).format('dddd, MM/DD/yyyy, HH:mm')}
             </Text>
           </Group>

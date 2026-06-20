@@ -52,8 +52,8 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
             ] as const
           ).map((tier) => (
             <Text key={tier.label} size='sm'>
-              <strong>{tier.label}:</strong> entry {moment.utc(tier.open).format('MM/DD/yyyy, HH:mm')} — draw{' '}
-              {moment.utc(tier.draw).format('MM/DD/yyyy, HH:mm')}
+              <strong>{tier.label}:</strong> Entry {moment.utc(tier.open).format('dddd, MM/DD/yyyy, HH:mm')} — Draw{' '}
+              {moment.utc(tier.draw).format('dddd, MM/DD/yyyy, HH:mm')}
             </Text>
           ))}
         </Paper>
