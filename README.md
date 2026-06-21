@@ -11,10 +11,6 @@ HockeyPickup.App is the primary frontend for [Hockey Pickup](https://hockeypicku
 
 The main technology stack platform is [React](https://react.dev) and the visual element framework is [Mantine](https://mantine.dev).
 
-## 🎟️ Lottery Queuing
-
-The session page reflects lottery state: the buy control switches to Enter / Leave Lottery, entry and draw windows are listed per tier with live entrant counts, and draw results appear in the activity feed. Admins toggle the lottery and set the entry-window length in the session editor.
-
 ## 🛠 Prerequisites
 
 * Setup and install the [HockeyPickup.Api](https://github.com/HockeyPickup/HockeyPickup.Api)
