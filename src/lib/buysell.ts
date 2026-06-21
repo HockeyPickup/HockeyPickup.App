@@ -3,6 +3,8 @@ import {
   ApiDataResponseOfBuySellResponse,
   ApiDataResponseOfBuySellStatusResponse,
   BuyRequest,
+  LotteryEnterRequest,
+  LotteryWithdrawRequest,
   PaymentMethodType,
   SellRequest,
 } from '@/HockeyPickup.Api';
@@ -81,6 +83,26 @@ export const buySellService = {
   async canSell(sessionId: number): Promise<ApiDataResponseOfBuySellStatusResponse> {
     const response = await api.get<ApiDataResponseOfBuySellStatusResponse>(
       `/BuySell/${sessionId}/can-sell`,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async lotteryEnter(sessionId: number): Promise<ApiDataResponseOfBuySellStatusResponse> {
+    const request: LotteryEnterRequest = { SessionId: sessionId };
+    const response = await api.post<ApiDataResponseOfBuySellStatusResponse>(
+      '/BuySell/lottery/enter',
+      request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async lotteryWithdraw(sessionId: number): Promise<ApiDataResponseOfBoolean> {
+    const request: LotteryWithdrawRequest = { SessionId: sessionId };
+    const response = await api.post<ApiDataResponseOfBoolean>(
+      '/BuySell/lottery/withdraw',
+      request,
     );
     console.info(response);
     return response.data;

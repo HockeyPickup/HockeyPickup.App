@@ -23,15 +23,21 @@ export const SessionActivityLog = ({ session }: SessionActivityLogProps): JSX.El
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {session.ActivityLogs?.map((log: ActivityLogResponse) => (
-            <Table.Tr key={log.ActivityLogId}>
-              <Table.Td>
-                {moment.utc(log.CreateDateTime).local().format('MM/DD/yyyy, HH:mm:ss.SSS')}
-              </Table.Td>
-              <Table.Td>{log.User?.FirstName + ' ' + log.User?.LastName || '-'}</Table.Td>
-              <Table.Td>{log.Activity}</Table.Td>
-            </Table.Tr>
-          ))}
+          {session.ActivityLogs?.filter(Boolean).map((log: ActivityLogResponse) => {
+            const userName =
+              log.FirstName || log.LastName
+                ? `${log.FirstName ?? ''} ${log.LastName ?? ''}`.trim()
+                : 'System';
+            return (
+              <Table.Tr key={log.ActivityLogId}>
+                <Table.Td>
+                  {moment.utc(log.CreateDateTime).local().format('MM/DD/yyyy, HH:mm:ss.SSS')}
+                </Table.Td>
+                <Table.Td>{userName}</Table.Td>
+                <Table.Td>{log.Activity}</Table.Td>
+              </Table.Tr>
+            );
+          })}
         </Table.Tbody>
       </Table>
     </Paper>
