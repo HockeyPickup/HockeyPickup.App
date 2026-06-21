@@ -54,6 +54,14 @@ export const GET_SESSION = gql`
       BuyWindow
       BuyWindowPreferred
       BuyWindowPreferredPlus
+      LotteryEnabled
+      LotteryEntryWindowMinutes
+      LotteryEntryOpenStandard
+      LotteryEntryOpenPreferred
+      LotteryEntryOpenPreferredPlus
+      LotteryDrawStandard
+      LotteryDrawPreferred
+      LotteryDrawPreferredPlus
       Cost
       BuySells {
         BuySellId
@@ -87,15 +95,18 @@ export const GET_SESSION = gql`
       ActivityLogs {
         ActivityLogId
         UserId
+        FirstName
+        LastName
         CreateDateTime
         Activity
-        User {
-          Id
-          UserName
-          Email
-          FirstName
-          LastName
-        }
+      }
+      LotteryEntrants {
+        LotteryEntrantId
+        UserId
+        FirstName
+        LastName
+        LotteryClass
+        Status
       }
       RegularSet {
         RegularSetId
@@ -335,6 +346,14 @@ export const SESSION_UPDATED = gql`
       BuyWindow
       BuyWindowPreferred
       BuyWindowPreferredPlus
+      LotteryEnabled
+      LotteryEntryWindowMinutes
+      LotteryEntryOpenStandard
+      LotteryEntryOpenPreferred
+      LotteryEntryOpenPreferredPlus
+      LotteryDrawStandard
+      LotteryDrawPreferred
+      LotteryDrawPreferredPlus
       Cost
       BuySells {
         BuySellId
@@ -368,15 +387,18 @@ export const SESSION_UPDATED = gql`
       ActivityLogs {
         ActivityLogId
         UserId
+        FirstName
+        LastName
         CreateDateTime
         Activity
-        User {
-          Id
-          UserName
-          Email
-          FirstName
-          LastName
-        }
+      }
+      LotteryEntrants {
+        LotteryEntrantId
+        UserId
+        FirstName
+        LastName
+        LotteryClass
+        Status
       }
       RegularSet {
         RegularSetId

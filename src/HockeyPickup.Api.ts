@@ -21,6 +21,41 @@ export enum PlayerStatus {
   InQueue = "InQueue",
 }
 
+export enum BuyActionState {
+  /** User cannot buy or enter a lottery for this session */
+  NotEligible = "NotEligible",
+  /** The user's buy/entry window has not opened yet */
+  WindowNotOpen = "WindowNotOpen",
+  /** The user may enter the applicable lottery */
+  EnterLottery = "EnterLottery",
+  /** The user is already entered in the applicable lottery */
+  InLottery = "InLottery",
+  /** The user may buy a spot directly */
+  BuyNow = "BuyNow",
+}
+
+export enum LotteryEntrantStatus {
+  /** Entrant is entered and awaiting the draw */
+  Entered = "Entered",
+  /** Entrant withdrew before the draw */
+  Withdrawn = "Withdrawn",
+  /** Entrant is claimed by an in-progress draw */
+  Drawing = "Drawing",
+  /** Entrant was drawn and their buy processed */
+  Drawn = "Drawn",
+  /** Entrant was drawn but their buy failed */
+  Failed = "Failed",
+}
+
+export enum LotteryClass {
+  /** Preferred Plus tier lottery */
+  PreferredPlus = "PreferredPlus",
+  /** Preferred tier lottery */
+  Preferred = "Preferred",
+  /** Standard tier lottery */
+  Standard = "Standard",
+}
+
 export enum TeamAssignment {
   TBD = "TBD",
   Light = "Light",
@@ -71,7 +106,6 @@ export interface LoginResponse {
   /**
    * Token expiration date and time
    * @format date-time
-   * @minLength 1
    */
   Expiration: string;
   /** UserDetailedResponse Record */
@@ -205,7 +239,6 @@ export interface BuySellResponse {
   /**
    * Date and time when the session is scheduled
    * @format date-time
-   * @minLength 1
    */
   SessionDate: string;
   /**
@@ -229,13 +262,11 @@ export interface BuySellResponse {
   /**
    * Date and time of transaction creation
    * @format date-time
-   * @minLength 1
    */
   CreateDateTime: string;
   /**
    * Date and time of last update
    * @format date-time
-   * @minLength 1
    */
   UpdateDateTime: string;
   /** Team assignment for the transaction */
@@ -248,7 +279,7 @@ export interface BuySellResponse {
    */
   Price: number;
   /** Payment method used to complete the BuySell */
-  PaymentMethod?: PaymentMethodType | null;
+  PaymentMethod?: PaymentMethodType;
   /**
    * User Id creating BuySell
    * @maxLength 128
@@ -437,11 +468,15 @@ export interface Session {
   BuyDayMinimum?: number | null;
   /** @format decimal */
   Cost?: number | null;
+  LotteryEnabled?: boolean;
+  /** @format int32 */
+  LotteryEntryWindowMinutes?: number;
   RegularSet?: RegularSet | null;
   BuySells?: BuySell[];
   ActivityLogs?: ActivityLog[];
   CurrentSessionRoster?: CurrentSessionRoster[];
   BuyingQueues?: BuyingQueue[];
+  LotteryEntrants?: SessionLotteryEntrant[];
 }
 
 export interface RegularSet {
@@ -528,6 +563,29 @@ export interface BuyingQueue {
   SellerNoteFlagged?: boolean;
   Buyer?: AspNetUser | null;
   Seller?: AspNetUser | null;
+}
+
+export interface SessionLotteryEntrant {
+  /** @format int32 */
+  LotteryEntrantId?: number;
+  /** @format int32 */
+  SessionId?: number;
+  UserId?: string;
+  LotteryClass?: LotteryClass;
+  /** @format decimal */
+  Weight?: number;
+  Status?: LotteryEntrantStatus;
+  /** @format int32 */
+  DrawOrder?: number | null;
+  /** @format date-time */
+  DrawDateTime?: string | null;
+  FailureReason?: string | null;
+  /** @format date-time */
+  CreateDateTime?: string;
+  /** @format date-time */
+  UpdateDateTime?: string;
+  Session?: Session | null;
+  User?: AspNetUser | null;
 }
 
 export interface UserPaymentMethod {
@@ -786,7 +844,7 @@ export interface PhotoResponse {
    * Date and time when the photo was last updated
    * @format date-time
    */
-  UpdateDateTime?: string;
+  UpdateDateTime: string;
 }
 
 export interface AdminPhotoDeleteRequest {
@@ -855,6 +913,37 @@ export interface BuySellStatusResponse {
    * @format duration
    */
   TimeUntilAllowed?: string | null;
+  /** The buy action the front end should present for this user/session */
+  BuyActionState?: BuyActionState;
+  /** The lottery tier that applies (when entering/in a lottery) */
+  LotteryClass?: LotteryClass | null;
+  /**
+   * Time until the applicable lottery draw (when entering/in a lottery)
+   * @format duration
+   */
+  TimeUntilDraw?: string | null;
+}
+
+export interface LotteryEnterRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
+}
+
+/** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfBoolean = ApiResponse & {
+  /** Response data payload of type T */
+  Data?: boolean;
+};
+
+export interface LotteryWithdrawRequest {
+  /**
+   * Session identifier
+   * @format int32
+   */
+  SessionId: number;
 }
 
 /** Generic API response wrapper with typed data payload */
@@ -893,7 +982,6 @@ export interface ImpersonationResponse {
   /**
    * Timestamp when impersonation started
    * @format date-time
-   * @minLength 1
    */
   StartTime: string;
 }
@@ -929,7 +1017,6 @@ export interface RevertImpersonationResponse {
   /**
    * Timestamp when impersonation ended
    * @format date-time
-   * @minLength 1
    */
   EndTime: string;
 }
@@ -961,6 +1048,15 @@ export interface ImpersonationStatusResponse {
 }
 
 /** Generic API response wrapper with typed data payload */
+export type ApiDataResponseOfInteger = ApiResponse & {
+  /**
+   * Response data payload of type T
+   * @format int32
+   */
+  Data?: number;
+};
+
+/** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfRegularSetDetailedResponse = ApiResponse & {
   /** Response data payload of type T */
   Data?: RegularSetDetailedResponse | null;
@@ -984,7 +1080,6 @@ export interface RegularSetDetailedResponse {
   /**
    * Date and time when the regular set was created
    * @format date-time
-   * @minLength 1
    */
   CreateDateTime: string;
   /** Indicates if the regular set is archived */
@@ -1134,10 +1229,49 @@ export type SessionDetailedResponse = SessionBasicResponse & {
    * @format date-time
    */
   BuyWindowPreferredPlus?: string;
+  /** Whether the lottery is enabled for this session */
+  LotteryEnabled: boolean;
+  /**
+   * Duration in minutes of each tier's lottery entry window
+   * @format int32
+   */
+  LotteryEntryWindowMinutes: number;
+  /**
+   * Lottery entry window opens for the session (standard tier)
+   * @format date-time
+   */
+  LotteryEntryOpenStandard?: string;
+  /**
+   * Lottery entry window opens for preferred users
+   * @format date-time
+   */
+  LotteryEntryOpenPreferred?: string;
+  /**
+   * Lottery entry window opens for preferred plus users
+   * @format date-time
+   */
+  LotteryEntryOpenPreferredPlus?: string;
+  /**
+   * Lottery draw time for the session (standard tier)
+   * @format date-time
+   */
+  LotteryDrawStandard?: string;
+  /**
+   * Lottery draw time for preferred users
+   * @format date-time
+   */
+  LotteryDrawPreferred?: string;
+  /**
+   * Lottery draw time for preferred plus users
+   * @format date-time
+   */
+  LotteryDrawPreferredPlus?: string;
   /** Buy/sell transactions associated with the session */
   BuySells?: BuySellResponse[] | null;
   /** Activity logs associated with the session */
   ActivityLogs?: ActivityLogResponse[] | null;
+  /** Lottery entrants associated with the session */
+  LotteryEntrants?: LotteryEntrantResponse[] | null;
   /** Regular set details for the session */
   RegularSet?: RegularSetResponse | null;
   /** Current roster state for the session */
@@ -1157,16 +1291,40 @@ export interface ActivityLogResponse {
    * @maxLength 128
    */
   UserId?: string | null;
+  /** First name of the user associated with the activity (null for system actions) */
+  FirstName?: string | null;
+  /** Last name of the user associated with the activity (null for system actions) */
+  LastName?: string | null;
   /**
    * Date and time of the activity
    * @format date-time
-   * @minLength 1
    */
   CreateDateTime: string;
   /** Description of the activity */
   Activity?: string | null;
   /** User details */
   User?: UserDetailedResponse | null;
+}
+
+export interface LotteryEntrantResponse {
+  /**
+   * Unique identifier for the lottery entrant
+   * @format int32
+   */
+  LotteryEntrantId: number;
+  /**
+   * User Id of the entrant
+   * @maxLength 128
+   */
+  UserId?: string | null;
+  /** First name of the entrant */
+  FirstName?: string | null;
+  /** Last name of the entrant */
+  LastName?: string | null;
+  /** Lottery tier the entrant is entered in */
+  LotteryClass: LotteryClass;
+  /** Status of the lottery entrant */
+  Status: LotteryEntrantStatus;
 }
 
 export interface RegularSetResponse {
@@ -1187,7 +1345,6 @@ export interface RegularSetResponse {
   /**
    * Date and time of creation
    * @format date-time
-   * @minLength 1
    */
   CreateDateTime: string;
   /** Indicates if the regular set is archived */
@@ -1290,7 +1447,6 @@ export interface RosterPlayer {
   /**
    * Date and time when the player joined the roster
    * @format date-time
-   * @minLength 1
    */
   JoinedDateTime: string;
 }
@@ -1373,13 +1529,11 @@ export interface SessionBasicResponse {
   /**
    * Date and time when the session was created
    * @format date-time
-   * @minLength 1
    */
   CreateDateTime: string;
   /**
    * Date and time when the session was last updated
    * @format date-time
-   * @minLength 1
    */
   UpdateDateTime: string;
   /** Additional notes about the session */
@@ -1387,7 +1541,6 @@ export interface SessionBasicResponse {
   /**
    * Date and time when the session is scheduled
    * @format date-time
-   * @minLength 1
    */
   SessionDate: string;
   /**
@@ -1413,7 +1566,6 @@ export interface CreateSessionRequest {
   /**
    * Date and time when the session is scheduled
    * @format date-time
-   * @minLength 1
    */
   SessionDate: string;
   /**
@@ -1432,14 +1584,23 @@ export interface CreateSessionRequest {
    * @min 0
    * @max 365
    */
-  BuyDayMinimum?: number;
+  BuyDayMinimum: number;
   /**
    * Cost of the session
    * @format decimal
    * @min 0
    * @max 1000
    */
-  Cost?: number;
+  Cost: number;
+  /** Whether the lottery is enabled for this session */
+  LotteryEnabled?: boolean;
+  /**
+   * Duration in minutes of each tier's lottery entry window
+   * @format int32
+   * @min 1
+   * @max 1440
+   */
+  LotteryEntryWindowMinutes?: number;
 }
 
 export type UpdateSessionRequest = CreateSessionRequest & {
@@ -1499,12 +1660,6 @@ export interface UpdateRosterPlayingStatusRequest {
    */
   Note?: string | null;
 }
-
-/** Generic API response wrapper with typed data payload */
-export type ApiDataResponseOfBoolean = ApiResponse & {
-  /** Response data payload of type T */
-  Data?: boolean;
-};
 
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfUserPaymentMethodResponse = ApiResponse & {
@@ -1589,7 +1744,6 @@ export interface LockerRoom13Response {
   /**
    * Date and time when the session is scheduled
    * @format date-time
-   * @minLength 1
    */
   SessionDate: string;
   /** List of players in LockerRoom13 */
@@ -1604,7 +1758,7 @@ export interface ServiceBusCommsMessage {
   /** Related entity IDs (Email, SessionId, etc) */
   RelatedEntities: Record<string, string>;
   /** Type-specific message payload data */
-  MessageData?: Record<string, string>;
+  MessageData?: Record<string, string> | null;
   /** List of email addresses to notify */
   NotificationEmails?: string[] | null;
   /** List of device IDs for push notifications */
@@ -1734,20 +1888,19 @@ export interface User {
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponseOfObject = ApiResponse & {
   /** Response data payload of type T */
-  Data?: any;
+  Data?: any | null;
 };
 
 /** Generic API response wrapper with typed data payload */
 export type ApiDataResponse1 = ApiResponse & {
   /** Response data payload of type T */
-  Data?: any;
+  Data?: any | null;
 };
 
 export interface UserStatsResponse {
   /**
    * Date when user became a member
    * @format date-time
-   * @minLength 1
    */
   MemberSince: string;
   /**
