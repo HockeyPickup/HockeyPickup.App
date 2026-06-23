@@ -4,7 +4,9 @@ import {
   ActionIcon,
   Badge,
   Box,
+  Button,
   Card,
+  Collapse,
   Divider,
   Group,
   Paper,
@@ -15,20 +17,24 @@ import {
   Title,
 } from '@mantine/core';
 import {
+  IconChevronDown,
+  IconChevronUp,
   IconCircleCheck,
   IconCircleDot,
   IconClock,
   IconConfetti,
   IconCrown,
   IconHourglass,
+  IconMinus,
   IconPencil,
+  IconPlus,
   IconShoppingCart,
   IconStarFilled,
   IconTicket,
   IconUsers,
 } from '@tabler/icons-react';
 import moment from 'moment';
-import { JSX } from 'react';
+import { JSX, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRatingsVisibility } from './RatingsToggle';
 
@@ -81,6 +87,13 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
   const { isAdmin, user } = useAuth();
   const navigate = useNavigate();
   const { showRatings } = useRatingsVisibility();
+
+  // Both collapse controls default closed: the section loads as the viewer's tier only (or the
+  // one-line summary once drawn), and expands on demand.
+  // `sectionExpanded` drives the drawn/done one-line summary; `showAllTiers` toggles all tiers vs.
+  // just the viewer's while the windows are still active.
+  const [sectionExpanded, setSectionExpanded] = useState(false);
+  const [showAllTiers, setShowAllTiers] = useState(false);
 
   // Count active entrants (anyone who entered and did not withdraw) for a tier.
   const entrantCountForClass = (lotteryClass: LotteryClass): number =>
@@ -151,6 +164,30 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
       ? { label: 'Open Now', color: 'green', Icon: IconCircleCheck }
       : { label: 'Upcoming', color: 'yellow', Icon: IconHourglass };
 
+  const hasUserTier = userTier !== null;
+  const userTierMeta = tiers.find((tier) => tier.lotteryClass === userTier);
+
+  // The lottery is "done" once every tier has been drawn. When done we collapse the whole section
+  // to a one-line summary; while still active we show the tier cards.
+  const isDrawnDone = session.LotteryEnabled && tiers.every((tier) => isPast(tier.draw));
+
+  // bodyShown: are the tier cards visible at all? (Always, unless we're in the collapsed summary.)
+  // visibleTiers: all tiers, or just the viewer's, per the active-state toggle.
+  const bodyShown = isDrawnDone ? sectionExpanded : true;
+  const visibleTiers =
+    isDrawnDone || showAllTiers || !hasUserTier
+      ? tiers
+      : tiers.filter((tier) => tier.lotteryClass === userTier);
+
+  const headerSubtitle =
+    isDrawnDone && !sectionExpanded
+      ? userTierMeta
+        ? `All tiers drawn · your tier: ${userTierMeta.label}`
+        : 'All tiers drawn'
+      : session.LotteryEnabled
+        ? 'Enter during your tier’s window — spots are drawn at the time shown'
+        : 'Spots open for purchase at your tier’s window';
+
   return (
     <Paper shadow='sm' p='md'>
       <Paper withBorder p='xs' bg='rgba(255, 255, 255, 0.05)'>
@@ -176,120 +213,148 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
       </Paper>
       {!isSessionPast && (
         <Paper withBorder p='md' mt='md' bg='rgba(255, 255, 255, 0.05)'>
-          <Group gap='sm' mb='md' align='center' wrap='nowrap'>
-            <ThemeIcon
-              color={session.LotteryEnabled ? 'purple' : 'green'}
-              variant='light'
-              radius='md'
-              size='lg'
-            >
-              {session.LotteryEnabled ? <IconTicket size={20} /> : <IconShoppingCart size={20} />}
-            </ThemeIcon>
-            <Box>
-              <Title order={5} style={{ lineHeight: 1.15 }}>
-                {session.LotteryEnabled ? 'Lottery Windows' : 'Buy Windows'}
-              </Title>
-              <Text size='xs' c='dimmed' style={{ lineHeight: 1.25 }}>
-                {session.LotteryEnabled
-                  ? 'Enter during your tier’s window — spots are drawn at the time shown'
-                  : 'Spots open for purchase at your tier’s window'}
-              </Text>
-            </Box>
+          <Group justify='space-between' wrap='nowrap' gap='sm' mb={bodyShown ? 'md' : 0}>
+            <Group gap='sm' align='center' wrap='nowrap' style={{ minWidth: 0 }}>
+              <ThemeIcon
+                color={session.LotteryEnabled ? 'purple' : 'green'}
+                variant='light'
+                radius='md'
+                size='lg'
+              >
+                {session.LotteryEnabled ? <IconTicket size={20} /> : <IconShoppingCart size={20} />}
+              </ThemeIcon>
+              <Box style={{ minWidth: 0 }}>
+                <Title order={5} style={{ lineHeight: 1.15 }}>
+                  {session.LotteryEnabled ? 'Lottery Windows' : 'Buy Windows'}
+                </Title>
+                <Text size='xs' c='dimmed' style={{ lineHeight: 1.25 }}>
+                  {headerSubtitle}
+                </Text>
+              </Box>
+            </Group>
+
+            {isDrawnDone ? (
+              <Button
+                variant='subtle'
+                color='gray'
+                size='compact-xs'
+                onClick={() => setSectionExpanded((v) => !v)}
+                leftSection={
+                  sectionExpanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
+                }
+              >
+                {sectionExpanded ? 'Hide' : 'Show'}
+              </Button>
+            ) : (
+              hasUserTier && (
+                <Button
+                  variant='subtle'
+                  color='gray'
+                  size='compact-xs'
+                  onClick={() => setShowAllTiers((v) => !v)}
+                  leftSection={showAllTiers ? <IconMinus size={14} /> : <IconPlus size={14} />}
+                >
+                  {showAllTiers ? 'Your tier' : 'All tiers'}
+                </Button>
+              )
+            )}
           </Group>
 
-          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing='sm'>
-            {tiers.map((tier) => {
-              const status = session.LotteryEnabled
-                ? lotteryStatus(tier.open, tier.draw)
-                : buyStatus(tier.open);
-              const isYourTier = userTier === tier.lotteryClass;
-              const entrantCount = entrantCountForClass(tier.lotteryClass);
+          <Collapse expanded={bodyShown}>
+            <SimpleGrid cols={{ base: 1, sm: visibleTiers.length === 1 ? 1 : 3 }} spacing='sm'>
+              {visibleTiers.map((tier) => {
+                const status = session.LotteryEnabled
+                  ? lotteryStatus(tier.open, tier.draw)
+                  : buyStatus(tier.open);
+                const isYourTier = userTier === tier.lotteryClass;
+                const entrantCount = entrantCountForClass(tier.lotteryClass);
 
-              return (
-                <Card
-                  key={tier.label}
-                  withBorder
-                  radius='md'
-                  p='sm'
-                  bg='rgba(255, 255, 255, 0.02)'
-                  style={{
-                    borderLeftWidth: 3,
-                    borderLeftColor: `var(--mantine-color-${tier.color}-${isYourTier ? 4 : 6})`,
-                    ...(isYourTier
-                      ? {
-                          background: `var(--mantine-color-${tier.color}-light)`,
-                          boxShadow: `0 0 0 1px var(--mantine-color-${tier.color}-5)`,
-                        }
-                      : {}),
-                  }}
-                >
-                  <Group justify='space-between' wrap='nowrap' mb='sm'>
-                    <Group gap='xs' wrap='nowrap'>
-                      <ThemeIcon color={tier.color} variant='light' radius='md' size={36}>
-                        <tier.Icon size={20} />
-                      </ThemeIcon>
-                      <Box>
-                        <Text fw={700} size='sm' style={{ lineHeight: 1.2 }}>
-                          {tier.label}
-                        </Text>
-                        {isYourTier && (
-                          <Text
-                            fw={700}
-                            c={tier.color}
-                            tt='uppercase'
-                            style={{ fontSize: 10, letterSpacing: 0.4, lineHeight: 1.3 }}
-                          >
-                            Your tier
+                return (
+                  <Card
+                    key={tier.label}
+                    withBorder
+                    radius='md'
+                    p='sm'
+                    bg='rgba(255, 255, 255, 0.02)'
+                    style={{
+                      borderLeftWidth: 3,
+                      borderLeftColor: `var(--mantine-color-${tier.color}-${isYourTier ? 4 : 6})`,
+                      ...(isYourTier
+                        ? {
+                            background: `var(--mantine-color-${tier.color}-light)`,
+                            boxShadow: `0 0 0 1px var(--mantine-color-${tier.color}-5)`,
+                          }
+                        : {}),
+                    }}
+                  >
+                    <Group justify='space-between' wrap='nowrap' mb='sm'>
+                      <Group gap='xs' wrap='nowrap'>
+                        <ThemeIcon color={tier.color} variant='light' radius='md' size={36}>
+                          <tier.Icon size={20} />
+                        </ThemeIcon>
+                        <Box>
+                          <Text fw={700} size='sm' style={{ lineHeight: 1.2 }}>
+                            {tier.label}
                           </Text>
-                        )}
-                      </Box>
+                          {isYourTier && (
+                            <Text
+                              fw={700}
+                              c={tier.color}
+                              tt='uppercase'
+                              style={{ fontSize: 10, letterSpacing: 0.4, lineHeight: 1.3 }}
+                            >
+                              Your tier
+                            </Text>
+                          )}
+                        </Box>
+                      </Group>
+                      <Badge
+                        color={status.color}
+                        variant='light'
+                        radius='sm'
+                        leftSection={<status.Icon size={12} />}
+                      >
+                        {status.label}
+                      </Badge>
                     </Group>
-                    <Badge
-                      color={status.color}
-                      variant='light'
-                      radius='sm'
-                      leftSection={<status.Icon size={12} />}
-                    >
-                      {status.label}
-                    </Badge>
-                  </Group>
 
-                  <Stack gap='xs'>
-                    {session.LotteryEnabled ? (
-                      <>
+                    <Stack gap='xs'>
+                      {session.LotteryEnabled ? (
+                        <>
+                          <InfoRow
+                            icon={<IconClock size={16} />}
+                            label={isPast(tier.open) ? 'Entry Opened' : 'Entry Opens'}
+                            value={fmt(tier.open)}
+                            hint={rel(tier.open)}
+                          />
+                          <InfoRow
+                            icon={<IconConfetti size={16} />}
+                            label={isPast(tier.draw) ? 'Drawn' : 'Draw'}
+                            value={fmt(tier.draw)}
+                            hint={rel(tier.draw)}
+                          />
+                          <Divider variant='dashed' my={2} />
+                          <Group gap={8} wrap='nowrap'>
+                            <IconUsers size={15} style={{ color: 'var(--mantine-color-dimmed)' }} />
+                            <Text size='xs' fw={600} c={entrantCount > 0 ? undefined : 'dimmed'}>
+                              {entrantCount} {entrantCount === 1 ? 'entrant' : 'entrants'} entered
+                            </Text>
+                          </Group>
+                        </>
+                      ) : (
                         <InfoRow
                           icon={<IconClock size={16} />}
-                          label={isPast(tier.open) ? 'Entry Opened' : 'Entry Opens'}
+                          label={isPast(tier.open) ? 'Opened' : 'Opens'}
                           value={fmt(tier.open)}
                           hint={rel(tier.open)}
                         />
-                        <InfoRow
-                          icon={<IconConfetti size={16} />}
-                          label={isPast(tier.draw) ? 'Drawn' : 'Draw'}
-                          value={fmt(tier.draw)}
-                          hint={rel(tier.draw)}
-                        />
-                        <Divider variant='dashed' my={2} />
-                        <Group gap={8} wrap='nowrap'>
-                          <IconUsers size={15} style={{ color: 'var(--mantine-color-dimmed)' }} />
-                          <Text size='xs' fw={600} c={entrantCount > 0 ? undefined : 'dimmed'}>
-                            {entrantCount} {entrantCount === 1 ? 'entrant' : 'entrants'} entered
-                          </Text>
-                        </Group>
-                      </>
-                    ) : (
-                      <InfoRow
-                        icon={<IconClock size={16} />}
-                        label={isPast(tier.open) ? 'Opened' : 'Opens'}
-                        value={fmt(tier.open)}
-                        hint={rel(tier.open)}
-                      />
-                    )}
-                  </Stack>
-                </Card>
-              );
-            })}
-          </SimpleGrid>
+                      )}
+                    </Stack>
+                  </Card>
+                );
+              })}
+            </SimpleGrid>
+          </Collapse>
         </Paper>
       )}
     </Paper>

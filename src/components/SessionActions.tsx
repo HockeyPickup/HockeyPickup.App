@@ -222,44 +222,85 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
     }
   };
 
+  const isPast = (t?: string): boolean => nowPacificWallClock.isSameOrAfter(moment.utc(t));
+
+  const userTier: LotteryClass = user?.PreferredPlus
+    ? LotteryClass.PreferredPlus
+    : user?.Preferred
+      ? LotteryClass.Preferred
+      : LotteryClass.Standard;
+
+  const getLotteryEntryOpenTime = (lotteryClass: LotteryClass): string | undefined => {
+    switch (lotteryClass) {
+      case LotteryClass.PreferredPlus:
+        return session.LotteryEntryOpenPreferredPlus;
+      case LotteryClass.Preferred:
+        return session.LotteryEntryOpenPreferred;
+      default:
+        return session.LotteryEntryOpenStandard;
+    }
+  };
+
+  // The action panel presents as a "Lottery Window" before/during the lottery (until the viewer's
+  // tier has been drawn), and becomes the "Buy Window" once drawn — or always, for non-lottery
+  // sessions. This keeps "Buy Window" from showing while the lottery is still running.
+  const lotteryDrawTime = getLotteryDrawTime(userTier);
+  const lotteryPhase = session.LotteryEnabled && !isPast(lotteryDrawTime);
+  const panelOpen = lotteryPhase ? isPast(getLotteryEntryOpenTime(userTier)) : buyWindowOpen;
+
+  // Don't repeat the schedule that the Lottery/Buy Windows section above already shows (entry/draw
+  // for the lottery, the open time for buy windows). The only time worth restating here is a
+  // lottery session's post-draw buy window, which those cards don't display.
+  const panel = lotteryPhase
+    ? {
+        title: 'Lottery Window',
+        Icon: IconTicket,
+        iconColor: 'purple',
+        statusLabel: panelOpen ? 'Entry Open' : 'Upcoming',
+        subline: null,
+      }
+    : {
+        title: 'Buy Window',
+        Icon: IconShoppingCart,
+        iconColor: 'green',
+        statusLabel: panelOpen ? 'Open Now' : 'Upcoming',
+        subline:
+          session.LotteryEnabled && buyWindowDateRaw
+            ? `${buyWindowOpen ? 'Opened' : 'Opens'} ${buyWindowDate} · ${buyWindowRel}`
+            : null,
+      };
+
   return (
     <div style={{ marginTop: -16 }}>
       <Paper shadow='sm' p='md' style={{ marginTop: 0, marginBottom: 0 }}>
         <Group justify='space-between' wrap='nowrap' gap='sm'>
           <Group gap='sm' wrap='nowrap' style={{ flex: 1, minWidth: 0 }}>
-            <ThemeIcon
-              color={buyWindowOpen ? 'green' : 'yellow'}
-              variant='light'
-              radius='md'
-              size='lg'
-            >
-              <IconShoppingCart size={20} />
+            <ThemeIcon color={panel.iconColor} variant='light' radius='md' size='lg'>
+              <panel.Icon size={20} />
             </ThemeIcon>
             <Box style={{ minWidth: 0 }}>
               <Group gap='xs' wrap='nowrap'>
                 <Text fw={700} size='sm'>
-                  Buy Window
+                  {panel.title}
                 </Text>
                 <Badge color={tierColor} variant='light' radius='sm' size='sm'>
                   {tierLabel}
                 </Badge>
               </Group>
-              {buyWindowDateRaw && (
+              {panel.subline && (
                 <Text size='xs' c='dimmed' style={{ lineHeight: 1.3 }}>
-                  {buyWindowOpen ? 'Opened' : 'Opens'} {buyWindowDate} · {buyWindowRel}
+                  {panel.subline}
                 </Text>
               )}
             </Box>
           </Group>
           <Badge
-            color={buyWindowOpen ? 'green' : 'yellow'}
+            color={panelOpen ? 'green' : 'yellow'}
             variant='light'
             radius='sm'
-            leftSection={
-              buyWindowOpen ? <IconCircleCheck size={12} /> : <IconHourglass size={12} />
-            }
+            leftSection={panelOpen ? <IconCircleCheck size={12} /> : <IconHourglass size={12} />}
           >
-            {buyWindowOpen ? 'Open Now' : 'Upcoming'}
+            {panel.statusLabel}
           </Badge>
         </Group>
         {!user?.Active && (
@@ -288,10 +329,6 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
           >
             <Text size='sm' fw={600}>
               You&apos;re in the {buyStatus?.LotteryClass} lottery
-            </Text>
-            <Text size='xs' c='dimmed'>
-              Draw at{' '}
-              {moment.utc(getLotteryDrawTime(buyStatus?.LotteryClass)).format('ddd, MMM D · HH:mm')}
             </Text>
           </Alert>
         )}
