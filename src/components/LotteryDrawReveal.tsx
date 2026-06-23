@@ -98,6 +98,7 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
       closeOnEscape={settled}
       size='md'
       radius='lg'
+      classNames={{ content: 'lottery-reveal-modal' }}
       title={
         <Stack gap={0}>
           <Text size='xs' c='dimmed' tt='uppercase' fw={600}>

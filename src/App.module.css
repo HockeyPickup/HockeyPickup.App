@@ -110,6 +110,12 @@
   border-radius: 0 !important;
 }
 
+/* Modal content is a Paper, so the rule above squares it off. Let modals opt back into rounded
+   corners via this class (higher specificity than .mantine-Paper-root, so it wins). */
+:global(.lottery-reveal-modal.mantine-Paper-root) {
+  border-radius: var(--mantine-radius-lg) !important;
+}
+
 /* Update existing rule to be more specific */
 :global(.mantine-AppShell-main) {
   padding: 60px 1px 40px 1px !important;
