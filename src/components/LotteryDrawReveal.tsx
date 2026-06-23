@@ -93,25 +93,24 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
       opened
       onClose={handleClose}
       centered
-      withCloseButton={false}
+      withCloseButton={settled}
       closeOnClickOutside={settled}
       closeOnEscape={settled}
       size='md'
+      radius='lg'
       classNames={{ content: 'lottery-reveal-modal' }}
-    >
-      <Stack gap='sm' align='center' style={{ width: '100%', maxWidth: 300, textAlign: 'center' }}>
-        <Stack gap={2} align='center'>
+      title={
+        <Stack gap={0}>
           <Text size='xs' c='dimmed' tt='uppercase' fw={600}>
             {LOTTERY_CLASS_LABELS[current.lotteryClass]} lottery
           </Text>
           <Title order={3}>{settled ? 'Draw Results' : 'Drawing Replay'}</Title>
         </Stack>
-
+      }
+    >
+      <Stack gap='md'>
         <div
           style={{
-            width: '100%',
-            maxHeight: 200,
-            overflowY: 'auto',
             filter: settled ? 'none' : 'blur(3px)',
             opacity: settled ? 1 : 0.85,
             transition: 'filter 350ms ease, opacity 350ms ease',
@@ -119,11 +118,11 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
         >
           <Stack gap='xs'>
             {displayEntrants.map((entrant, index) => (
-              <Group key={entrant.LotteryEntrantId} gap='sm' wrap='nowrap' justify='center'>
-                <Text size='sm' w={20} ta='right' c='dimmed'>
+              <Group key={entrant.LotteryEntrantId} gap='sm' wrap='nowrap'>
+                <Text size='sm' w={24} ta='right' c='dimmed'>
                   {settled ? `${entrant.DrawOrder}.` : '•'}
                 </Text>
-                <EntrantAvatar entrant={entrant} size={34} />
+                <EntrantAvatar entrant={entrant} size={36} />
                 <Text size='sm' fw={settled && index === 0 ? 700 : 400}>
                   {entrant.FirstName} {entrant.LastName}
                 </Text>
@@ -133,7 +132,7 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
         </div>
 
         {settled && (
-          <Group justify='center' gap='sm'>
+          <Group justify='space-between' mt='xs'>
             <Badge color='gray' variant='light'>
               Closed
             </Badge>

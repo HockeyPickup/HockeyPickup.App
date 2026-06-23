@@ -110,22 +110,10 @@
   border-radius: 0 !important;
 }
 
-/* Modal content is a Paper, so the rule above squares it off. The lottery reveal opts into a
-   circular "lottery ball" shape (fixed square + 50% radius); content is centered inside. */
+/* Modal content is a Paper, so the rule above squares it off. Let modals opt back into rounded
+   corners via this class (higher specificity than .mantine-Paper-root, so it wins). */
 :global(.lottery-reveal-modal.mantine-Paper-root) {
-  width: min(460px, 88vw) !important;
-  height: min(460px, 88vw) !important;
-  border-radius: 50% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 44px !important;
-  overflow: hidden !important;
-}
-
-:global(.lottery-reveal-modal .mantine-Modal-body) {
-  padding: 0 !important;
-  width: 100%;
+  border-radius: var(--mantine-radius-lg) !important;
 }
 
 /* Update existing rule to be more specific */
