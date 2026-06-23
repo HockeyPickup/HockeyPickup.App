@@ -1321,10 +1321,25 @@ export interface LotteryEntrantResponse {
   FirstName?: string | null;
   /** Last name of the entrant */
   LastName?: string | null;
+  /**
+   * Profile photo url of the entrant
+   * @maxLength 256
+   */
+  PhotoUrl?: string | null;
   /** Lottery tier the entrant is entered in */
   LotteryClass: LotteryClass;
   /** Status of the lottery entrant */
   Status: LotteryEntrantStatus;
+  /**
+   * Pick order assigned during the draw (1-based); null until drawn
+   * @format int32
+   */
+  DrawOrder?: number | null;
+  /**
+   * Date and time the entrant was drawn; null until drawn
+   * @format date-time
+   */
+  DrawDateTime?: string | null;
 }
 
 export interface RegularSetResponse {

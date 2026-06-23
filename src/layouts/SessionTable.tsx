@@ -4,6 +4,8 @@ import { SessionActivityLog } from '@/components/SessionActivityLog';
 import { SessionBuyingQueue } from '@/components/SessionBuyingQueue';
 import { SessionDetails } from '@/components/SessionDetails';
 import { SessionDetailsBottom } from '@/components/SessionDetailsBottom';
+import { LotteryDrawResults } from '@/components/LotteryDrawResults';
+import { LotteryDrawReveal } from '@/components/LotteryDrawReveal';
 import { SessionEmails } from '@/components/SessionEmails';
 import { SessionRoster } from '@/components/SessionRoster';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
@@ -61,7 +63,9 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
 
   return (
     <Stack>
+      <LotteryDrawReveal session={session} />
       <SessionDetails session={session} />
+      <LotteryDrawResults session={session} />
       {isSessionFuture && <SessionActions session={session} onSessionUpdate={setSession} />}
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <SessionRoster session={session} onSessionUpdate={setSession} />
