@@ -2,7 +2,6 @@ import { LotteryEntrantResponse, SessionDetailedResponse } from '@/HockeyPickup.
 import {
   DrawnClass,
   getDrawnClasses,
-  isRecentDraw,
   LOTTERY_CLASS_LABELS,
   revealStorageKey,
   shuffle,
@@ -15,8 +14,10 @@ interface LotteryDrawRevealProps {
   session: SessionDetailedResponse;
 }
 
-const SHUFFLE_TICK_MS = 120;
-const SHUFFLE_TICKS = 16;
+// The shuffle decelerates as it lands: each frame's delay grows, so names cycle fast at first
+// then slow to a readable stop (~3.7s total) before settling on the real order.
+const SHUFFLE_FRAMES = 20;
+const frameDelayMs = (frame: number): number => 80 + frame * frame * 0.9;
 
 // A one-time, NBA-draft-style reveal of a completed lottery tier's pick order. Names+avatars
 // shuffle/blur, then settle into the real draw order. Fires from the live socket push or on page
@@ -29,11 +30,9 @@ export const LotteryDrawReveal = ({ session }: LotteryDrawRevealProps): JSX.Elem
   // Pick the next unseen, recent, completed draw to reveal — one tier at a time.
   useEffect(() => {
     if (current) return;
-    const now = Date.now();
-    const next = getDrawnClasses(session.LotteryEntrants).find((dc) => {
-      const key = revealStorageKey(session.SessionId, dc.lotteryClass, dc.drawDateTime);
-      return isRecentDraw(dc.drawDateTime, now) && !localStorage.getItem(key);
-    });
+    const next = getDrawnClasses(session.LotteryEntrants).find(
+      (dc) => !localStorage.getItem(revealStorageKey(session.SessionId, dc.lotteryClass, dc.drawDateTime)),
+    );
     if (!next) return;
 
     // Mark seen immediately so it never replays, even if closed mid-animation.
@@ -53,19 +52,21 @@ export const LotteryDrawReveal = ({ session }: LotteryDrawRevealProps): JSX.Elem
       return undefined;
     }
 
-    let ticks = 0;
-    const interval = setInterval(() => {
-      ticks += 1;
-      if (ticks >= SHUFFLE_TICKS) {
-        clearInterval(interval);
+    let frame = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = (): void => {
+      frame += 1;
+      if (frame >= SHUFFLE_FRAMES) {
         setDisplayEntrants(real);
         setSettled(true);
-      } else {
-        setDisplayEntrants(shuffle(real));
+        return;
       }
-    }, SHUFFLE_TICK_MS);
+      setDisplayEntrants(shuffle(real));
+      timer = setTimeout(tick, frameDelayMs(frame));
+    };
+    timer = setTimeout(tick, frameDelayMs(0));
 
-    return (): void => clearInterval(interval);
+    return (): void => clearTimeout(timer);
   }, [current]);
 
   const handleClose = (): void => {

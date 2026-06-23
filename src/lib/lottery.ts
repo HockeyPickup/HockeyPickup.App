@@ -13,11 +13,6 @@ const CLASS_ORDER: LotteryClass[] = [
   LotteryClass.Standard,
 ];
 
-// Auto-reveal only fires for draws this recent. Older completed draws still appear in the
-// permanent results, but never animate — this keeps a fresh deploy (no "seen" keys yet) from
-// replaying every historical draw the first time a session is opened.
-const REVEAL_RECENCY_MS = 24 * 60 * 60 * 1000;
-
 export interface DrawnClass {
   lotteryClass: LotteryClass;
   entrants: LotteryEntrantResponse[]; // ordered by DrawOrder
@@ -48,12 +43,6 @@ export const revealStorageKey = (
   lotteryClass: LotteryClass,
   drawDateTime: string | null,
 ): string => `lotteryReveal:${sessionId}:${lotteryClass}:${drawDateTime ?? 'unknown'}`;
-
-export const isRecentDraw = (drawDateTime: string | null, nowMs: number): boolean => {
-  if (!drawDateTime) return false;
-  const drawnMs = new Date(drawDateTime).getTime();
-  return !Number.isNaN(drawnMs) && nowMs - drawnMs <= REVEAL_RECENCY_MS;
-};
 
 // Fisher-Yates shuffle returning a new array (used for the reveal's shuffle frames).
 export const shuffle = <T>(items: T[]): T[] => {

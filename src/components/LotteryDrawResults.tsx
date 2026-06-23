@@ -1,6 +1,7 @@
-import { LotteryEntrantResponse, LotteryEntrantStatus, SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { LotteryEntrantResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { getDrawnClasses, LOTTERY_CLASS_LABELS } from '@/lib/lottery';
-import { Avatar, Badge, Group, Paper, Stack, Text, Title } from '@mantine/core';
+import { Avatar, Badge, Collapse, Group, Paper, Stack, Text, Title, UnstyledButton } from '@mantine/core';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { AvatarService } from '@/services/avatar';
 
@@ -33,52 +34,50 @@ interface LotteryDrawResultsProps {
   session: SessionDetailedResponse;
 }
 
-// Permanent, always-visible "done & closed" view of each drawn tier's pick order.
+// Permanent, always-visible "done & closed" view of each drawn tier's pick order. Collapsed by
+// default; click the header to expand.
 export const LotteryDrawResults = ({ session }: LotteryDrawResultsProps): JSX.Element | null => {
+  const [opened, setOpened] = useState<boolean>(false);
   const drawnClasses = getDrawnClasses(session.LotteryEntrants);
   if (drawnClasses.length === 0) return null;
 
   return (
     <Paper shadow='sm' p='md'>
-      <Group justify='space-between' mb='md'>
-        <Title order={3}>Lottery Results</Title>
-        <Badge color='gray' variant='light'>
-          Closed
-        </Badge>
-      </Group>
-      <Stack gap='lg'>
-        {drawnClasses.map((dc) => (
-          <div key={dc.lotteryClass}>
-            <Text size='xs' c='dimmed' tt='uppercase' fw={600} mb='xs'>
-              {LOTTERY_CLASS_LABELS[dc.lotteryClass]} · draw order
-            </Text>
-            <Stack gap='xs'>
-              {dc.entrants.map((entrant) => {
-                const failed = entrant.Status === LotteryEntrantStatus.Failed;
-                return (
+      <UnstyledButton onClick={(): void => setOpened((v) => !v)} style={{ width: '100%' }}>
+        <Group justify='space-between'>
+          <Group gap='sm'>
+            <Title order={3}>Lottery Results</Title>
+            <Badge color='gray' variant='light'>
+              Closed
+            </Badge>
+          </Group>
+          {opened ? <IconChevronUp size={18} /> : <IconChevronDown size={18} />}
+        </Group>
+      </UnstyledButton>
+      <Collapse expanded={opened}>
+        <Stack gap='lg' mt='md'>
+          {drawnClasses.map((dc) => (
+            <div key={dc.lotteryClass}>
+              <Text size='xs' c='dimmed' tt='uppercase' fw={600} mb='xs'>
+                {LOTTERY_CLASS_LABELS[dc.lotteryClass]} · draw order
+              </Text>
+              <Stack gap='xs'>
+                {dc.entrants.map((entrant) => (
                   <Group key={entrant.LotteryEntrantId} gap='sm' wrap='nowrap'>
                     <Text size='sm' w={24} ta='right' c='dimmed'>
                       {entrant.DrawOrder}.
                     </Text>
                     <EntrantAvatar entrant={entrant} size={32} />
-                    <Text
-                      size='sm'
-                      style={{ textDecoration: failed ? 'line-through' : 'none' }}
-                    >
+                    <Text size='sm'>
                       {entrant.FirstName} {entrant.LastName}
                     </Text>
-                    {failed && (
-                      <Text size='xs' c='dimmed'>
-                        no spot
-                      </Text>
-                    )}
                   </Group>
-                );
-              })}
-            </Stack>
-          </div>
-        ))}
-      </Stack>
+                ))}
+              </Stack>
+            </div>
+          ))}
+        </Stack>
+      </Collapse>
     </Paper>
   );
 };
