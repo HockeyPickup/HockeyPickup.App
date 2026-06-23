@@ -105,8 +105,11 @@ export const GET_SESSION = gql`
         UserId
         FirstName
         LastName
+        PhotoUrl
         LotteryClass
         Status
+        DrawOrder
+        DrawDateTime
       }
       RegularSet {
         RegularSetId
@@ -397,8 +400,11 @@ export const SESSION_UPDATED = gql`
         UserId
         FirstName
         LastName
+        PhotoUrl
         LotteryClass
         Status
+        DrawOrder
+        DrawDateTime
       }
       RegularSet {
         RegularSetId
