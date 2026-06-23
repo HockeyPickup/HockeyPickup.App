@@ -63,7 +63,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
 
   return (
     <Stack>
-      <LotteryDrawReveal session={session} />
+      <LotteryDrawReveal session={session} isSessionFuture={isSessionFuture} />
       <SessionDetails session={session} />
       <LotteryDrawResults session={session} />
       {isSessionFuture && <SessionActions session={session} onSessionUpdate={setSession} />}

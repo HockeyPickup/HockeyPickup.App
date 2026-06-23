@@ -1,6 +1,6 @@
 import { LotteryEntrantResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { getDrawnClasses, LOTTERY_CLASS_LABELS } from '@/lib/lottery';
-import { Avatar, Badge, Collapse, Group, Paper, Stack, Text, Title, UnstyledButton } from '@mantine/core';
+import { Avatar, Badge, Button, Collapse, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { AvatarService } from '@/services/avatar';
@@ -43,19 +43,25 @@ export const LotteryDrawResults = ({ session }: LotteryDrawResultsProps): JSX.El
 
   return (
     <Paper shadow='sm' p='md'>
-      <UnstyledButton onClick={(): void => setOpened((v) => !v)} style={{ width: '100%' }}>
-        <Group justify='space-between'>
-          <Group gap='sm'>
-            <Title order={3}>Lottery Results</Title>
-            <Badge color='gray' variant='light'>
-              Closed
-            </Badge>
-          </Group>
-          {opened ? <IconChevronUp size={18} /> : <IconChevronDown size={18} />}
+      <Group justify='space-between' wrap='nowrap' mb={opened ? 'md' : 0}>
+        <Group gap='sm'>
+          <Title order={3}>Lottery Results</Title>
+          <Badge color='gray' variant='light'>
+            Closed
+          </Badge>
         </Group>
-      </UnstyledButton>
+        <Button
+          variant='subtle'
+          color='gray'
+          size='compact-xs'
+          onClick={(): void => setOpened((v) => !v)}
+          leftSection={opened ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+        >
+          {opened ? 'Hide' : 'Show'}
+        </Button>
+      </Group>
       <Collapse expanded={opened}>
-        <Stack gap='lg' mt='md'>
+        <Stack gap='lg'>
           {drawnClasses.map((dc) => (
             <div key={dc.lotteryClass}>
               <Text size='xs' c='dimmed' tt='uppercase' fw={600} mb='xs'>

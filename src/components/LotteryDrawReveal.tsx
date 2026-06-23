@@ -1,4 +1,5 @@
-import { LotteryEntrantResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { LotteryClass, LotteryEntrantResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
+import { useAuth } from '@/lib/auth';
 import {
   DrawnClass,
   getDrawnClasses,
@@ -12,6 +13,7 @@ import { EntrantAvatar } from './LotteryDrawResults';
 
 interface LotteryDrawRevealProps {
   session: SessionDetailedResponse;
+  isSessionFuture: boolean;
 }
 
 // The shuffle decelerates as it lands: each frame's delay grows, so names cycle fast at first
@@ -19,28 +21,38 @@ interface LotteryDrawRevealProps {
 const SHUFFLE_FRAMES = 20;
 const frameDelayMs = (frame: number): number => 80 + frame * frame * 0.9;
 
-// A one-time, NBA-draft-style reveal of a completed lottery tier's pick order. Names+avatars
+// A one-time, NBA-draft-style reveal of the viewing user's lottery tier pick order. Names+avatars
 // shuffle/blur, then settle into the real draw order. Fires from the live socket push or on page
 // load (covering a missed/timed-out socket), and only once per user per draw (localStorage).
-export const LotteryDrawReveal = ({ session }: LotteryDrawRevealProps): JSX.Element => {
+export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevealProps): JSX.Element => {
+  const { user } = useAuth();
   const [current, setCurrent] = useState<DrawnClass | null>(null);
   const [settled, setSettled] = useState<boolean>(false);
   const [displayEntrants, setDisplayEntrants] = useState<LotteryEntrantResponse[]>([]);
 
-  // Pick the next unseen, recent, completed draw to reveal — one tier at a time.
+  // Reveal only the draw for the viewer's own tier — and only for upcoming sessions (lotteries
+  // draw within ~a week of the session, so a past session's draw is old news, not a reveal).
   useEffect(() => {
-    if (current) return;
-    const next = getDrawnClasses(session.LotteryEntrants).find(
-      (dc) => !localStorage.getItem(revealStorageKey(session.SessionId, dc.lotteryClass, dc.drawDateTime)),
-    );
+    if (current || !isSessionFuture || !user) return;
+
+    const userTier: LotteryClass = user.PreferredPlus
+      ? LotteryClass.PreferredPlus
+      : user.Preferred
+        ? LotteryClass.Preferred
+        : LotteryClass.Standard;
+
+    const next = getDrawnClasses(session.LotteryEntrants).find((dc) => dc.lotteryClass === userTier);
     if (!next) return;
 
+    const key = revealStorageKey(session.SessionId, next.lotteryClass, next.drawDateTime);
+    if (localStorage.getItem(key)) return;
+
     // Mark seen immediately so it never replays, even if closed mid-animation.
-    localStorage.setItem(revealStorageKey(session.SessionId, next.lotteryClass, next.drawDateTime), '1');
+    localStorage.setItem(key, '1');
     setSettled(false);
     setDisplayEntrants(next.entrants);
     setCurrent(next);
-  }, [session, current]);
+  }, [session, current, isSessionFuture, user]);
 
   // Run the shuffle frames, then settle into the real order.
   useEffect(() => {
