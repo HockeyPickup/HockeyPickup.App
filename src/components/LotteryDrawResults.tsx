@@ -61,6 +61,7 @@ export const LotteryDrawResults = ({ session }: LotteryDrawResultsProps): JSX.El
           variant='subtle'
           color='gray'
           size='compact-xs'
+          style={{ flexShrink: 0 }}
           onClick={(): void => setOpened((v) => !v)}
           leftSection={opened ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
         >

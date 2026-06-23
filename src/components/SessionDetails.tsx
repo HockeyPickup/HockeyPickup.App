@@ -238,6 +238,7 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
                 variant='subtle'
                 color='gray'
                 size='compact-xs'
+                style={{ flexShrink: 0 }}
                 onClick={() => setSectionExpanded((v) => !v)}
                 leftSection={
                   sectionExpanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
@@ -251,6 +252,7 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
                   variant='subtle'
                   color='gray'
                   size='compact-xs'
+                  style={{ flexShrink: 0 }}
                   onClick={() => setShowAllTiers((v) => !v)}
                   leftSection={showAllTiers ? <IconMinus size={14} /> : <IconPlus size={14} />}
                 >
