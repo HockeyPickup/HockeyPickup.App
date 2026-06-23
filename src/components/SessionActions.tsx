@@ -1,11 +1,36 @@
-import { BuyActionState, BuySellStatusResponse, LotteryClass, SessionDetailedResponse } from '@/HockeyPickup.Api';
+import {
+  BuyActionState,
+  BuySellStatusResponse,
+  LotteryClass,
+  SessionDetailedResponse,
+} from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client/react';
 import { SessionQueryResult } from '@/types/graphql';
-import { Button, Group, Modal, Paper, Text, Textarea } from '@mantine/core';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Group,
+  Modal,
+  Paper,
+  Text,
+  Textarea,
+  ThemeIcon,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import {
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconCurrencyDollar,
+  IconHourglass,
+  IconLogout,
+  IconShoppingCart,
+  IconTicket,
+} from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX, useCallback, useEffect, useState } from 'react';
 
@@ -39,7 +64,9 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
 
       setBuyStatus(buyResponse.Data ?? null);
       setCanSellSpot(sellResponse.Data?.IsAllowed ?? false);
-      setIsAdminBuying(buyResponse.Data?.Reason === 'Admins can buy spots regardless of time window');
+      setIsAdminBuying(
+        buyResponse.Data?.Reason === 'Admins can buy spots regardless of time window',
+      );
     } catch (error) {
       console.error('Failed to check buy/sell permissions:', error);
     } finally {
@@ -64,9 +91,21 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
 
   // Window times are Pacific wall-clock (parsed with moment.utc for display). Compare against the *current*
   // Pacific wall-clock in the same naive frame so a future window isn't reported as already open.
-  const nowPacificWallClock = moment.utc(moment().tz('America/Los_Angeles').format('YYYY-MM-DDTHH:mm:ss'));
-  const buyWindowOpen = nowPacificWallClock.isSameOrAfter(moment.utc(getBuyWindowDate()));
-  const buyWindowDate = moment.utc(getBuyWindowDate()).format('dddd, MM/DD/yyyy, HH:mm');
+  const nowPacificWallClock = moment.utc(
+    moment().tz('America/Los_Angeles').format('YYYY-MM-DDTHH:mm:ss'),
+  );
+  const buyWindowDateRaw = getBuyWindowDate();
+  const buyWindowOpen = nowPacificWallClock.isSameOrAfter(moment.utc(buyWindowDateRaw));
+  const buyWindowDate = moment.utc(buyWindowDateRaw).format('ddd, MMM D · HH:mm');
+  const buyWindowRel = moment.utc(buyWindowDateRaw).from(nowPacificWallClock);
+
+  // The viewer's tier — drives the badge color/label, matching the window cards above.
+  const tierLabel = user?.PreferredPlus
+    ? 'Preferred Plus'
+    : user?.Preferred
+      ? 'Preferred'
+      : 'Standard';
+  const tierColor = user?.PreferredPlus ? 'purple' : user?.Preferred ? 'blue' : 'teal';
 
   const getLotteryDrawTime = (lotteryClass?: LotteryClass | null): string | undefined => {
     switch (lotteryClass) {
@@ -185,49 +224,116 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
 
   return (
     <div style={{ marginTop: -16 }}>
-      <Paper shadow='sm' p='xs' style={{ marginTop: 0, marginBottom: 0 }}>
-        <Group>
-          <Text fw={700}>
-            Buy Window
-            {user?.PreferredPlus ? ' (Preferred Plus)' : user?.Preferred ? ' (Preferred)' : ''}
-            {buyWindowOpen ? ' opened on ' : ' will open on '}
-            {buyWindowDate}
-          </Text>
+      <Paper shadow='sm' p='md' style={{ marginTop: 0, marginBottom: 0 }}>
+        <Group justify='space-between' wrap='nowrap' gap='sm'>
+          <Group gap='sm' wrap='nowrap' style={{ flex: 1, minWidth: 0 }}>
+            <ThemeIcon
+              color={buyWindowOpen ? 'green' : 'yellow'}
+              variant='light'
+              radius='md'
+              size='lg'
+            >
+              <IconShoppingCart size={20} />
+            </ThemeIcon>
+            <Box style={{ minWidth: 0 }}>
+              <Group gap='xs' wrap='nowrap'>
+                <Text fw={700} size='sm'>
+                  Buy Window
+                </Text>
+                <Badge color={tierColor} variant='light' radius='sm' size='sm'>
+                  {tierLabel}
+                </Badge>
+              </Group>
+              {buyWindowDateRaw && (
+                <Text size='xs' c='dimmed' style={{ lineHeight: 1.3 }}>
+                  {buyWindowOpen ? 'Opened' : 'Opens'} {buyWindowDate} · {buyWindowRel}
+                </Text>
+              )}
+            </Box>
+          </Group>
+          <Badge
+            color={buyWindowOpen ? 'green' : 'yellow'}
+            variant='light'
+            radius='sm'
+            leftSection={
+              buyWindowOpen ? <IconCircleCheck size={12} /> : <IconHourglass size={12} />
+            }
+          >
+            {buyWindowOpen ? 'Open Now' : 'Upcoming'}
+          </Badge>
         </Group>
         {!user?.Active && (
-          <Group>
-            <Text>
+          <Alert
+            mt='md'
+            color='yellow'
+            variant='light'
+            radius='md'
+            p='sm'
+            icon={<IconAlertTriangle size={18} />}
+          >
+            <Text size='sm'>
               You must be an Active player to Buy or Sell a spot. Contact the commissioner to
               activate your account.
             </Text>
-          </Group>
+          </Alert>
         )}
         {buyActionState === BuyActionState.InLottery && (
-          <Group mt='xs'>
-            <Text c='blue' fw={600}>
-              You&apos;re in the {buyStatus?.LotteryClass} lottery — Draw at{' '}
-              {moment.utc(getLotteryDrawTime(buyStatus?.LotteryClass)).format('dddd, MM/DD/yyyy, HH:mm')}
+          <Alert
+            mt='md'
+            color='blue'
+            variant='light'
+            radius='md'
+            p='sm'
+            icon={<IconTicket size={18} />}
+          >
+            <Text size='sm' fw={600}>
+              You&apos;re in the {buyStatus?.LotteryClass} lottery
             </Text>
-          </Group>
+            <Text size='xs' c='dimmed'>
+              Draw at{' '}
+              {moment.utc(getLotteryDrawTime(buyStatus?.LotteryClass)).format('ddd, MMM D · HH:mm')}
+            </Text>
+          </Alert>
         )}
-        <Group justify='left' mt='sm'>
+        <Group justify='left' mt='md'>
           {buyActionState === BuyActionState.BuyNow && (
-            <Button onClick={() => setBuyModalOpen(true)} color='green' loading={isTransacting}>
+            <Button
+              onClick={() => setBuyModalOpen(true)}
+              color='green'
+              loading={isTransacting}
+              leftSection={<IconShoppingCart size={16} />}
+            >
               {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
             </Button>
           )}
           {buyActionState === BuyActionState.EnterLottery && (
-            <Button onClick={handleEnterLottery} color='blue' loading={isTransacting}>
+            <Button
+              onClick={handleEnterLottery}
+              color='blue'
+              loading={isTransacting}
+              leftSection={<IconTicket size={16} />}
+            >
               Enter Lottery
             </Button>
           )}
           {buyActionState === BuyActionState.InLottery && (
-            <Button onClick={handleLeaveLottery} variant='outline' color='blue' loading={isTransacting}>
+            <Button
+              onClick={handleLeaveLottery}
+              variant='outline'
+              color='blue'
+              loading={isTransacting}
+              leftSection={<IconLogout size={16} />}
+            >
               Leave Lottery
             </Button>
           )}
           {canSellSpot && (
-            <Button onClick={() => setSellModalOpen(true)} color='red' loading={isTransacting}>
+            <Button
+              onClick={() => setSellModalOpen(true)}
+              color='red'
+              loading={isTransacting}
+              leftSection={<IconCurrencyDollar size={16} />}
+            >
               Sell Spot
             </Button>
           )}
