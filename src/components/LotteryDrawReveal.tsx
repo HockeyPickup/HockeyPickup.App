@@ -102,7 +102,7 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
           <Text size='xs' c='dimmed' tt='uppercase' fw={600}>
             {LOTTERY_CLASS_LABELS[current.lotteryClass]} lottery
           </Text>
-          <Title order={3}>{settled ? 'Draw Results' : 'Drawing…'}</Title>
+          <Title order={3}>{settled ? 'Draw Results' : 'Drawing Replay'}</Title>
         </Stack>
       }
     >
