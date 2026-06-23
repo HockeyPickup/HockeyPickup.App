@@ -1,7 +1,7 @@
 import { LotteryEntrantResponse, SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { getDrawnClasses, LOTTERY_CLASS_LABELS } from '@/lib/lottery';
-import { Avatar, Badge, Button, Collapse, Group, Paper, Stack, Text, Title } from '@mantine/core';
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { Avatar, Box, Button, Collapse, Group, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { IconChevronDown, IconChevronUp, IconTrophy } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { AvatarService } from '@/services/avatar';
 
@@ -42,13 +42,20 @@ export const LotteryDrawResults = ({ session }: LotteryDrawResultsProps): JSX.El
   if (drawnClasses.length === 0) return null;
 
   return (
-    <Paper shadow='sm' p='md'>
-      <Group justify='space-between' wrap='nowrap' mb={opened ? 'md' : 0}>
-        <Group gap='sm'>
-          <Title order={3}>Lottery Results</Title>
-          <Badge color='gray' variant='light'>
-            Closed
-          </Badge>
+    <Paper withBorder p='md' mt='md' bg='rgba(255, 255, 255, 0.05)'>
+      <Group justify='space-between' wrap='nowrap' gap='sm' mb={opened ? 'md' : 0}>
+        <Group gap='sm' align='center' wrap='nowrap' style={{ minWidth: 0 }}>
+          <ThemeIcon color='purple' variant='light' radius='md' size='lg'>
+            <IconTrophy size={20} />
+          </ThemeIcon>
+          <Box style={{ minWidth: 0 }}>
+            <Title order={5} style={{ lineHeight: 1.15 }}>
+              Lottery Results
+            </Title>
+            <Text size='xs' c='dimmed' style={{ lineHeight: 1.25 }}>
+              Closed · final pick order
+            </Text>
+          </Box>
         </Group>
         <Button
           variant='subtle'
