@@ -190,6 +190,12 @@ export const SessionFormPage = (): JSX.Element => {
         ...values,
         RegularSetId: parseInt(values.RegularSetId),
         SessionDate: formatDateForApi(values.SessionDate),
+        // Mantine's NumberInput holds values as `number | string`, so coerce the
+        // numeric fields to real numbers. Otherwise a string (e.g. '6') is sent and
+        // the API's System.Text.Json binder rejects it ("could not be converted to Int32").
+        BuyDayMinimum: Number(values.BuyDayMinimum),
+        Cost: Number(values.Cost),
+        LotteryEntryWindowMinutes: Number(values.LotteryEntryWindowMinutes),
       };
       console.debug(payload);
 
@@ -261,6 +267,7 @@ export const SessionFormPage = (): JSX.Element => {
               placeholder='Enter minimum days before buying'
               leftSection={<IconClock size={16} />}
               required
+              allowDecimal={false}
               min={0}
               max={365}
               {...form.getInputProps('BuyDayMinimum')}
@@ -287,6 +294,7 @@ export const SessionFormPage = (): JSX.Element => {
                 placeholder='Minutes each tier accepts entries before the draw'
                 leftSection={<IconClock size={16} />}
                 required
+                allowDecimal={false}
                 min={1}
                 max={1440}
                 {...form.getInputProps('LotteryEntryWindowMinutes')}
