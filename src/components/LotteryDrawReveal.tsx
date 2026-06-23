@@ -97,6 +97,7 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
       closeOnClickOutside={settled}
       closeOnEscape={settled}
       size='md'
+      radius='lg'
       title={
         <Stack gap={0}>
           <Text size='xs' c='dimmed' tt='uppercase' fw={600}>
