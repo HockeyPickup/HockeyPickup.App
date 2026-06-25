@@ -290,11 +290,17 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
                     }}
                   >
                     <Group justify='space-between' wrap='nowrap' mb='sm'>
-                      <Group gap='xs' wrap='nowrap'>
-                        <ThemeIcon color={tier.color} variant='light' radius='md' size={36}>
+                      <Group gap='xs' wrap='nowrap' style={{ minWidth: 0 }}>
+                        <ThemeIcon
+                          color={tier.color}
+                          variant='light'
+                          radius='md'
+                          size={36}
+                          style={{ flexShrink: 0 }}
+                        >
                           <tier.Icon size={20} />
                         </ThemeIcon>
-                        <Box>
+                        <Box style={{ minWidth: 0 }}>
                           <Text fw={700} size='sm' style={{ lineHeight: 1.2 }}>
                             {tier.label}
                           </Text>
@@ -315,6 +321,7 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
                         variant='light'
                         radius='sm'
                         leftSection={<status.Icon size={12} />}
+                        style={{ flexShrink: 0 }}
                       >
                         {status.label}
                       </Badge>

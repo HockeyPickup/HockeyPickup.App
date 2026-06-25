@@ -85,7 +85,7 @@ export const LotteryDrawResults = ({ session }: LotteryDrawResultsProps): JSX.El
                       {entrant.DrawOrder}.
                     </Text>
                     <EntrantAvatar entrant={entrant} size={32} />
-                    <Text size='sm'>
+                    <Text size='sm' style={{ minWidth: 0 }}>
                       {entrant.FirstName} {entrant.LastName}
                     </Text>
                   </Group>

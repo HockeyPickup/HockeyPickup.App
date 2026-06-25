@@ -100,7 +100,7 @@ export const LotteryDrawRevealModal = ({
                   {settled ? `${entrant.DrawOrder}.` : '•'}
                 </Text>
                 <EntrantAvatar entrant={entrant} size={36} />
-                <Text size='sm' fw={settled && index === 0 ? 700 : 400}>
+                <Text size='sm' fw={settled && index === 0 ? 700 : 400} style={{ minWidth: 0 }}>
                   {entrant.FirstName} {entrant.LastName}
                 </Text>
               </Group>
