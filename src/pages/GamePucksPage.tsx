@@ -29,17 +29,21 @@ function flickrJsonp<T>(baseUrl: string): Promise<T> {
   });
 }
 
-/** Photo from flickr.photosets.getPhotos with extras=date_taken,owner_name,title,path_alias */
+/**
+ * Photo from flickr.photosets.getPhotos with extras=date_taken,owner_name,title,path_alias.
+ * Note: the `extras` request param uses underscore names, but Flickr returns the fields
+ * WITHOUT underscores (datetaken, ownername, pathalias). The owner NSID is only returned
+ * at the photoset level, not per photo.
+ */
 interface FlickrPhotoInSet {
   id: string;
   farm: number;
   server: string;
   secret: string;
   title: string;
-  date_taken: string;
-  owner_name: string;
-  path_alias?: string;
-  owner: string;
+  datetaken: string;
+  ownername: string;
+  pathalias?: string;
 }
 
 export const GamePucksPage = (): JSX.Element => {
@@ -48,6 +52,7 @@ export const GamePucksPage = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '');
   const [isLoading, setIsLoading] = useState(true);
   const [photos, setPhotos] = useState<FlickrPhotoInSet[]>([]);
+  const [albumOwner, setAlbumOwner] = useState('');
 
   useEffect(() => {
     setPageInfo('Game Pucks', 'Hockey Pickup Game Pucks');
@@ -59,15 +64,16 @@ export const GamePucksPage = (): JSX.Element => {
     const extras = 'date_taken,owner_name,title,path_alias';
     const flickrUrl = `https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${flickrAlbumId}&extras=${extras}&format=json&nojsoncallback=1`;
 
-    flickrJsonp<{ photoset?: { photo: FlickrPhotoInSet[] } }>(flickrUrl)
+    flickrJsonp<{ photoset?: { owner: string; photo: FlickrPhotoInSet[] } }>(flickrUrl)
       .then((data) => {
         if (!data.photoset?.photo) {
           console.error('Failed to fetch photos:', data);
           return;
         }
         const list = data.photoset.photo;
-        list.sort((a, b) => new Date(b.date_taken).getTime() - new Date(a.date_taken).getTime());
+        list.sort((a, b) => new Date(b.datetaken).getTime() - new Date(a.datetaken).getTime());
         setPhotos(list);
+        setAlbumOwner(data.photoset.owner);
       })
       .catch(() => {})
       .finally(() => setIsLoading(false));
@@ -122,7 +128,7 @@ export const GamePucksPage = (): JSX.Element => {
           }}
         >
           {filteredPhotos.map((photo) => {
-            const ownerPath = photo.path_alias ?? photo.owner;
+            const ownerPath = photo.pathalias ?? albumOwner;
             return (
               <a
                 key={photo.id}
