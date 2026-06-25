@@ -17,6 +17,7 @@ import {
   Title,
 } from '@mantine/core';
 import {
+  IconCalendarEvent,
   IconChevronDown,
   IconChevronUp,
   IconCircleCheck,
@@ -188,28 +189,59 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
         ? 'Enter during your tier’s window — spots are drawn at the time shown'
         : 'Spots open for purchase at your tier’s window';
 
+  // The session date/time, kept in Pacific wall-clock like the rest of the component.
+  const sessionMoment = moment.utc(session.SessionDate);
+  const note = (session.Note ?? '').trim();
+
   return (
     <Paper shadow='sm' p='md'>
-      <Paper withBorder p='xs' bg='rgba(255, 255, 255, 0.05)'>
-        <Group justify='space-between' mb='md'>
-          <Group>
-            <Title order={3}>
-              {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
-            </Title>
-            {isAdmin() && showRatings && (
-              <ActionIcon
-                variant='subtle'
-                onClick={() => navigate(`/sessions/${session.SessionId}/edit`)}
-                size='sm'
-              >
-                <IconPencil size={16} />
-              </ActionIcon>
-            )}
+      <Paper withBorder p='md' bg='rgba(255, 255, 255, 0.05)'>
+        <Group justify='space-between' wrap='nowrap' align='flex-start' gap='sm'>
+          <Group gap='sm' wrap='nowrap' align='center' style={{ minWidth: 0 }}>
+            <ThemeIcon
+              size={48}
+              radius='md'
+              variant='light'
+              color='blue'
+              style={{ flexShrink: 0 }}
+            >
+              <IconCalendarEvent size={28} />
+            </ThemeIcon>
+            <Box style={{ minWidth: 0 }}>
+              <Title order={3} style={{ lineHeight: 1.15 }}>
+                {sessionMoment.format('dddd, MMMM D, YYYY')}
+              </Title>
+              <Group gap={6} align='center' wrap='nowrap' mt={4}>
+                <IconClock
+                  size={15}
+                  style={{ color: 'var(--mantine-color-dimmed)', flexShrink: 0 }}
+                />
+                <Text size='sm' fw={600} c='dimmed' style={{ lineHeight: 1 }}>
+                  {sessionMoment.format('h:mm A')}
+                </Text>
+              </Group>
+            </Box>
           </Group>
+          {isAdmin() && showRatings && (
+            <ActionIcon
+              variant='subtle'
+              onClick={() => navigate(`/sessions/${session.SessionId}/edit`)}
+              size='sm'
+              style={{ flexShrink: 0 }}
+            >
+              <IconPencil size={16} />
+            </ActionIcon>
+          )}
         </Group>
-        <Group>
-          <Text style={{ whiteSpace: 'pre-wrap' }}>{session.Note ?? ''}</Text>
-        </Group>
+
+        {note && (
+          <>
+            <Divider variant='dashed' my={6} />
+            <Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>
+              {note}
+            </Text>
+          </>
+        )}
       </Paper>
       {!isSessionPast && (
         <Paper withBorder p='md' mt='md' bg='rgba(255, 255, 255, 0.05)'>
