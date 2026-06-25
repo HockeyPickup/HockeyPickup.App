@@ -9,57 +9,39 @@ import {
 } from '@/lib/lottery';
 import { Badge, Button, Group, Modal, Stack, Text, Title } from '@mantine/core';
 import { JSX, useEffect, useState } from 'react';
-import { EntrantAvatar } from './LotteryDrawResults';
-
-interface LotteryDrawRevealProps {
-  session: SessionDetailedResponse;
-  isSessionFuture: boolean;
-}
+import { EntrantAvatar } from './LotteryEntrantAvatar';
 
 // The shuffle decelerates as it lands: each frame's delay grows, so names cycle fast at first
 // then slow to a readable stop (~3.7s total) before settling on the real order.
 const SHUFFLE_FRAMES = 20;
 const frameDelayMs = (frame: number): number => 80 + frame * frame * 0.9;
 
-// A one-time, NBA-draft-style reveal of the viewing user's lottery tier pick order. Names+avatars
-// shuffle/blur, then settle into the real draw order. Fires from the live socket push or on page
-// load (covering a missed/timed-out socket), and only once per user per draw (localStorage).
-export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevealProps): JSX.Element => {
-  const { user } = useAuth();
-  const [current, setCurrent] = useState<DrawnClass | null>(null);
+interface LotteryDrawRevealModalProps {
+  drawnClass: DrawnClass | null;
+  onClose: () => void;
+}
+
+// The animated, NBA-draft-style modal: names+avatars shuffle/blur, then settle into the real draw
+// order. Shared by the one-time auto-reveal and the on-demand replay in the results panel. Pass a
+// DrawnClass to play; pass null to keep it closed.
+export const LotteryDrawRevealModal = ({
+  drawnClass,
+  onClose,
+}: LotteryDrawRevealModalProps): JSX.Element => {
   const [settled, setSettled] = useState<boolean>(false);
   const [displayEntrants, setDisplayEntrants] = useState<LotteryEntrantResponse[]>([]);
 
-  // Reveal only the draw for the viewer's own tier — and only for upcoming sessions (lotteries
-  // draw within ~a week of the session, so a past session's draw is old news, not a reveal).
+  // Run the shuffle frames whenever a draw is opened, then settle into the real order. Resetting on
+  // close keeps a re-open (e.g. a second replay) from flashing the previous settled state.
   useEffect(() => {
-    if (current || !isSessionFuture || !user) return;
-
-    const userTier: LotteryClass = user.PreferredPlus
-      ? LotteryClass.PreferredPlus
-      : user.Preferred
-        ? LotteryClass.Preferred
-        : LotteryClass.Standard;
-
-    const next = getDrawnClasses(session.LotteryEntrants).find((dc) => dc.lotteryClass === userTier);
-    if (!next) return;
-
-    const key = revealStorageKey(session.SessionId, next.lotteryClass, next.drawDateTime);
-    if (localStorage.getItem(key)) return;
-
-    // Mark seen immediately so it never replays, even if closed mid-animation.
-    localStorage.setItem(key, '1');
+    if (!drawnClass) {
+      setSettled(false);
+      return undefined;
+    }
+    const real = drawnClass.entrants;
     setSettled(false);
-    setDisplayEntrants(next.entrants);
-    setCurrent(next);
-  }, [session, current, isSessionFuture, user]);
-
-  // Run the shuffle frames, then settle into the real order.
-  useEffect(() => {
-    if (!current) return undefined;
-    const real = current.entrants;
+    setDisplayEntrants(real);
     if (real.length <= 1) {
-      setDisplayEntrants(real);
       setSettled(true);
       return undefined;
     }
@@ -79,19 +61,14 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
     timer = setTimeout(tick, frameDelayMs(0));
 
     return (): void => clearTimeout(timer);
-  }, [current]);
+  }, [drawnClass]);
 
-  const handleClose = (): void => {
-    setCurrent(null);
-    setSettled(false);
-  };
-
-  if (!current) return <></>;
+  if (!drawnClass) return <></>;
 
   return (
     <Modal
       opened
-      onClose={handleClose}
+      onClose={onClose}
       centered
       withCloseButton={settled}
       closeOnClickOutside={settled}
@@ -102,7 +79,7 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
       title={
         <Stack gap={0}>
           <Text size='xs' c='dimmed' tt='uppercase' fw={600}>
-            {LOTTERY_CLASS_LABELS[current.lotteryClass]} lottery
+            {LOTTERY_CLASS_LABELS[drawnClass.lotteryClass]} lottery
           </Text>
           <Title order={3}>{settled ? 'Draw Results' : 'Drawing Replay'}</Title>
         </Stack>
@@ -136,10 +113,52 @@ export const LotteryDrawReveal = ({ session, isSessionFuture }: LotteryDrawRevea
             <Badge color='gray' variant='light'>
               Closed
             </Badge>
-            <Button onClick={handleClose}>Done</Button>
+            <Button onClick={onClose}>Done</Button>
           </Group>
         )}
       </Stack>
     </Modal>
   );
+};
+
+interface LotteryDrawRevealProps {
+  session: SessionDetailedResponse;
+  isSessionFuture: boolean;
+}
+
+// A one-time, NBA-draft-style reveal of the viewing user's lottery tier pick order. Fires from the
+// live socket push or on page load (covering a missed/timed-out socket), and only once per user per
+// draw (localStorage). Replays from the results panel are on-demand and not gated by localStorage.
+export const LotteryDrawReveal = ({
+  session,
+  isSessionFuture,
+}: LotteryDrawRevealProps): JSX.Element => {
+  const { user } = useAuth();
+  const [current, setCurrent] = useState<DrawnClass | null>(null);
+
+  // Reveal only the draw for the viewer's own tier — and only for upcoming sessions (lotteries
+  // draw within ~a week of the session, so a past session's draw is old news, not a reveal).
+  useEffect(() => {
+    if (current || !isSessionFuture || !user) return;
+
+    const userTier: LotteryClass = user.PreferredPlus
+      ? LotteryClass.PreferredPlus
+      : user.Preferred
+        ? LotteryClass.Preferred
+        : LotteryClass.Standard;
+
+    const next = getDrawnClasses(session.LotteryEntrants).find(
+      (dc) => dc.lotteryClass === userTier,
+    );
+    if (!next) return;
+
+    const key = revealStorageKey(session.SessionId, next.lotteryClass, next.drawDateTime);
+    if (localStorage.getItem(key)) return;
+
+    // Mark seen immediately so it never replays, even if closed mid-animation.
+    localStorage.setItem(key, '1');
+    setCurrent(next);
+  }, [session, current, isSessionFuture, user]);
+
+  return <LotteryDrawRevealModal drawnClass={current} onClose={(): void => setCurrent(null)} />;
 };
