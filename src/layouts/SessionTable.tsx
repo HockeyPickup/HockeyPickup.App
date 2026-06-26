@@ -11,11 +11,12 @@ import { SessionRoster } from '@/components/SessionRoster';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { GET_SESSION, SESSION_UPDATED } from '@/lib/queries';
+import { applyRatings, collectRatings } from '@/lib/ratings';
 import { SessionQueryResult } from '@/types/graphql';
 import { useQuery, useSubscription } from '@apollo/client/react';
 import { Stack, Text } from '@mantine/core';
 import moment from 'moment';
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 
 interface SessionTableProps {
   sessionId: number;
@@ -31,12 +32,18 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
     fetchPolicy: 'network-only',
   });
 
+  // Ratings are stripped from socket broadcasts (Admin/SubAdmin-only); re-apply the ones we
+  // already loaded so admins keep seeing them on live updates without a refresh.
+  const ratingsRef = useRef<Map<string, number>>(new Map());
+
   useSubscription<SessionUpdatedSubscriptionResult>(SESSION_UPDATED, {
     variables: { SessionId: sessionId },
     onData: ({ data }) => {
       console.debug('Session update received:', data?.data?.SessionUpdated);
       if (data?.data?.SessionUpdated) {
-        setSession(data.data.SessionUpdated);
+        const merged = structuredClone(data.data.SessionUpdated);
+        applyRatings(merged, ratingsRef.current);
+        setSession(merged);
       }
     },
   });
@@ -47,6 +54,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
   // Update session state when data changes
   useEffect(() => {
     if (data?.Session) {
+      collectRatings(data.Session, ratingsRef.current);
       setSession(data.Session);
     }
   }, [data]);
