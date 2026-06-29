@@ -136,8 +136,9 @@ export const LotteryDrawReveal = ({
   const { user } = useAuth();
   const [current, setCurrent] = useState<DrawnClass | null>(null);
 
-  // Reveal only the draw for the viewer's own tier — and only for upcoming sessions (lotteries
-  // draw within ~a week of the session, so a past session's draw is old news, not a reveal).
+  // Auto-reveal only the viewer's own tier draw, only for upcoming sessions (lotteries draw within
+  // ~a week of the session, so a past session's draw is old news), and only when the viewer was an
+  // actual entrant in that draw — non-participants can use the replay button on demand instead.
   useEffect(() => {
     if (current || !isSessionFuture || !user) return;
 
@@ -151,6 +152,9 @@ export const LotteryDrawReveal = ({
       (dc) => dc.lotteryClass === userTier,
     );
     if (!next) return;
+
+    // Skip the auto-reveal for users who didn't take part in this draw.
+    if (!next.entrants.some((e) => e.UserId === user.Id)) return;
 
     const key = revealStorageKey(session.SessionId, next.lotteryClass, next.drawDateTime);
     if (localStorage.getItem(key)) return;
