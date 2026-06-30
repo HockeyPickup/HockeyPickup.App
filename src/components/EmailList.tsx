@@ -4,9 +4,10 @@ import { JSX, useState } from 'react';
 
 interface EmailListProps {
   getEmails: () => string;
+  filter?: JSX.Element;
 }
 
-export const EmailList = ({ getEmails }: EmailListProps): JSX.Element => {
+export const EmailList = ({ getEmails, filter }: EmailListProps): JSX.Element => {
   const [showEmails, setShowEmails] = useState(false);
 
   return (
@@ -17,19 +18,22 @@ export const EmailList = ({ getEmails }: EmailListProps): JSX.Element => {
         </Button>
       </Group>
       <Collapse expanded={showEmails}>
-        <Group align='center'>
-          <Text size='sm'>Emails:</Text>
-          <CopyButton value={getEmails()}>
-            {({ copied, copy }) => (
-              <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
-                {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-              </ActionIcon>
-            )}
-          </CopyButton>
-        </Group>
-        <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
-          {getEmails()}
-        </Text>
+        <Stack gap='xs'>
+          {filter}
+          <Group align='center'>
+            <Text size='sm'>Emails:</Text>
+            <CopyButton value={getEmails()}>
+              {({ copied, copy }) => (
+                <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
+                  {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                </ActionIcon>
+              )}
+            </CopyButton>
+          </Group>
+          <Text size='xs' c='dimmed' style={{ whiteSpace: 'pre-line' }}>
+            {getEmails()}
+          </Text>
+        </Stack>
       </Collapse>
     </Stack>
   );
