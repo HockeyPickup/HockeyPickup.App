@@ -118,7 +118,12 @@
 
 /* Update existing rule to be more specific */
 :global(.mantine-AppShell-main) {
-  padding: 60px 1px 40px 1px !important;
+  /* The AppShell.Footer is fixed-positioned and floats over the main content (the AppShell has no
+     `footer` prop, so Mantine reserves no space for it — this bottom padding does). For Admin/SubAdmin
+     users the footer is two rows tall (the "Roles:" line), ~57px, so the old 40px let the footer
+     overlap the bottom of the page — clipping form action buttons (e.g. the Edit Session buttons).
+     Clear the two-row footer plus the iOS home-indicator safe-area inset. */
+  padding: 60px 1px calc(72px + env(safe-area-inset-bottom)) 1px !important;
   margin: 0 !important;
   /* 100% (not 100vw) so the content area excludes the vertical scrollbar — 100vw counts the
      scrollbar width, making the content scrollbar-width too wide and clipping the right edge. */
