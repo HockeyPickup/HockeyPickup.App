@@ -318,7 +318,7 @@ export const SessionFormPage = (): JSX.Element => {
                 ))}
               </Stack>
             )}
-            <Group justify='flex-end' mt='xl'>
+            <Group justify='flex-end'>
               <Button variant='light' onClick={() => navigate(-1)}>
                 Cancel
               </Button>
