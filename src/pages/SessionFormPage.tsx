@@ -26,6 +26,7 @@ import {
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { useMediaQuery } from '@mantine/hooks';
 import { modals } from '@mantine/modals'; // Add this import at the top with other imports
 import { notifications } from '@mantine/notifications';
 import { IconCalendar, IconCash, IconClock, IconNotes } from '@tabler/icons-react';
@@ -80,6 +81,13 @@ export const SessionFormPage = (): JSX.Element => {
   const [apiErrors, setApiErrors] = useState<ErrorDetail[]>([]);
 
   const isEditMode = !!sessionId;
+
+  // On touch devices the on-screen keyboard shrinks the viewport when the time fields are
+  // tapped, which scrolls the picker's anchor input out of view and makes the popover
+  // dropdown hide itself mid-tap. Rendering the picker in a modal removes the anchor.
+  const isTouchDevice = useMediaQuery('(pointer: coarse)', false, {
+    getInitialValueInEffect: false,
+  });
 
   const { loading: sessionLoading, data: sessionData } = useQuery<SessionQueryResult>(GET_SESSION, {
     variables: { SessionId: parseInt(sessionId ?? '0') },
@@ -250,6 +258,8 @@ export const SessionFormPage = (): JSX.Element => {
               clearable={false}
               valueFormat='dddd MM/DD/YYYY HH:mm'
               withSeconds={false}
+              dropdownType={isTouchDevice ? 'modal' : 'popover'}
+              popoverProps={{ hideDetached: false }}
               value={form.values.SessionDate}
               onChange={(date) => {
                 if (date) {
