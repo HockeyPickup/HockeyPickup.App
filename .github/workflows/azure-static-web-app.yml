@@ -33,24 +33,50 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
+          fetch-depth: 0 # build-version.sh needs full history + tags for `git describe`
 
-      - name: Set Node.js environment
-        run: echo "NODE_VERSION=22" >> $GITHUB_ENV
+      # The app is built here on the runner rather than by Oryx inside the
+      # static-web-apps-deploy action, so the Node version is ours to choose.
+      # Oryx pins whatever its image ships (22.22.0), and yarn treats an
+      # unsatisfied `engines` field as a hard error, so dependencies that
+      # require a newer Node would fail the deploy at install time.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: yarn
 
+      - name: Fetch tags
+        run: git fetch --tags
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Runs after install so `tsc` is the pinned local copy the build uses,
+      # not whatever global version the runner image happens to ship.
       - name: Versions
         run: |
           node --version
-          tsc --version
+          yarn tsc --version
           git --version
           az --version
           bash --version
           yarn --version
 
-      - name: Fetch tags
-        run: git fetch --tags
+      - name: Lint
+        run: yarn lint
+
+      - name: Build
+        run: yarn build
+
+      # Required for pre-built deploys: staticwebapp.config.json is read from
+      # the uploaded folder, not the repo root. Without this the SPA fallback
+      # and CSP headers are silently dropped.
+      - name: Stage Static Web Apps config into build output
+        run: cp staticwebapp.config.json dist/
 
       - name: Build And Deploy
         id: builddeploy
@@ -61,9 +87,8 @@ jobs:
           action: 'upload'
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: '/' # App source code path
+          app_location: 'dist' # Pre-built output to upload (skip_app_build: true)
           # api_location: 'api' # Api source code path - optional
-          output_location: 'dist' # Built app content directory - optional
+          output_location: '' # Must be empty when skip_app_build is true
+          skip_app_build: true
           ###### End of Repository/Build Configurations ######
-        env:
-          API_ROOT: https://api.hockeypickup.com
