@@ -92,3 +92,5 @@ jobs:
           output_location: '' # Must be empty when skip_app_build is true
           skip_app_build: true
           ###### End of Repository/Build Configurations ######
+        env:
+          API_ROOT: https://api.hockeypickup.com
