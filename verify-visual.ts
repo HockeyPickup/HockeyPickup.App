@@ -6,7 +6,7 @@ import { chromium, type Browser, type BrowserContext, type Page } from 'playwrig
 /**
  * Reusable authenticated visual-verification harness.
  *
- *   npx tsx verify-visual.ts --expect "About" --out "before-footer-about"
+ *   yarn verify:visual --expect "About" --out "before-footer-about"
  *
  * Loads the app with the stored auth state, refuses to assert anything unless the
  * pre-flight proves the session is still authenticated, asserts the footer contains
@@ -23,7 +23,7 @@ const PREFLIGHT_TIMEOUT_MS = 20_000;
 const ELEMENT_TIMEOUT_MS = 15_000;
 const SETTLE_TIMEOUT_MS = 5_000;
 
-const AUTH_EXPIRED_MESSAGE = 'auth expired — re-run npx tsx capture-auth.ts';
+const AUTH_EXPIRED_MESSAGE = 'auth expired — re-run: yarn auth';
 
 type PreflightOutcome = 'authenticated' | 'login' | 'unknown';
 
@@ -64,10 +64,10 @@ const run = async (): Promise<void> => {
   const focusSelector = getArg('--focus') ?? 'footer';
 
   if (expected === undefined || out === undefined) {
-    throw new Error('usage: npx tsx verify-visual.ts --expect "<footer text>" --out "<name>"');
+    throw new Error('usage: yarn verify:visual --expect "<footer text>" --out "<name>"');
   }
   if (!existsSync(AUTH_STATE_PATH)) {
-    throw new Error(`no .auth/state.json — run: npx tsx capture-auth.ts`);
+    throw new Error('no .auth/state.json — run: yarn auth');
   }
 
   mkdirSync(SCREENSHOT_DIR, { recursive: true });

@@ -22,6 +22,11 @@ React + TypeScript (STRICT), Mantine UI, yarn, ESLint 10, Azure Static Web Apps 
 **Run this for every front-end change, automatically — do not wait to be asked.** A change is not
 done until it has been rendered in a real authenticated browser and visually compared before/after.
 
+| Command | Purpose |
+| --- | --- |
+| `yarn auth` | One-time interactive login; saves `storageState` to `.auth/state.json` |
+| `yarn verify:visual --expect "<text>" --out "<name>"` | Pre-flight auth check + assert + screenshot |
+
 ### Services
 
 ```bash
@@ -37,10 +42,10 @@ start, stop and show the user the error; do not proceed.
 ### Auth gate — non-negotiable
 
 - Every Playwright context is created with `{ storageState: '.auth/state.json' }`.
-- If `.auth/state.json` is **missing**, STOP and tell the user to run `npx tsx capture-auth.ts`
+- If `.auth/state.json` is **missing**, STOP and tell the user to run `yarn auth`
   from `HockeyPickup.App` with services running.
 - If the pre-flight says the session is **expired**, STOP and report
-  `auth expired — re-run npx tsx capture-auth.ts`.
+  `auth expired — re-run: yarn auth`.
 - **Never** ask the user for credentials, never script a login, never work around the gate.
 - `.auth/state.json` holds a live bearer token: never commit it, never print its contents.
   `.auth/` and `screenshots/` are gitignored and are never staged.
@@ -56,10 +61,10 @@ wrong page, or timeout all fail closed with the auth-expired message. Only then 
 
 ```bash
 cd HockeyPickup.App
-npx tsx verify-visual.ts --expect "About"    --out "before-<slug>"   # 1. before
+yarn verify:visual --expect "About"    --out "before-<slug>"   # 1. before
 # 2. read the screenshot with your own vision — confirm it shows what you expect
 # 3. make the change (minimal diff)
-npx tsx verify-visual.ts --expect "Aboutttt" --out "after-<slug>"    # 4. after (HMR is instant)
+yarn verify:visual --expect "Aboutttt" --out "after-<slug>"    # 4. after (HMR is instant)
 # 5. read the after screenshot, compare to before: intended change visible AND nothing else
 #    regressed (layout, styling, surrounding elements)
 # 6. give the user both file paths + a one-line summary of what changed visually
@@ -75,6 +80,9 @@ Each run writes two files to `../screenshots/`: `<out>.png` (full page) and `<ou
 
 **Git Bash mangles leading-slash args** (`--path /about` becomes `C:/Program Files/Git/about`).
 Prefix the command with `MSYS_NO_PATHCONV=1`, or rely on the defaults.
+
+Both commands are yarn scripts backed by the local `tsx` dev dependency — per the yarn-only rule,
+never invoke them with `npx`/`npm`.
 
 ### Script rules
 

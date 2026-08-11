@@ -11,6 +11,8 @@
     "preview": "vite preview",
     "refresh-api:local": "curl --insecure --output HockeyPickup.Api.swagger.json https://localhost:7042/swagger/v1/swagger.json && npx swagger-typescript-api generate --no-client --path ./HockeyPickup.Api.swagger.json --output ./src --name HockeyPickup.Api.ts",
     "refresh-api:prod": "npx swagger-typescript-api generate --no-client --path https://api.HockeyPickup.org/swagger/v1/swagger.json --output ./src --name HockeyPickup.Api.ts",
+    "auth": "tsx capture-auth.ts",
+    "verify:visual": "tsx verify-visual.ts",
     "build-version": "bash ./scripts/build-version.sh",
     "update-packages": "ncu -u",
     "check-deps": "npx depcheck"
