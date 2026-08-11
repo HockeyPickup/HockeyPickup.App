@@ -25,3 +25,8 @@ dist-ssr
 storybook-static/
 HockeyPickup.Api.swagger.json
 version.json
+
+# Visual verification workflow — never commit
+# .auth/state.json holds a live bearer token; screenshots are local artifacts
+.auth/
+screenshots/

@@ -125,4 +125,12 @@ module.exports = [
     files: ['**/*.ts', '**/*.tsx'],
     ignores: ['scripts/*'],
   },
+
+  // Visual verification tooling — local dev scripts, prompt the user on the console
+  {
+    files: ['capture-auth.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 ];
