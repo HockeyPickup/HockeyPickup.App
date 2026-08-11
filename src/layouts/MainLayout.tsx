@@ -1,6 +1,7 @@
 import styles from '@/App.module.css';
 import { RatingsToggle } from '@/components/RatingsToggle';
 import { useZoom } from '@/hooks/useZoom';
+import { getPendingPayments } from '@/lib/payments';
 import { AppShell, Avatar, Burger, Group, Menu, Paper, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { FC, useEffect, useState } from 'react';
@@ -19,13 +20,11 @@ export const MainLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { canViewRatings, isAdmin, isSubAdmin } = useAuth();
   useZoom(false);
 
-  const unpaidBuyerTransactions =
-    user?.BuyerTransactions?.filter((bt) => !bt.PaymentSent && bt.SellerUserId) ?? [];
-  const unconfirmedSellerTransactions =
-    user?.SellerTransactions?.filter((bt) => !bt.PaymentReceived && bt.BuyerUserId) ?? [];
-
-  const hasPendingTransactions =
-    unpaidBuyerTransactions.length > 0 || unconfirmedSellerTransactions.length > 0;
+  const {
+    unpaidBuys: unpaidBuyerTransactions,
+    unconfirmedSells: unconfirmedSellerTransactions,
+    hasPending: hasPendingTransactions,
+  } = getPendingPayments(user);
 
   useEffect(() => {
     // Update the document title whenever the title changes

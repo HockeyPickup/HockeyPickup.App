@@ -2,6 +2,7 @@ import styles from '@/App.module.css';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/error';
+import { bySessionDateDesc, getPendingPayments } from '@/lib/payments';
 import { userPaymentService } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
@@ -518,10 +519,8 @@ const PaymentsSection = (): JSX.Element => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const unpaidBuyerTransactions =
-    user?.BuyerTransactions?.filter((bt) => !bt.PaymentSent && bt.SellerUserId) ?? [];
-  const unconfirmedSellerTransactions =
-    user?.SellerTransactions?.filter((bt) => !bt.PaymentReceived && bt.BuyerUserId) ?? [];
+  const { unpaidBuys: unpaidBuyerTransactions, unconfirmedSells: unconfirmedSellerTransactions } =
+    getPendingPayments(user);
 
   return (
     <Stack gap='xl'>
@@ -543,9 +542,7 @@ const PaymentsSection = (): JSX.Element => {
               </Table.Thead>
               <Table.Tbody>
                 {unpaidBuyerTransactions
-                  .sort(
-                    (a, b) => new Date(b.SessionDate).getTime() - new Date(a.SessionDate).getTime(),
-                  )
+                  .sort(bySessionDateDesc)
                   .map((transaction) => (
                     <Table.Tr
                       key={transaction.BuySellId}
@@ -586,9 +583,7 @@ const PaymentsSection = (): JSX.Element => {
               </Table.Thead>
               <Table.Tbody>
                 {unconfirmedSellerTransactions
-                  .sort(
-                    (a, b) => new Date(b.SessionDate).getTime() - new Date(a.SessionDate).getTime(),
-                  )
+                  .sort(bySessionDateDesc)
                   .map((transaction) => (
                     <Table.Tr
                       key={transaction.BuySellId}
