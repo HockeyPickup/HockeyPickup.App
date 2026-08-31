@@ -1,6 +1,7 @@
+import { VenueLink } from '@/components/VenueLink';
 import { Session } from '@/HockeyPickup.Api';
 import { Button, Card, Group, Stack, Text } from '@mantine/core';
-import { IconCalendar, IconClock, IconMapPin } from '@tabler/icons-react';
+import { IconCalendar, IconClock } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
@@ -56,29 +57,7 @@ export const SessionCard = ({ session, image }: SessionCardProps): JSX.Element =
             {session.Note}
           </Text>
 
-          <a
-            href='https://maps.app.goo.gl/z3t64RhrksDy16GN9'
-            target='_blank'
-            rel='noopener noreferrer'
-            style={{ textDecoration: 'none' }}
-            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'none')}
-            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
-          >
-            <Group gap='xs'>
-              <IconMapPin size={24} style={{ color: '#909296' }} />
-              <Stack gap={1}>
-                <Text size='lg' c='gray.4'>
-                  Toyota Sports Performance Center
-                </Text>
-                <Text size='lg' c='gray.4'>
-                  555 North Nash Street
-                </Text>
-                <Text size='lg' c='gray.4'>
-                  El Segundo, CA, 90245 USA
-                </Text>
-              </Stack>
-            </Group>
-          </a>
+          <VenueLink />
           <Button
             component={Link}
             to={`/session/${session.SessionId}`}

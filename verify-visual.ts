@@ -9,8 +9,13 @@ import { chromium, type Browser, type BrowserContext, type Page } from 'playwrig
  *   yarn verify:visual --expect "About" --out "before-footer-about"
  *
  * Loads the app with the stored auth state, refuses to assert anything unless the
- * pre-flight proves the session is still authenticated, asserts the footer contains
- * the expected text, then writes a full-page screenshot to <workspace>/screenshots.
+ * pre-flight proves the session is still authenticated, asserts the focus region
+ * contains the expected text, then writes a full-page screenshot to
+ * <workspace>/screenshots.
+ *
+ * --focus scopes both the assertion and the close-up screenshot, so a change outside
+ * the footer can still be asserted on the element that actually changed. It defaults
+ * to `footer`, which is the original behaviour.
  */
 
 const APP_DIR = dirname(fileURLToPath(import.meta.url));
@@ -96,12 +101,13 @@ const run = async (): Promise<void> => {
       await page.goto(`${APP_ORIGIN}${targetPath}`, { waitUntil: 'domcontentloaded' });
     }
 
-    const footer = page.locator('footer');
-    await footer.waitFor({ state: 'visible', timeout: ELEMENT_TIMEOUT_MS });
-    await footer
+    const focus = page.locator(focusSelector).first();
+    await focus.waitFor({ state: 'visible', timeout: ELEMENT_TIMEOUT_MS });
+    await focus
       .getByText(expected, { exact: true })
+      .first()
       .waitFor({ state: 'visible', timeout: ELEMENT_TIMEOUT_MS });
-    console.info(`✓ footer contains "${expected}" on ${targetPath}`);
+    console.info(`✓ ${focusSelector} contains "${expected}" on ${targetPath}`);
 
     // graphql-ws keeps a socket open, so networkidle may never fire — best effort only.
     await page
@@ -114,7 +120,7 @@ const run = async (): Promise<void> => {
 
     // Close-up of the region under test, so the visual diff is legible at a glance.
     const focusPath = resolve(SCREENSHOT_DIR, `${out}-focus.png`);
-    await page.locator(focusSelector).first().screenshot({ path: focusPath });
+    await focus.screenshot({ path: focusPath });
     console.info(`✓ focus (${focusSelector}): ${focusPath}`);
   } finally {
     await context.close();

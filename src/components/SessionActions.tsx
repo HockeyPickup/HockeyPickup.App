@@ -6,6 +6,7 @@ import {
 } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
 import { buySellService } from '@/lib/buysell';
+import { nowPacific } from '@/lib/pacificTime';
 import { GET_SESSION } from '@/lib/queries';
 import { useQuery } from '@apollo/client/react';
 import { SessionQueryResult } from '@/types/graphql';
@@ -91,9 +92,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
 
   // Window times are Pacific wall-clock (parsed with moment.utc for display). Compare against the *current*
   // Pacific wall-clock in the same naive frame so a future window isn't reported as already open.
-  const nowPacificWallClock = moment.utc(
-    moment().tz('America/Los_Angeles').format('YYYY-MM-DDTHH:mm:ss'),
-  );
+  const nowPacificWallClock = nowPacific();
   const buyWindowDateRaw = getBuyWindowDate();
   const buyWindowOpen = nowPacificWallClock.isSameOrAfter(moment.utc(buyWindowDateRaw));
   const buyWindowDate = moment.utc(buyWindowDateRaw).format('ddd, MMM D · HH:mm');
