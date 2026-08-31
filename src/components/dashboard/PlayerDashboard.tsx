@@ -137,7 +137,7 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
   const nothingToShow = nothingForViewer && netsPreview.length === 0;
 
   return (
-    <Container size='xl' px='md' mb='xl'>
+    <Container size='xl' mb='xl'>
       <Stack gap='xl'>
         <DashboardHero user={user} />
 
