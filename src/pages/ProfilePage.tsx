@@ -1,7 +1,9 @@
 import { AvatarUpload } from '@/components/AvatarUpload';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PaymentButtons } from '@/components/PaymentButtons';
+import { PlayerStatusBadges } from '@/components/PlayerStatusBadges';
 import { useRatingsVisibility } from '@/components/RatingsToggle';
+import { useUserStats } from '@/hooks/useUserStats';
 import {
   AdminUserUpdateRequest,
   ErrorDetail,
@@ -12,13 +14,11 @@ import {
   RevertImpersonationResponse,
   ShootPreference,
   UserDetailedResponse,
-  UserStatsResponse,
 } from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
 import { authService, TOKEN_KEY, useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/error';
 import { YOUTUBE_NAME_OVERRIDES } from '@/lib/overrides';
-import { GET_USERSTATS } from '@/lib/queries';
 import {
   getImpersonationStatus,
   getUserById,
@@ -26,8 +26,6 @@ import {
   revertImpersonation,
 } from '@/lib/user';
 import { AvatarService } from '@/services/avatar';
-import { UserStatsQueryResult } from '@/types/graphql';
-import { useQuery } from '@apollo/client/react';
 import {
   Avatar,
   Button,
@@ -62,12 +60,7 @@ const HeaderSection = ({
   const { showRatings } = useRatingsVisibility();
   const navigate = useNavigate();
 
-  const { data: statsData } = useQuery<UserStatsQueryResult>(GET_USERSTATS, {
-    variables: { UserId: profileUser?.Id },
-    skip: !profileUser?.Id,
-  });
-
-  const stats: UserStatsResponse | undefined = statsData?.UserStats;
+  const { stats } = useUserStats(profileUser?.Id);
 
   const refreshAvatar = async (): Promise<void> => {
     const url = await AvatarService.getAvatarUrl(profileUser?.PhotoUrl ?? '');
@@ -109,102 +102,7 @@ const HeaderSection = ({
                 {profileUser.JerseyNumber !== 0 && ` #${profileUser.JerseyNumber}`}
               </Title>
               <Group gap={5}>
-                {profileUser.Active ? (
-                  <Button
-                    disabled
-                    size='xs'
-                    radius='xl'
-                    color='green'
-                    styles={{
-                      root: {
-                        paddingLeft: 14,
-                        paddingRight: 14,
-                        height: 22,
-                        cursor: 'default',
-                        backgroundColor: 'var(--mantine-color-green-filled)',
-                        color: 'var(--mantine-color-white)',
-                      },
-                    }}
-                  >
-                    ACTIVE
-                  </Button>
-                ) : (
-                  <Button
-                    disabled
-                    size='xs'
-                    radius='xl'
-                    color='red'
-                    styles={{
-                      root: {
-                        paddingLeft: 14,
-                        paddingRight: 14,
-                        height: 22,
-                        cursor: 'default',
-                        backgroundColor: 'var(--mantine-color-red-filled)',
-                        color: 'var(--mantine-color-white)',
-                      },
-                    }}
-                  >
-                    INACTIVE
-                  </Button>
-                )}
-                {profileUser.Preferred && (
-                  <Button
-                    disabled
-                    size='xs'
-                    radius='xl'
-                    color='blue'
-                    styles={{
-                      root: {
-                        paddingLeft: 14,
-                        paddingRight: 14,
-                        height: 22,
-                        cursor: 'default',
-                        backgroundColor: 'var(--mantine-color-blue-filled)',
-                        color: 'var(--mantine-color-white)',
-                      },
-                    }}
-                  >
-                    PREFERRED
-                  </Button>
-                )}
-                {profileUser.PreferredPlus && (
-                  <Button
-                    disabled
-                    size='xs'
-                    radius='xl'
-                    color='violet'
-                    styles={{
-                      root: {
-                        paddingLeft: 14,
-                        paddingRight: 14,
-                        height: 22,
-                        cursor: 'default',
-                        backgroundColor: 'var(--mantine-color-violet-filled)',
-                        color: 'var(--mantine-color-white)',
-                      },
-                    }}
-                  >
-                    PREFERRED+
-                  </Button>
-                )}
-                {profileUser.LockerRoom13 && (
-                  <Button
-                    size='xs'
-                    radius='xl'
-                    color='yellow'
-                    styles={{
-                      root: {
-                        paddingLeft: 14,
-                        paddingRight: 14,
-                        height: 22,
-                      },
-                    }}
-                    onClick={() => navigate(`/lockerroom13`)}
-                  >
-                    LR13
-                  </Button>
-                )}
+                <PlayerStatusBadges user={profileUser} />
                 <Button
                   size='xs'
                   radius='xl'

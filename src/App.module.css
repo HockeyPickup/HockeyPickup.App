@@ -122,8 +122,12 @@
      `footer` prop, so Mantine reserves no space for it — this bottom padding does). For Admin/SubAdmin
      users the footer is two rows tall (the "Roles:" line), ~57px, so the old 40px let the footer
      overlap the bottom of the page — clipping form action buttons (e.g. the Edit Session buttons).
-     Clear the two-row footer plus the iOS home-indicator safe-area inset. */
-  padding: 60px 1px calc(72px + env(safe-area-inset-bottom)) 1px !important;
+     Clear the two-row footer plus the iOS home-indicator safe-area inset. Sized for the tallest
+     case: below 640 the footer wraps to 76px, so 72px let it cover the last few pixels. */
+  /* Horizontal gutter matches the header's own px="md", so page content lines up with the
+     logo and title above it. It was 1px, which pushed content under the vertical scrollbar. */
+  padding: 60px var(--mantine-spacing-md) calc(80px + env(safe-area-inset-bottom))
+    var(--mantine-spacing-md) !important;
   margin: 0 !important;
   /* 100% (not 100vw) so the content area excludes the vertical scrollbar — 100vw counts the
      scrollbar width, making the content scrollbar-width too wide and clipping the right edge. */
@@ -246,7 +250,10 @@
 .footer {
   background-color: var(--mantine-color-dark-7);
   border-top: rem(1px) solid var(--mantine-color-dark-4);
-  padding: var(--mantine-spacing-xs);
+  /* Horizontal padding matches .mantine-AppShell-main and the header row, so the footer text
+     sits in the same column as the page content. Vertical stays xs: it sets the footer height,
+     which main's bottom padding is sized against. */
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
   text-align: center;
   color: var(--mantine-color-gray-5);
   font-size: var(--mantine-font-size-xs);
