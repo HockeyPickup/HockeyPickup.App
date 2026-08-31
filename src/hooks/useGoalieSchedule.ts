@@ -7,8 +7,13 @@ import { useMemo } from 'react';
 export interface GoalieSchedule {
   /** Upcoming sessions whose note names this user, soonest first. */
   starts: GoalieSession[];
-  /** Upcoming sessions short of a goalie that this user is not already booked for. */
-  openNets: GoalieSession[];
+  /**
+   * Upcoming sessions still short of a goalie, regardless of who is viewing.
+   *
+   * Filling these is the commissioner's job — goalies are invited and accept or decline, they do
+   * not claim a net — so this is for the admin view, not the goalie's.
+   */
+  unfilledNets: GoalieSession[];
   /** True when this user is named in at least one upcoming note. */
   hasStarts: boolean;
   /** Starts already played, by calendar year — see the note below on why these are counted here. */
@@ -38,7 +43,7 @@ export const useGoalieSchedule = (
     const viewer = { FirstName: firstName, LastName: lastName };
 
     const starts: GoalieSession[] = [];
-    const openNets: GoalieSession[] = [];
+    const unfilledNets: GoalieSession[] = [];
     const startsByYear: Record<number, number> = {};
 
     for (const session of allSessions) {
@@ -49,7 +54,7 @@ export const useGoalieSchedule = (
 
       if (when.isAfter(now)) {
         if (described.isViewerInNet) starts.push(described);
-        else if (described.openNets > 0) openNets.push(described);
+        if (described.openNets > 0) unfilledNets.push(described);
       } else if (described.isViewerInNet) {
         const year = when.year();
         startsByYear[year] = (startsByYear[year] ?? 0) + 1;
@@ -61,8 +66,8 @@ export const useGoalieSchedule = (
       sessionMoment(b.session.SessionDate).valueOf();
 
     starts.sort(bySoonest);
-    openNets.sort(bySoonest);
+    unfilledNets.sort(bySoonest);
 
-    return { starts, openNets, hasStarts: starts.length > 0, startsByYear };
+    return { starts, unfilledNets, hasStarts: starts.length > 0, startsByYear };
   }, [allSessions, firstName, lastName]);
 };

@@ -5,18 +5,19 @@ import moment from 'moment';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
 
-interface NetsNeedingGoalieProps {
+interface NetsToFillProps {
   items: GoalieSession[];
 }
 
 /**
- * Upcoming skates short of a goalie that this goalie is not already booked for.
+ * Upcoming skates still short of a goalie.
  *
- * Nothing in the app surfaces this today — you would have to read every session note by eye. It
- * is informational: there is no self-serve way to claim a net, so the card links to the session
- * rather than promising an action the Api cannot honour.
+ * This is a commissioner's list, not a goalie's: goalies are invited and accept or decline, so a
+ * goalie cannot act on an open net and showing it to them would only imply otherwise. It is
+ * informational — the invite happens outside the app — so the card links to the session rather
+ * than offering an action the Api cannot honour.
  */
-export const NetsNeedingGoalie = ({ items }: NetsNeedingGoalieProps): JSX.Element => (
+export const NetsToFill = ({ items }: NetsToFillProps): JSX.Element => (
   <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
     {items.map(({ session, goalieNames, openNets, skaters }) => (
       <Card
@@ -47,7 +48,7 @@ export const NetsNeedingGoalie = ({ items }: NetsNeedingGoalieProps): JSX.Elemen
                 color='yellow'
                 leftSection={<IconUserQuestion size={12} />}
               >
-                {openNets === 1 ? '1 net open' : `${openNets} nets open`}
+                {openNets === 1 ? 'Needs 1 goalie' : `Needs ${openNets} goalies`}
               </Badge>
               {skaters && (
                 <Badge
@@ -64,8 +65,8 @@ export const NetsNeedingGoalie = ({ items }: NetsNeedingGoalieProps): JSX.Elemen
 
             <Text size='xs' c='dimmed'>
               {goalieNames.length > 0
-                ? `Confirmed: ${goalieNames.join(', ')}`
-                : 'No goalie confirmed yet'}
+                ? `Accepted: ${goalieNames.join(', ')}`
+                : 'Nobody accepted yet'}
             </Text>
           </Stack>
 

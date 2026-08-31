@@ -5,6 +5,7 @@ import { useUpcomingSessions } from '@/hooks/useUpcomingSessions';
 import { useUserStats } from '@/hooks/useUserStats';
 import { PositionPreference, Session, UserDetailedResponse } from '@/HockeyPickup.Api';
 import { getUserRosterEntry, isCancelled } from '@/lib/dashboard';
+import { useAuth } from '@/lib/auth';
 import { getPendingPayments } from '@/lib/payments';
 import { DashboardBuySell, DashboardSession } from '@/types/graphql';
 import { Container, Stack, Text } from '@mantine/core';
@@ -14,10 +15,11 @@ import { AlsoOnSchedule, RosteredSession } from './AlsoOnSchedule';
 import { AvailableToBuy } from './AvailableToBuy';
 import { DashboardSection, ZoneError } from './DashboardSection';
 import { DashboardSkeleton, StatsSkeleton } from './DashboardSkeleton';
-import { NetsNeedingGoalie } from './NetsNeedingGoalie';
+import { NetsToFill } from './NetsToFill';
 import { NextSessionSpotlight } from './NextSessionSpotlight';
 import { NextStartSpotlight } from './NextStartSpotlight';
 import { NoSessionsCard } from './NoSessionsCard';
+import { NoStartsCard } from './NoStartsCard';
 import { SeasonSnapshot } from './SeasonSnapshot';
 import { UpcomingStarts } from './UpcomingStarts';
 
@@ -53,6 +55,7 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
     loading: listLoading,
     error: listError,
   } = useUpcomingSessions();
+  const { isAdmin } = useAuth();
   const pending = useMemo(() => getPendingPayments(user), [user]);
   const { stats, loading: statsLoading, error: statsError } = useUserStats(user.Id);
 
@@ -127,11 +130,11 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
   const schedulePreview = laterRostered.slice(0, SCHEDULE_PREVIEW_COUNT);
   const startsPreview = laterStarts.slice(0, SCHEDULE_PREVIEW_COUNT);
   const buyPreview = buyable.slice(0, BUY_PREVIEW_COUNT);
-  const netsPreview = goalie.openNets.slice(0, NETS_PREVIEW_COUNT);
+  const netsPreview = isAdmin() ? goalie.unfilledNets.slice(0, NETS_PREVIEW_COUNT) : [];
 
   const sessionsLoading = listLoading || detailLoading;
-  const nothingToShow =
-    !nextStart && !nextRostered && buyPreview.length === 0 && netsPreview.length === 0;
+  const nothingForViewer = !nextStart && !nextRostered && buyPreview.length === 0;
+  const nothingToShow = nothingForViewer && netsPreview.length === 0;
 
   return (
     <Container size='xl' px='md' mb='xl'>
@@ -151,8 +154,14 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
           />
         ) : sessionsLoading ? (
           <DashboardSkeleton />
-        ) : liveUpcoming.length === 0 || nothingToShow ? (
+        ) : liveUpcoming.length === 0 ? (
           <NoSessionsCard />
+        ) : nothingToShow ? (
+          showGoalieZones ? (
+            <NoStartsCard />
+          ) : (
+            <NoSessionsCard />
+          )
         ) : (
           <>
             {nextStart && (
@@ -198,20 +207,20 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
                 <AlsoOnSchedule items={schedulePreview} />
               </DashboardSection>
             )}
-
-            {showGoalieZones && netsPreview.length > 0 && (
+            {netsPreview.length > 0 && (
               <DashboardSection
-                title='Nets Needing a Goalie'
-                actionLabel={goalie.openNets.length > netsPreview.length ? 'View All' : undefined}
-                actionTo={goalie.openNets.length > netsPreview.length ? '/sessions' : undefined}
+                title='Nets to Fill'
+                actionLabel={
+                  goalie.unfilledNets.length > netsPreview.length ? 'View All' : undefined
+                }
+                actionTo={goalie.unfilledNets.length > netsPreview.length ? '/sessions' : undefined}
               >
                 <Stack gap='sm'>
-                  {!goalie.hasStarts && (
-                    <Text c='dimmed'>
-                      You&apos;re not in net for anything yet — these skates are short a goalie.
-                    </Text>
-                  )}
-                  <NetsNeedingGoalie items={netsPreview} />
+                  <Text c='dimmed'>
+                    These skates are still short a goalie. Invites go out from you, so nobody sees
+                    this list but admins.
+                  </Text>
+                  <NetsToFill items={netsPreview} />
                 </Stack>
               </DashboardSection>
             )}
@@ -244,7 +253,6 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
               userId={user.Id}
               isGoalie={isGoalie}
               startsBooked={goalie.starts.length}
-              netsOpen={goalie.openNets.length}
               startsByYear={goalie.startsByYear}
             />
           )}

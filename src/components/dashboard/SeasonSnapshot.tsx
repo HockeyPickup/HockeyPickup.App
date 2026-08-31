@@ -10,7 +10,6 @@ interface SeasonSnapshotProps {
   /** Goalies do not buy or sell spots, so those tiles are replaced with booked starts. */
   isGoalie?: boolean;
   startsBooked?: number;
-  netsOpen?: number;
   /** Starts already played, by calendar year. Counted from session notes, not UserStats. */
   startsByYear?: Record<number, number>;
 }
@@ -50,7 +49,6 @@ export const SeasonSnapshot = ({
   userId,
   isGoalie = false,
   startsBooked = 0,
-  netsOpen = 0,
   startsByYear = {},
 }: SeasonSnapshotProps): JSX.Element => {
   const currentYear = moment().year();
@@ -80,7 +78,6 @@ export const SeasonSnapshot = ({
   // number that actually tells them how their season is going.
   const goalieTiles: StatTile[] = [
     { label: 'Starts Booked', value: String(startsBooked), hint: 'Upcoming' },
-    { label: 'Nets Open', value: String(netsOpen), hint: 'Upcoming, unfilled' },
   ];
 
   // UserStats counts games from roster membership, so it reports zero for every goalie no
