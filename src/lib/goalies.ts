@@ -14,35 +14,76 @@ import type { Session, UserDetailedResponse } from '@/HockeyPickup.Api';
 /** Two nets, two goalies. A session naming fewer than this still needs someone. */
 export const GOALIES_PER_SESSION = 2;
 
+const GOALIE_LABEL = /goalies?\s*:/i;
 const GOALIE_SEGMENT = /goalies?\s*:\s*(.+)$/i;
-const SKATER_COUNT = /(\d+)\s*\/\s*(\d+)/;
+const SKATER_COUNT = /(\d+)\s*\/\s*(\d+)/g;
+
+/** A trailing 1-3 letter word before a period is an abbreviation inside a name — "Darin St. Ivany". */
+const TRAILING_ABBREVIATION = /(^|\s)[A-Za-z]{1,3}$/;
+
+/** No roster runs to these numbers, so a larger denominator is a date or a year, not a count. */
+const MAX_ROSTER_SIZE = 40;
 
 /**
- * Names appear last in the note, comma separated. Anything after the label is treated as the
- * name list, so a trailing sentence would be absorbed — acceptable because every session written
- * to date ends on the goalie list, and the alternative (splitting on periods) would break the
- * "St." and "Jr." names that do occur in this club.
+ * The goalie list runs from the label to the end of that sentence.
+ *
+ * The period matters: notes frequently carry a message after the names — "Josh's last pickup
+ * skate. Breakfast at Bread & Butter." — and reading to the end of the string swallows it, which
+ * previously turned "Bread & Butter" into a goalie called "Butter". Periods that belong to a name
+ * are stepped over so "Darin St. Ivany" survives.
  */
+const cutAtSentenceEnd = (segment: string): string => {
+  for (let index = 0; index < segment.length; index++) {
+    if (segment[index] !== '.') continue;
+
+    const before = segment.slice(0, index);
+    if (TRAILING_ABBREVIATION.test(before)) continue;
+    return before;
+  }
+  return segment;
+};
+
+/** Drops a sentence-ending period but keeps one that belongs to the name, as in "Ryan Novak Jr.". */
+const stripTrailingPeriod = (name: string): string => {
+  const trimmed = name.trim();
+  if (!trimmed.endsWith('.')) return trimmed;
+
+  const without = trimmed.replace(/\.+$/, '').trim();
+  return TRAILING_ABBREVIATION.test(without) ? trimmed : without;
+};
+
+/** The goalie names written after the "Goalies:" label, in the order the note lists them. */
 export const parseGoalieNames = (note: string | null | undefined): string[] => {
   const match = note?.match(GOALIE_SEGMENT);
   if (!match) return [];
 
-  return match[1]
+  return cutAtSentenceEnd(match[1])
     .split(/,| and |&/i)
-    .map((name) => name.trim().replace(/\.+$/, '').trim())
+    .map(stripTrailingPeriod)
     .filter((name) => name.length > 0);
 };
 
-/** "8/10" from the front of a note, for showing how full the skater roster is. */
+/**
+ * "8/10" — how full the skater roster is.
+ *
+ * Only the text before the goalie list is considered, since anything after it is prose that may
+ * hold a date. Implausible denominators are skipped too: notes like "New pricing effective
+ * 10/2022 ... 2/10." would otherwise report a roster of 2022.
+ */
 export const parseSkaterCount = (
   note: string | null | undefined,
 ): { filled: number; total: number } | null => {
-  const match = note?.match(SKATER_COUNT);
-  if (!match) return null;
+  if (!note) return null;
 
-  const filled = Number(match[1]);
-  const total = Number(match[2]);
-  return Number.isFinite(filled) && Number.isFinite(total) ? { filled, total } : null;
+  const labelIndex = note.search(GOALIE_LABEL);
+  const beforeGoalies = labelIndex === -1 ? note : note.slice(0, labelIndex);
+
+  for (const match of beforeGoalies.matchAll(SKATER_COUNT)) {
+    const filled = Number(match[1]);
+    const total = Number(match[2]);
+    if (total >= 2 && total <= MAX_ROSTER_SIZE && filled <= total) return { filled, total };
+  }
+  return null;
 };
 
 const normalize = (value: string): string =>
