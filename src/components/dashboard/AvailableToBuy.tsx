@@ -5,6 +5,7 @@ import {
   getOpenSells,
   getSessionCtaState,
   getUserQueueStatus,
+  getUserSell,
   SessionCtaState,
 } from '@/lib/dashboard';
 import { nowPacific } from '@/lib/pacificTime';
@@ -29,12 +30,34 @@ interface BuyCardProps {
   state: SessionCtaState;
 }
 
+/** The line under the button. One place decides it, so each state explains itself exactly once. */
+const getHint = (
+  session: DashboardSession,
+  user: UserDetailedResponse,
+  state: SessionCtaState,
+): string | null => {
+  switch (state) {
+    case 'BuyWindowNotOpen':
+      return `Opens ${moment.utc(getBuyWindowForUser(session, user)).format('ddd, MMM D · h:mmA')}`;
+    case 'InQueue':
+      return getUserQueueStatus(session, user.Id);
+    case 'SellPending':
+      return 'Waiting for a buyer';
+    case 'Sold': {
+      const buyer = getUserSell(session, user.Id)?.Buyer;
+      const name = buyer ? [buyer.FirstName, buyer.LastName].filter(Boolean).join(' ') : null;
+      return name ? `Bought by ${name}` : 'Your spot was bought';
+    }
+    default:
+      return null;
+  }
+};
+
 const BuyCard = ({ session, user, state }: BuyCardProps): JSX.Element => {
   const presentation = CTA_PRESENTATION[state];
   const openSells = getOpenSells(session);
   const sessionDate = moment.utc(session.SessionDate);
-  const buyWindow = moment.utc(getBuyWindowForUser(session, user));
-  const queueStatus = state === 'InQueue' ? getUserQueueStatus(session, user.Id) : null;
+  const hint = getHint(session, user, state);
 
   return (
     <Card radius='md' p='md' withBorder bg='dark.6' style={{ height: '100%' }}>
@@ -92,14 +115,9 @@ const BuyCard = ({ session, user, state }: BuyCardProps): JSX.Element => {
           >
             {presentation.label}
           </Button>
-          {presentation.showsWindowHint && (
+          {hint && (
             <Text size='xs' c='dimmed' ta='center'>
-              Opens {buyWindow.format('ddd, MMM D · h:mmA')}
-            </Text>
-          )}
-          {queueStatus && (
-            <Text size='xs' c='dimmed' ta='center'>
-              {queueStatus}
+              {hint}
             </Text>
           )}
         </Stack>
