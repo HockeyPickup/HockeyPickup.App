@@ -12,7 +12,7 @@ import { Moment } from 'moment-timezone';
  * Adding the in-development draw feature means adding 'LotteryOpen' here and one entry to
  * CTA_PRESENTATION. Nothing else in the card needs to change.
  */
-export type SessionCtaState = 'Rostered' | 'BuyAvailable' | 'BuyWindowNotOpen' | 'Full';
+export type SessionCtaState = 'Rostered' | 'InQueue' | 'BuyAvailable' | 'BuyWindowNotOpen' | 'Full';
 
 export interface CtaPresentation {
   label: string;
@@ -24,6 +24,12 @@ export interface CtaPresentation {
 
 export const CTA_PRESENTATION: Record<SessionCtaState, CtaPresentation> = {
   Rostered: { label: "You're In", color: 'green', variant: 'light', showsWindowHint: false },
+  InQueue: {
+    label: "You're in the Queue",
+    color: 'blue',
+    variant: 'light',
+    showsWindowHint: false,
+  },
   BuyAvailable: { label: 'Buy a Spot', color: 'purple', variant: 'filled', showsWindowHint: false },
   BuyWindowNotOpen: {
     label: 'Buy Window Not Open',
@@ -31,7 +37,12 @@ export const CTA_PRESENTATION: Record<SessionCtaState, CtaPresentation> = {
     variant: 'default',
     showsWindowHint: true,
   },
-  Full: { label: 'Session Full — Join Queue', color: 'blue', variant: 'outline', showsWindowHint: false },
+  Full: {
+    label: 'Session Full — Join Queue',
+    color: 'blue',
+    variant: 'outline',
+    showsWindowHint: false,
+  },
 };
 
 /**
@@ -52,6 +63,32 @@ export const getUserRosterEntry = (
 /** A spot is genuinely for sale only while it has a seller and no buyer has claimed it. */
 export const getOpenSells = (session: DashboardSession): DashboardBuySell[] =>
   session.BuySells?.filter((buySell) => buySell.SellerUserId && !buySell.BuyerUserId) ?? [];
+
+/**
+ * The viewer's outstanding buy request, if they have one.
+ *
+ * A buy with no seller attached is someone waiting in line — the same shape the Api treats as
+ * "You already have an active Buy for this session" when it refuses a second one.
+ */
+export const getUserQueuedBuy = (
+  session: DashboardSession,
+  userId: string | undefined,
+): DashboardBuySell | undefined =>
+  userId === undefined
+    ? undefined
+    : session.BuySells?.find((buySell) => buySell.BuyerUserId === userId && !buySell.SellerUserId);
+
+/** Where the viewer sits in line, as the queue view words it: "Next in Line", "In Queue (6)". */
+export const getUserQueueStatus = (
+  session: DashboardSession,
+  userId: string | undefined,
+): string | null => {
+  const queued = getUserQueuedBuy(session, userId);
+  if (!queued) return null;
+
+  const entry = session.BuyingQueues?.find((row) => row.BuySellId === queued.BuySellId);
+  return entry?.QueueStatus?.trim() ? entry.QueueStatus.trim() : null;
+};
 
 export const getPlayingCount = (session: DashboardSession): number =>
   session.CurrentRosters?.filter((player) => player.IsPlaying).length ?? 0;
@@ -75,6 +112,9 @@ export const getSessionCtaState = (
   now: Moment,
 ): SessionCtaState => {
   if (getUserRosterEntry(session, user.Id)) return 'Rostered';
+  // Ahead of the window check: an admin can buy before their window opens, so being in the queue
+  // does not imply the window is open.
+  if (getUserQueuedBuy(session, user.Id)) return 'InQueue';
   if (!isPastPacific(getBuyWindowForUser(session, user), now)) return 'BuyWindowNotOpen';
   return getOpenSells(session).length > 0 ? 'BuyAvailable' : 'Full';
 };

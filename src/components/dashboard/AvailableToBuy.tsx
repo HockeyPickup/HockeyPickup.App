@@ -4,6 +4,7 @@ import {
   getBuyWindowForUser,
   getOpenSells,
   getSessionCtaState,
+  getUserQueueStatus,
   SessionCtaState,
 } from '@/lib/dashboard';
 import { nowPacific } from '@/lib/pacificTime';
@@ -33,6 +34,7 @@ const BuyCard = ({ session, user, state }: BuyCardProps): JSX.Element => {
   const openSells = getOpenSells(session);
   const sessionDate = moment.utc(session.SessionDate);
   const buyWindow = moment.utc(getBuyWindowForUser(session, user));
+  const queueStatus = state === 'InQueue' ? getUserQueueStatus(session, user.Id) : null;
 
   return (
     <Card radius='md' p='md' withBorder bg='dark.6' style={{ height: '100%' }}>
@@ -60,7 +62,13 @@ const BuyCard = ({ session, user, state }: BuyCardProps): JSX.Element => {
                 ? 'No open spots'
                 : `${openSells.length} spot${openSells.length === 1 ? '' : 's'} open`}
             </Badge>
-            <Badge size='sm' radius='sm' variant='light' color='gray' leftSection={<IconTag size={12} />}>
+            <Badge
+              size='sm'
+              radius='sm'
+              variant='light'
+              color='gray'
+              leftSection={<IconTag size={12} />}
+            >
               {formatCost(session.Cost)}
             </Badge>
           </Group>
@@ -87,6 +95,11 @@ const BuyCard = ({ session, user, state }: BuyCardProps): JSX.Element => {
           {presentation.showsWindowHint && (
             <Text size='xs' c='dimmed' ta='center'>
               Opens {buyWindow.format('ddd, MMM D · h:mmA')}
+            </Text>
+          )}
+          {queueStatus && (
+            <Text size='xs' c='dimmed' ta='center'>
+              {queueStatus}
             </Text>
           )}
         </Stack>

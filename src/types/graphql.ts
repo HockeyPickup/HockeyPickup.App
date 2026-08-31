@@ -1,4 +1,5 @@
 import {
+  BuyingQueueItem,
   BuySellResponse,
   LockerRoom13Response,
   RegularSetDetailedResponse,
@@ -41,13 +42,20 @@ export interface UserStatsQueryResult {
  * nor BuySells, so the dashboard reads rosters through aliased `Session(SessionId:)` selections
  * instead. These types are `Pick`ed off the generated Api models so they stay field-for-field with
  * the server, and they deliberately describe only what DASHBOARD_SESSION_FIELDS asks for —
- * ActivityLogs, BuyingQueues, RegularSet and LotteryEntrants are never requested.
+ * ActivityLogs, RegularSet and LotteryEntrants are never requested, and BuyingQueues is trimmed
+ * to the scalars that place a buyer in the queue.
  */
 export type DashboardCounterparty = Pick<UserDetailedResponse, 'Id' | 'FirstName' | 'LastName'>;
 
 export type DashboardRosterPlayer = Pick<
   RosterPlayer,
-  'UserId' | 'FirstName' | 'LastName' | 'TeamAssignment' | 'Position' | 'CurrentPosition' | 'IsPlaying'
+  | 'UserId'
+  | 'FirstName'
+  | 'LastName'
+  | 'TeamAssignment'
+  | 'Position'
+  | 'CurrentPosition'
+  | 'IsPlaying'
 >;
 
 export type DashboardBuySell = Pick<
@@ -64,6 +72,18 @@ export type DashboardBuySell = Pick<
   Seller?: DashboardCounterparty | null;
 };
 
+/**
+ * One row of a session's buying queue.
+ *
+ * The queue position lives only here: `QueuePosition` on BuySellResponse is never populated by
+ * the Api's mapper, so the view's `QueueStatus` string — "Next in Line", "In Queue (6)" — is the
+ * only way to tell a waiting buyer where they stand.
+ */
+export type DashboardQueueEntry = Pick<
+  BuyingQueueItem,
+  'BuySellId' | 'BuyerUserId' | 'SellerUserId' | 'QueueStatus'
+>;
+
 export type DashboardSession = Pick<
   SessionDetailedResponse,
   | 'SessionId'
@@ -77,6 +97,7 @@ export type DashboardSession = Pick<
 > & {
   CurrentRosters?: DashboardRosterPlayer[] | null;
   BuySells?: DashboardBuySell[] | null;
+  BuyingQueues?: DashboardQueueEntry[] | null;
 };
 
 /** Aliased result: one `s<SessionId>` key per session requested. */

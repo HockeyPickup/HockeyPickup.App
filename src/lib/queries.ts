@@ -48,8 +48,9 @@ export const GET_SESSIONS = gql`
  * The `Sessions` list query resolves SessionBasicResponse, which has no CurrentRosters and no
  * BuySells, so roster membership has to come from `Session(SessionId:)`. Requesting it once per
  * session would mean N round-trips, so buildDashboardSessionsQuery aliases them into a single
- * document instead. Only these fields are selected — ActivityLogs, BuyingQueues, RegularSet and
- * LotteryEntrants stay off the wire, which is what keeps this cheap enough for a landing page.
+ * document instead. Only these fields are selected — ActivityLogs, RegularSet and LotteryEntrants
+ * stay off the wire entirely, and BuyingQueues is trimmed to the scalars that say where a buyer
+ * sits in the queue. That is what keeps this cheap enough for a landing page.
  *
  * Keep in sync with DashboardSession in @/types/graphql.
  */
@@ -89,6 +90,12 @@ const DASHBOARD_SESSION_FIELDS = `
       FirstName
       LastName
     }
+  }
+  BuyingQueues {
+    BuySellId
+    BuyerUserId
+    SellerUserId
+    QueueStatus
   }
 `;
 
