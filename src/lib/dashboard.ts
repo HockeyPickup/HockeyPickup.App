@@ -34,8 +34,11 @@ export const CTA_PRESENTATION: Record<SessionCtaState, CtaPresentation> = {
   Full: { label: 'Session Full — Join Queue', color: 'blue', variant: 'outline', showsWindowHint: false },
 };
 
-/** The Api marks a session cancelled in its free-text note; it has no dedicated flag. */
-export const isCancelled = (session: DashboardSession): boolean =>
+/**
+ * The Api marks a session cancelled in its free-text note; it has no dedicated flag.
+ * Takes the note shape rather than a full session so the basic list can use it too.
+ */
+export const isCancelled = (session: { Note?: string | null }): boolean =>
   session.Note?.toLowerCase().includes('cancelled') ?? false;
 
 export const getUserRosterEntry = (

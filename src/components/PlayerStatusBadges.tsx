@@ -1,4 +1,4 @@
-import { UserDetailedResponse } from '@/HockeyPickup.Api';
+import { PositionPreference, UserDetailedResponse } from '@/HockeyPickup.Api';
 import { Button, Group } from '@mantine/core';
 import { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,14 +24,27 @@ const staticChipStyles = (color: string): { root: Record<string, string | number
 });
 
 interface PlayerStatusBadgesProps {
-  user: Pick<UserDetailedResponse, 'Active' | 'Preferred' | 'PreferredPlus' | 'LockerRoom13'>;
+  user: Pick<
+    UserDetailedResponse,
+    'Active' | 'Preferred' | 'PreferredPlus' | 'LockerRoom13' | 'PositionPreference'
+  >;
+  /** Opt-in so the Profile header, which already states position in its info card, is unchanged. */
+  showPosition?: boolean;
 }
 
-export const PlayerStatusBadges = ({ user }: PlayerStatusBadgesProps): JSX.Element => {
+export const PlayerStatusBadges = ({
+  user,
+  showPosition = false,
+}: PlayerStatusBadgesProps): JSX.Element => {
   const navigate = useNavigate();
 
   return (
     <Group gap={5}>
+      {showPosition && user.PositionPreference === PositionPreference.Goalie && (
+        <Button disabled size='xs' radius='xl' color='teal' styles={staticChipStyles('teal')}>
+          GOALIE
+        </Button>
+      )}
       {user.Active ? (
         <Button disabled size='xs' radius='xl' color='green' styles={staticChipStyles('green')}>
           ACTIVE

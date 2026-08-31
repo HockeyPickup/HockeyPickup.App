@@ -7,7 +7,10 @@ import type { ErrorLike } from '@apollo/client';
 import { useMemo } from 'react';
 
 export interface UpcomingSessionsResult {
+  /** Future sessions only, soonest first. */
   sessions: Session[];
+  /** Every session the query returned, past included — the same cache entry, no extra request. */
+  allSessions: Session[];
   loading: boolean;
   error: ErrorLike | undefined;
 }
@@ -28,12 +31,15 @@ export const useUpcomingSessions = (): UpcomingSessionsResult => {
     const now = nowPacific();
 
     return [...data.Sessions]
-      .filter((session: Session) => Boolean(session.SessionDate) && sessionMoment(session.SessionDate).isAfter(now))
+      .filter(
+        (session: Session) =>
+          Boolean(session.SessionDate) && sessionMoment(session.SessionDate).isAfter(now),
+      )
       .sort(
         (a: Session, b: Session) =>
           sessionMoment(a.SessionDate).valueOf() - sessionMoment(b.SessionDate).valueOf(),
       );
   }, [data]);
 
-  return { sessions, loading, error };
+  return { sessions, allSessions: data?.Sessions ?? [], loading, error };
 };

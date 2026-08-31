@@ -48,7 +48,7 @@ export const DashboardHero = ({ user }: DashboardHeroProps): JSX.Element => {
                 </Text>
               )}
             </Group>
-            <PlayerStatusBadges user={user} />
+            <PlayerStatusBadges user={user} showPosition />
           </Stack>
         </Group>
         <Image

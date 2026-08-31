@@ -1,8 +1,9 @@
 import { DashboardHero } from '@/components/dashboard/DashboardHero';
 import { useDashboardSessions } from '@/hooks/useDashboardSessions';
+import { useGoalieSchedule } from '@/hooks/useGoalieSchedule';
 import { useUpcomingSessions } from '@/hooks/useUpcomingSessions';
 import { useUserStats } from '@/hooks/useUserStats';
-import { UserDetailedResponse } from '@/HockeyPickup.Api';
+import { PositionPreference, Session, UserDetailedResponse } from '@/HockeyPickup.Api';
 import { getUserRosterEntry, isCancelled } from '@/lib/dashboard';
 import { getPendingPayments } from '@/lib/payments';
 import { DashboardBuySell, DashboardSession } from '@/types/graphql';
@@ -13,9 +14,12 @@ import { AlsoOnSchedule, RosteredSession } from './AlsoOnSchedule';
 import { AvailableToBuy } from './AvailableToBuy';
 import { DashboardSection, ZoneError } from './DashboardSection';
 import { DashboardSkeleton, StatsSkeleton } from './DashboardSkeleton';
+import { NetsNeedingGoalie } from './NetsNeedingGoalie';
 import { NextSessionSpotlight } from './NextSessionSpotlight';
+import { NextStartSpotlight } from './NextStartSpotlight';
 import { NoSessionsCard } from './NoSessionsCard';
 import { SeasonSnapshot } from './SeasonSnapshot';
+import { UpcomingStarts } from './UpcomingStarts';
 
 interface PlayerDashboardProps {
   user: UserDetailedResponse;
@@ -23,33 +27,57 @@ interface PlayerDashboardProps {
 
 const SCHEDULE_PREVIEW_COUNT = 4;
 const BUY_PREVIEW_COUNT = 6;
+const NETS_PREVIEW_COUNT = 6;
+
+/**
+ * Roster detail costs roughly 200ms per session server-side, because each alias runs the Api's
+ * full GetSessionAsync. Fetching every upcoming session pushed the dashboard past four seconds,
+ * so only the near horizon is fetched — comfortably more than the previews below render, and the
+ * rest is one click away on /sessions.
+ */
+const DETAIL_SESSION_LIMIT = 8;
 
 /**
  * The authenticated home page: a personal dashboard rather than a shared landing page.
  *
  * Zones are ordered by urgency — what needs doing, then what's next, then everything else — and
  * each owns its own loading and error state so one failed query cannot blank the page.
+ *
+ * Skater and goalie zones compose rather than switch: goalies are named in the session note and
+ * skaters are on the roster, so a player who does both sees both.
  */
 export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => {
   const {
     sessions: upcomingSessions,
+    allSessions,
     loading: listLoading,
     error: listError,
   } = useUpcomingSessions();
   const pending = useMemo(() => getPendingPayments(user), [user]);
   const { stats, loading: statsLoading, error: statsError } = useUserStats(user.Id);
 
-  // One request covers both jobs: rosters for the upcoming sessions, and counterparty names for
-  // any session with an outstanding payment — including past ones, which never appear above.
+  const liveUpcoming = useMemo<Session[]>(
+    () => upcomingSessions.filter((session) => !isCancelled(session)),
+    [upcomingSessions],
+  );
+
+  // Goalies are named in the session note, never on the roster, so their whole schedule comes
+  // from the basic list at no extra request cost.
+  const goalie = useGoalieSchedule(allSessions, user);
+  const isGoalie = user.PositionPreference === PositionPreference.Goalie;
+  const showGoalieZones = isGoalie || goalie.hasStarts;
+
+  // One request covers both jobs: rosters for the near-horizon sessions, and counterparty names
+  // for any session with an outstanding payment — including past ones, which never appear above.
   const sessionIds = useMemo<number[]>(() => {
     const ids = new Set<number>();
-    upcomingSessions.forEach((session) => {
+    liveUpcoming.slice(0, DETAIL_SESSION_LIMIT).forEach((session) => {
       if (session.SessionId !== undefined) ids.add(session.SessionId);
     });
     pending.unpaidBuys.forEach((transaction) => ids.add(transaction.SessionId));
     pending.unconfirmedSells.forEach((transaction) => ids.add(transaction.SessionId));
     return [...ids];
-  }, [upcomingSessions, pending]);
+  }, [liveUpcoming, pending]);
 
   const {
     sessions: detailedSessions,
@@ -68,18 +96,14 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
     [detailedSessions],
   );
 
-  // Only sessions that are still ahead and not called off; a cancelled game must never become
-  // "Your Next Session" with a live countdown running against it.
+  // A cancelled game must never become "Your Next Session" with a live countdown running on it.
   const upcomingIds = useMemo(
-    () => new Set(upcomingSessions.map((session) => session.SessionId)),
-    [upcomingSessions],
+    () => new Set(liveUpcoming.map((session) => session.SessionId)),
+    [liveUpcoming],
   );
 
   const liveSessions = useMemo<DashboardSession[]>(
-    () =>
-      detailedSessions.filter(
-        (session) => upcomingIds.has(session.SessionId) && !isCancelled(session),
-      ),
+    () => detailedSessions.filter((session) => upcomingIds.has(session.SessionId)),
     [detailedSessions, upcomingIds],
   );
 
@@ -91,19 +115,23 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
     [liveSessions, user.Id],
   );
 
+  // A goalie does not buy skater spots, so the buy grid would be noise on their dashboard.
   const buyable = useMemo<DashboardSession[]>(
-    () => liveSessions.filter((session) => !getUserRosterEntry(session, user.Id)),
-    [liveSessions, user.Id],
+    () => (isGoalie ? [] : liveSessions.filter((session) => !getUserRosterEntry(session, user.Id))),
+    [liveSessions, user.Id, isGoalie],
   );
 
   const [nextRostered, ...laterRostered] = rostered;
+  const [nextStart, ...laterStarts] = goalie.starts;
 
-  // A regular is rostered on every session for months out; the whole list would bury the zones
-  // below it. Show the near horizon and hand the rest to /sessions.
   const schedulePreview = laterRostered.slice(0, SCHEDULE_PREVIEW_COUNT);
+  const startsPreview = laterStarts.slice(0, SCHEDULE_PREVIEW_COUNT);
   const buyPreview = buyable.slice(0, BUY_PREVIEW_COUNT);
+  const netsPreview = goalie.openNets.slice(0, NETS_PREVIEW_COUNT);
 
   const sessionsLoading = listLoading || detailLoading;
+  const nothingToShow =
+    !nextStart && !nextRostered && buyPreview.length === 0 && netsPreview.length === 0;
 
   return (
     <Container size='xl' px='md' mb='xl'>
@@ -116,17 +144,37 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
           buySellsById={buySellsById}
         />
 
-        {listError ?? detailError ? (
+        {(listError ?? detailError) ? (
           <ZoneError
             message="We couldn't load your sessions right now."
             onRetry={sessionIds.length > 0 ? refetch : undefined}
           />
         ) : sessionsLoading ? (
           <DashboardSkeleton />
-        ) : liveSessions.length === 0 ? (
+        ) : liveUpcoming.length === 0 || nothingToShow ? (
           <NoSessionsCard />
         ) : (
           <>
+            {nextStart && (
+              <DashboardSection
+                title='Your Next Start'
+                actionLabel='All Sessions'
+                actionTo='/sessions'
+              >
+                <NextStartSpotlight start={nextStart} image='/static/game1.jpg' />
+              </DashboardSection>
+            )}
+
+            {startsPreview.length > 0 && (
+              <DashboardSection
+                title='Your Upcoming Starts'
+                actionLabel={laterStarts.length > startsPreview.length ? 'View All' : undefined}
+                actionTo={laterStarts.length > startsPreview.length ? '/sessions' : undefined}
+              >
+                <UpcomingStarts items={startsPreview} />
+              </DashboardSection>
+            )}
+
             {nextRostered && (
               <DashboardSection
                 title='Your Next Session'
@@ -144,16 +192,27 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
             {schedulePreview.length > 0 && (
               <DashboardSection
                 title='Also On Your Schedule'
-                actionLabel={
-                  laterRostered.length > schedulePreview.length
-                    ? `View All ${rostered.length}`
-                    : undefined
-                }
-                actionTo={
-                  laterRostered.length > schedulePreview.length ? '/sessions' : undefined
-                }
+                actionLabel={laterRostered.length > schedulePreview.length ? 'View All' : undefined}
+                actionTo={laterRostered.length > schedulePreview.length ? '/sessions' : undefined}
               >
                 <AlsoOnSchedule items={schedulePreview} />
+              </DashboardSection>
+            )}
+
+            {showGoalieZones && netsPreview.length > 0 && (
+              <DashboardSection
+                title='Nets Needing a Goalie'
+                actionLabel={goalie.openNets.length > netsPreview.length ? 'View All' : undefined}
+                actionTo={goalie.openNets.length > netsPreview.length ? '/sessions' : undefined}
+              >
+                <Stack gap='sm'>
+                  {!goalie.hasStarts && (
+                    <Text c='dimmed'>
+                      You&apos;re not in net for anything yet — these skates are short a goalie.
+                    </Text>
+                  )}
+                  <NetsNeedingGoalie items={netsPreview} />
+                </Stack>
               </DashboardSection>
             )}
 
@@ -180,7 +239,14 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
           ) : statsLoading ? (
             <StatsSkeleton />
           ) : (
-            <SeasonSnapshot stats={stats} userId={user.Id} />
+            <SeasonSnapshot
+              stats={stats}
+              userId={user.Id}
+              isGoalie={isGoalie}
+              startsBooked={goalie.starts.length}
+              netsOpen={goalie.openNets.length}
+              startsByYear={goalie.startsByYear}
+            />
           )}
         </DashboardSection>
       </Stack>

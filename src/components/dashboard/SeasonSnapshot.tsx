@@ -7,6 +7,12 @@ import { Link } from 'react-router-dom';
 interface SeasonSnapshotProps {
   stats: UserStatsResponse | undefined;
   userId: string;
+  /** Goalies do not buy or sell spots, so those tiles are replaced with booked starts. */
+  isGoalie?: boolean;
+  startsBooked?: number;
+  netsOpen?: number;
+  /** Starts already played, by calendar year. Counted from session notes, not UserStats. */
+  startsByYear?: Record<number, number>;
 }
 
 interface StatTile {
@@ -39,7 +45,14 @@ const StatCard = ({ label, value, hint }: StatTile): JSX.Element => (
  * Every tile falls back to a real value rather than blanking — a player with no history sees
  * zeros and an invitation, never `NaN` or an empty card.
  */
-export const SeasonSnapshot = ({ stats, userId }: SeasonSnapshotProps): JSX.Element => {
+export const SeasonSnapshot = ({
+  stats,
+  userId,
+  isGoalie = false,
+  startsBooked = 0,
+  netsOpen = 0,
+  startsByYear = {},
+}: SeasonSnapshotProps): JSX.Element => {
   const currentYear = moment().year();
   const lastYear = currentYear - 1;
 
@@ -47,15 +60,52 @@ export const SeasonSnapshot = ({ stats, userId }: SeasonSnapshotProps): JSX.Elem
   const gamesLastYear = stats?.PriorYearGamesPlayed ?? 0;
   const bought = stats?.CurrentYearBoughtTotal ?? 0;
   const sold = stats?.CurrentYearSoldTotal ?? 0;
-  const memberSince = stats?.MemberSince ? moment.utc(stats.MemberSince).local().format('YYYY') : '—';
+  const memberSince = stats?.MemberSince
+    ? moment.utc(stats.MemberSince).local().format('YYYY')
+    : '—';
 
-  const isNewPlayer = gamesThisYear === 0 && gamesLastYear === 0 && bought === 0 && sold === 0;
+  const playedThisYear = isGoalie ? (startsByYear[currentYear] ?? 0) : gamesThisYear;
+  const playedLastYear = isGoalie ? (startsByYear[lastYear] ?? 0) : gamesLastYear;
+  const isNewPlayer =
+    playedThisYear === 0 &&
+    playedLastYear === 0 &&
+    (isGoalie ? startsBooked === 0 : bought === 0 && sold === 0);
 
-  const tiles: StatTile[] = [
-    { label: `${currentYear} Games`, value: String(gamesThisYear), hint: 'This year' },
-    { label: `${lastYear} Games`, value: String(gamesLastYear), hint: 'Last year' },
+  const skaterTiles: StatTile[] = [
     { label: 'Bought', value: String(bought), hint: `${currentYear} spots bought` },
     { label: 'Sold', value: String(sold), hint: `${currentYear} spots sold` },
+  ];
+
+  // Buying and selling is a skater's economy; a goalie is assigned, so booked starts is the
+  // number that actually tells them how their season is going.
+  const goalieTiles: StatTile[] = [
+    { label: 'Starts Booked', value: String(startsBooked), hint: 'Upcoming' },
+    { label: 'Nets Open', value: String(netsOpen), hint: 'Upcoming, unfilled' },
+  ];
+
+  // UserStats counts games from roster membership, so it reports zero for every goalie no
+  // matter how often they play. Their games tiles come from the counted notes instead.
+  const gameTiles: StatTile[] = isGoalie
+    ? [
+        {
+          label: `${currentYear} Starts`,
+          value: String(startsByYear[currentYear] ?? 0),
+          hint: 'This year',
+        },
+        {
+          label: `${lastYear} Starts`,
+          value: String(startsByYear[lastYear] ?? 0),
+          hint: 'Last year',
+        },
+      ]
+    : [
+        { label: `${currentYear} Games`, value: String(gamesThisYear), hint: 'This year' },
+        { label: `${lastYear} Games`, value: String(gamesLastYear), hint: 'Last year' },
+      ];
+
+  const tiles: StatTile[] = [
+    ...gameTiles,
+    ...(isGoalie ? goalieTiles : skaterTiles),
     { label: 'Member Since', value: memberSince, hint: 'First season' },
   ];
 
