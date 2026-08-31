@@ -6,7 +6,7 @@ import { useUserStats } from '@/hooks/useUserStats';
 import { PositionPreference, Session, UserDetailedResponse } from '@/HockeyPickup.Api';
 import { getUserRosterEntry, isCancelled } from '@/lib/dashboard';
 import { useAuth } from '@/lib/auth';
-import { getPendingPayments } from '@/lib/payments';
+import { bySessionDateDesc, getPendingPayments } from '@/lib/payments';
 import { DashboardBuySell, DashboardSession } from '@/types/graphql';
 import { Container, Stack, Text } from '@mantine/core';
 import { JSX, useMemo } from 'react';
@@ -40,6 +40,23 @@ const NETS_PREVIEW_COUNT = 6;
 const DETAIL_SESSION_LIMIT = 8;
 
 /**
+ * How many of each kind of outstanding payment the zone renders before deferring to /account.
+ * Kept small deliberately: these are alert cards at the top of the page, and a player years
+ * behind would otherwise push the whole dashboard below the fold.
+ */
+const ACTION_REQUIRED_PREVIEW_COUNT = 3;
+
+/**
+ * Hard ceiling on aliased sessions in one document.
+ *
+ * Each alias expands to roughly 35 fields and HotChocolate refuses a document over 2048 of them
+ * (HC0011), so anything past ~58 sessions fails the whole request rather than degrading. A player
+ * with years of unsettled payments reached that easily — one had 105 — which surfaced as
+ * "We couldn't load your sessions". The zones below never render more than this many anyway.
+ */
+const MAX_DETAIL_SESSIONS = 20;
+
+/**
  * The authenticated home page: a personal dashboard rather than a shared landing page.
  *
  * Zones are ordered by urgency — what needs doing, then what's next, then everything else — and
@@ -70,17 +87,36 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
   const isGoalie = user.PositionPreference === PositionPreference.Goalie;
   const showGoalieZones = isGoalie || goalie.hasStarts;
 
+  // Newest first, and only as many as the zone shows: the counterparty lookup below fetches a
+  // session per rendered item, so rendering all of them would size the query by how far behind a
+  // player is on payments rather than by what the page needs.
+  const visiblePayments = useMemo(
+    () => ({
+      unpaidBuys: [...pending.unpaidBuys]
+        .sort(bySessionDateDesc)
+        .slice(0, ACTION_REQUIRED_PREVIEW_COUNT),
+      unconfirmedSells: [...pending.unconfirmedSells]
+        .sort(bySessionDateDesc)
+        .slice(0, ACTION_REQUIRED_PREVIEW_COUNT),
+    }),
+    [pending],
+  );
+
+  const pendingTotal = pending.unpaidBuys.length + pending.unconfirmedSells.length;
+  const pendingHidden =
+    pendingTotal - visiblePayments.unpaidBuys.length - visiblePayments.unconfirmedSells.length;
+
   // One request covers both jobs: rosters for the near-horizon sessions, and counterparty names
-  // for any session with an outstanding payment — including past ones, which never appear above.
+  // for the payments actually on screen — including past sessions, which never appear above.
   const sessionIds = useMemo<number[]>(() => {
     const ids = new Set<number>();
     liveUpcoming.slice(0, DETAIL_SESSION_LIMIT).forEach((session) => {
       if (session.SessionId !== undefined) ids.add(session.SessionId);
     });
-    pending.unpaidBuys.forEach((transaction) => ids.add(transaction.SessionId));
-    pending.unconfirmedSells.forEach((transaction) => ids.add(transaction.SessionId));
-    return [...ids];
-  }, [liveUpcoming, pending]);
+    visiblePayments.unpaidBuys.forEach((transaction) => ids.add(transaction.SessionId));
+    visiblePayments.unconfirmedSells.forEach((transaction) => ids.add(transaction.SessionId));
+    return [...ids].slice(0, MAX_DETAIL_SESSIONS);
+  }, [liveUpcoming, visiblePayments]);
 
   const {
     sessions: detailedSessions,
@@ -142,8 +178,10 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
         <DashboardHero user={user} />
 
         <ActionRequired
-          unpaidBuys={pending.unpaidBuys}
-          unconfirmedSells={pending.unconfirmedSells}
+          unpaidBuys={visiblePayments.unpaidBuys}
+          unconfirmedSells={visiblePayments.unconfirmedSells}
+          totalCount={pendingTotal}
+          hiddenCount={pendingHidden}
           buySellsById={buySellsById}
         />
 

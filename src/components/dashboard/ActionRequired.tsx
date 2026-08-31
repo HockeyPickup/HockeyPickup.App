@@ -8,13 +8,22 @@ import { JSX } from 'react';
 import { Link } from 'react-router-dom';
 
 interface ActionRequiredProps {
+  /** Already sorted newest-first and capped by the caller — see hiddenCount. */
   unpaidBuys: BuySellResponse[];
   unconfirmedSells: BuySellResponse[];
+  /** Everything outstanding, so the badge states the true total rather than what fits. */
+  totalCount: number;
+  /** Outstanding items not rendered here; they live on the Account page. */
+  hiddenCount: number;
   /** Counterparty lookup, keyed by BuySellId — the current-user payload omits Buyer/Seller. */
   buySellsById: Map<number, DashboardBuySell>;
 }
 
-const formatMoney = (price: number): string => `$${price.toFixed(2)}`;
+/**
+ * Transactions predating price tracking carry Price = 0, and "$0.00" reads like the amount owed
+ * is nothing. Show nothing instead and let the session page be the authority.
+ */
+const formatMoney = (price: number): string | null => (price > 0 ? `$${price.toFixed(2)}` : null);
 
 const counterpartyName = (
   buySell: DashboardBuySell | undefined,
@@ -50,9 +59,11 @@ const ActionItem = ({ transaction, icon, headline, cta }: ActionItemProps): JSX.
         </Text>
       </Stack>
       <Group gap='sm' wrap='nowrap'>
-        <Badge color='yellow' variant='filled' radius='sm'>
-          {formatMoney(transaction.Price)}
-        </Badge>
+        {formatMoney(transaction.Price) && (
+          <Badge color='yellow' variant='filled' radius='sm'>
+            {formatMoney(transaction.Price)}
+          </Badge>
+        )}
         <Anchor component={Link} to={`/session/${transaction.SessionId}`} size='sm' fw={600}>
           {cta}
         </Anchor>
@@ -72,6 +83,8 @@ const ActionItem = ({ transaction, icon, headline, cta }: ActionItemProps): JSX.
 export const ActionRequired = ({
   unpaidBuys,
   unconfirmedSells,
+  totalCount,
+  hiddenCount,
   buySellsById,
 }: ActionRequiredProps): JSX.Element | null => {
   if (unpaidBuys.length === 0 && unconfirmedSells.length === 0) return null;
@@ -83,7 +96,7 @@ export const ActionRequired = ({
           Action Required
         </Text>
         <Badge color='yellow' variant='filled' radius='sm'>
-          {unpaidBuys.length + unconfirmedSells.length}
+          {totalCount}
         </Badge>
       </Group>
 
@@ -120,6 +133,16 @@ export const ActionRequired = ({
           />
         );
       })}
+
+      {hiddenCount > 0 && (
+        <Text size='sm' c='dimmed'>
+          {hiddenCount} more outstanding.{' '}
+          <Anchor component={Link} to='/account' fw={600}>
+            Settle them in your Account
+          </Anchor>
+          .
+        </Text>
+      )}
     </Stack>
   );
 };
