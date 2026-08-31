@@ -255,8 +255,7 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
               >
                 <Stack gap='sm'>
                   <Text c='dimmed'>
-                    These skates are still short a goalie. Invites go out from you, so nobody sees
-                    this list but admins.
+                    These skates are still short a goalie.
                   </Text>
                   <NetsToFill items={netsPreview} />
                 </Stack>
