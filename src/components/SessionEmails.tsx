@@ -1,5 +1,5 @@
 import { RosterPlayer, SessionDetailedResponse } from '@/HockeyPickup.Api';
-import { Checkbox } from '@mantine/core';
+import { Checkbox, Group } from '@mantine/core';
 import { JSX, useState } from 'react';
 import { EmailList } from './EmailList';
 
@@ -9,6 +9,7 @@ interface SessionEmailsProps {
 
 export const SessionEmails = ({ session }: SessionEmailsProps): JSX.Element => {
   const [activeOnly, setActiveOnly] = useState(true);
+  const [commaSeparated, setCommaSeparated] = useState(false);
 
   const getEmails = (): string => {
     return (
@@ -16,17 +17,25 @@ export const SessionEmails = ({ session }: SessionEmailsProps): JSX.Element => {
         .map((player: RosterPlayer) => player?.Email)
         .filter(Boolean)
         .sort()
-        .join('\n') ?? ''
+        .join(commaSeparated ? ', ' : '\n') ?? ''
     );
   };
 
   const filter = (
-    <Checkbox
-      size='xs'
-      label='Active roster only'
-      checked={activeOnly}
-      onChange={(event) => setActiveOnly(event.currentTarget.checked)}
-    />
+    <Group gap='md'>
+      <Checkbox
+        size='xs'
+        label='Active roster only'
+        checked={activeOnly}
+        onChange={(event) => setActiveOnly(event.currentTarget.checked)}
+      />
+      <Checkbox
+        size='xs'
+        label='Comma separated'
+        checked={commaSeparated}
+        onChange={(event) => setCommaSeparated(event.currentTarget.checked)}
+      />
+    </Group>
   );
 
   return <EmailList getEmails={getEmails} filter={filter} />;
