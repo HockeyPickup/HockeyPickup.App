@@ -40,6 +40,13 @@ interface SessionActionsProps {
   onSessionUpdate: (_session: SessionDetailedResponse) => void;
 }
 
+// Reasons the Api returns when a Buy is allowed only because of an Admin override — either the viewer is
+// an Admin, or an Admin is impersonating them. Both put a Buy button in front of a window that isn't open.
+const ADMIN_BUY_REASONS: readonly string[] = [
+  'Admins can buy spots regardless of time window',
+  'Admins can buy spots regardless of time window while impersonating',
+];
+
 export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps): JSX.Element => {
   const { refetch } = useQuery<SessionQueryResult>(GET_SESSION, {
     variables: { SessionId: session.SessionId },
@@ -65,9 +72,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
 
       setBuyStatus(buyResponse.Data ?? null);
       setCanSellSpot(sellResponse.Data?.IsAllowed ?? false);
-      setIsAdminBuying(
-        buyResponse.Data?.Reason === 'Admins can buy spots regardless of time window',
-      );
+      setIsAdminBuying(ADMIN_BUY_REASONS.includes(buyResponse.Data?.Reason ?? ''));
     } catch (error) {
       console.error('Failed to check buy/sell permissions:', error);
     } finally {
