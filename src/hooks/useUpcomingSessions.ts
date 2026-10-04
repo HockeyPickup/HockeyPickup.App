@@ -1,4 +1,4 @@
-import { Session } from '@/HockeyPickup.Api';
+import { SessionBasicResponse } from '@/HockeyPickup.Api';
 import { GET_SESSIONS } from '@/lib/queries';
 import { nowPacific, sessionMoment } from '@/lib/pacificTime';
 import { SessionsQueryResult } from '@/types/graphql';
@@ -8,9 +8,9 @@ import { useMemo } from 'react';
 
 export interface UpcomingSessionsResult {
   /** Future sessions only, soonest first. */
-  sessions: Session[];
+  sessions: SessionBasicResponse[];
   /** Every session the query returned, past included — the same cache entry, no extra request. */
-  allSessions: Session[];
+  allSessions: SessionBasicResponse[];
   loading: boolean;
   error: ErrorLike | undefined;
 }
@@ -26,17 +26,17 @@ export const useUpcomingSessions = (): UpcomingSessionsResult => {
     fetchPolicy: 'network-only',
   });
 
-  const sessions = useMemo<Session[]>(() => {
+  const sessions = useMemo<SessionBasicResponse[]>(() => {
     if (!data?.Sessions) return [];
     const now = nowPacific();
 
     return [...data.Sessions]
       .filter(
-        (session: Session) =>
+        (session: SessionBasicResponse) =>
           Boolean(session.SessionDate) && sessionMoment(session.SessionDate).isAfter(now),
       )
       .sort(
-        (a: Session, b: Session) =>
+        (a: SessionBasicResponse, b: SessionBasicResponse) =>
           sessionMoment(a.SessionDate).valueOf() - sessionMoment(b.SessionDate).valueOf(),
       );
   }, [data]);

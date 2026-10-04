@@ -3,7 +3,7 @@ import { useDashboardSessions } from '@/hooks/useDashboardSessions';
 import { useGoalieSchedule } from '@/hooks/useGoalieSchedule';
 import { useUpcomingSessions } from '@/hooks/useUpcomingSessions';
 import { useUserStats } from '@/hooks/useUserStats';
-import { PositionPreference, Session, UserDetailedResponse } from '@/HockeyPickup.Api';
+import { PositionPreference, SessionBasicResponse, UserDetailedResponse } from '@/HockeyPickup.Api';
 import { getUserRosterEntry, isCancelled } from '@/lib/dashboard';
 import { useAuth } from '@/lib/auth';
 import { bySessionDateDesc, getPendingPayments } from '@/lib/payments';
@@ -62,8 +62,9 @@ const MAX_DETAIL_SESSIONS = 20;
  * Zones are ordered by urgency — what needs doing, then what's next, then everything else — and
  * each owns its own loading and error state so one failed query cannot blank the page.
  *
- * Skater and goalie zones compose rather than switch: goalies are named in the session note and
- * skaters are on the roster, so a player who does both sees both.
+ * Skater and goalie zones compose rather than switch: a player can be in net for one session and
+ * skating in another, so a player who does both sees both. A session they are in net for shows
+ * only as a start, never also as a skater session.
  */
 export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => {
   const {
@@ -76,14 +77,14 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
   const pending = useMemo(() => getPendingPayments(user), [user]);
   const { stats, loading: statsLoading, error: statsError } = useUserStats(user.Id);
 
-  const liveUpcoming = useMemo<Session[]>(
+  const liveUpcoming = useMemo<SessionBasicResponse[]>(
     () => upcomingSessions.filter((session) => !isCancelled(session)),
     [upcomingSessions],
   );
 
-  // Goalies are named in the session note, never on the roster, so their whole schedule comes
-  // from the basic list at no extra request cost.
-  const goalie = useGoalieSchedule(allSessions, user);
+  // Every session carries its goalies, so the whole goalie schedule comes from the basic list at
+  // no extra request cost.
+  const goalie = useGoalieSchedule(allSessions, user.Id);
   const isGoalie = user.PositionPreference === PositionPreference.Goalie;
   const showGoalieZones = isGoalie || goalie.hasStarts;
 
@@ -150,7 +151,9 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
     () =>
       liveSessions
         .map((session) => ({ session, rosterEntry: getUserRosterEntry(session, user.Id) }))
-        .filter((item): item is RosteredSession => item.rosterEntry !== undefined),
+        .filter((item): item is RosteredSession => item.rosterEntry !== undefined)
+        // In net for this one: it is already a start above, so don't list it twice
+        .filter(({ rosterEntry }) => rosterEntry.Position !== PositionPreference.Goalie),
     [liveSessions, user.Id],
   );
 

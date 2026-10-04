@@ -1,8 +1,10 @@
+import { PositionPreference } from '@/HockeyPickup.Api';
 import { DashboardRosterPlayer, DashboardSession } from '@/types/graphql';
 import { Anchor, Badge, Card, Group, Stack, Text } from '@mantine/core';
 import moment from 'moment';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
+import { GoalieNetChip } from './GoalieNetChip';
 import { TeamIdentityChip } from './TeamIdentityChip';
 
 export interface RosteredSession {
@@ -37,7 +39,11 @@ export const AlsoOnSchedule = ({ items }: AlsoOnScheduleProps): JSX.Element => (
             )}
           </Stack>
           <Group gap='sm' wrap='nowrap'>
-            <TeamIdentityChip team={rosterEntry.TeamAssignment} variant='compact' />
+            {rosterEntry.Position === PositionPreference.Goalie ? (
+              <GoalieNetChip variant='compact' />
+            ) : (
+              <TeamIdentityChip team={rosterEntry.TeamAssignment} variant='compact' />
+            )}
             <Badge size='sm' radius='sm' variant='light' color='blue'>
               {rosterEntry.CurrentPosition}
             </Badge>

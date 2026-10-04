@@ -2,6 +2,7 @@ import {
   BuyActionState,
   BuySellStatusResponse,
   LotteryClass,
+  PositionPreference,
   SessionDetailedResponse,
 } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
@@ -61,6 +62,13 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   const [sellModalOpen, setSellModalOpen] = useState(false);
   const [note, setNote] = useState('');
   const [isTransacting, setIsTransacting] = useState(false);
+  // D12: a goalie can't list their net. Checked on *this session's* roster row, never on the
+  // viewer's PositionPreference, so a goalie who bought in as a skater can still sell that spot.
+  const isGoalieHere =
+    session.CurrentRosters?.some(
+      (player) =>
+        player.UserId === user?.Id && player.IsPlaying && player.Position === PositionPreference.Goalie,
+    ) ?? false;
 
   const checkPermissions = useCallback(async (): Promise<void> => {
     try {
@@ -368,7 +376,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
               Leave Lottery
             </Button>
           )}
-          {canSellSpot && (
+          {canSellSpot && !isGoalieHere && (
             <Button
               onClick={() => setSellModalOpen(true)}
               color='red'

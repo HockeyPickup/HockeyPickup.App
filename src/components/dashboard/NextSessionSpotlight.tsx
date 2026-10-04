@@ -1,12 +1,14 @@
 import { VenueLink } from '@/components/VenueLink';
 import { useCountdown } from '@/hooks/useCountdown';
 import { getPlayingCount } from '@/lib/dashboard';
+import { PositionPreference } from '@/HockeyPickup.Api';
 import { DashboardRosterPlayer, DashboardSession } from '@/types/graphql';
 import { Badge, Button, Card, Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconCalendar, IconClock, IconHourglassHigh, IconUsers } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
+import { GoalieNetChip } from './GoalieNetChip';
 import { TeamIdentityChip } from './TeamIdentityChip';
 
 interface NextSessionSpotlightProps {
@@ -58,7 +60,11 @@ export const NextSessionSpotlight = ({
             </Group>
           </Stack>
 
-          <TeamIdentityChip team={rosterEntry.TeamAssignment} />
+          {rosterEntry.Position === PositionPreference.Goalie ? (
+            <GoalieNetChip />
+          ) : (
+            <TeamIdentityChip team={rosterEntry.TeamAssignment} />
+          )}
 
           <Group gap='sm' wrap='wrap'>
             <Badge size='lg' radius='sm' variant='light' color='blue'>

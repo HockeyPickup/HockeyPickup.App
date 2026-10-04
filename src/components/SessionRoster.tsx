@@ -31,9 +31,10 @@ import {
   Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AddRosterPlayerModal } from './AddRosterPlayerModal';
 import { LoadingSpinner } from './LoadingSpinner';
 import { useRatingsVisibility } from './RatingsToggle';
 
@@ -41,6 +42,10 @@ interface SessionRosterProps {
   session: SessionDetailedResponse;
   onSessionUpdate: (_session: SessionDetailedResponse) => void;
 }
+
+/** Goalies are roster rows too, but they are never on Light or Dark and never count toward a team. */
+const isSkaterOn = (player: RosterPlayer, team: TeamAssignment): boolean =>
+  player.TeamAssignment === team && player.Position !== PositionPreference.Goalie;
 
 interface PlayerCellProps {
   player: RosterPlayer | undefined;
@@ -261,8 +266,15 @@ const PlayerCell = ({
                       label={PositionPreference.TBD}
                       disabled={isSaving}
                     />
+                    <Radio
+                      value={PositionPreference.Goalie}
+                      label={PositionPreference.Goalie}
+                      disabled={isSaving}
+                    />
                   </Stack>
                 </Radio.Group>
+                {checkedPosition !== PositionPreference.Goalie && (
+                  <>
                 <Divider my='xs' />
                 <Text size='sm' fw={500}>
                   Team
@@ -288,6 +300,8 @@ const PlayerCell = ({
                     />
                   </Stack>
                 </Radio.Group>
+                  </>
+                )}
                 <Divider my='xs' />
                 <Text size='sm' fw={500}>
                   Playing Status
@@ -358,6 +372,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
   const { canViewRatings, isAdmin } = useAuth();
   const { showRatings } = useRatingsVisibility();
   const [isDragging, setIsDragging] = useState(false);
+  const [addPlayerOpened, setAddPlayerOpened] = useState(false);
   const isDragEnabled = isAdmin() && showRatings;
 
   const handleDragEnd = async (result: DropResult): Promise<void> => {
@@ -537,9 +552,28 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
 
   return (
     <Paper shadow='sm' p='md'>
-      <Title order={3} mb='md'>
-        Roster - {session.RegularSet?.Description}
-      </Title>
+      <Group justify='space-between' mb='md' wrap='wrap'>
+        <Title order={3}>Roster - {session.RegularSet?.Description}</Title>
+        {isAdmin() && (
+          <Button
+            size='xs'
+            variant='light'
+            leftSection={<IconPlus size={14} />}
+            onClick={() => setAddPlayerOpened(true)}
+          >
+            Add Player
+          </Button>
+        )}
+      </Group>
+      {isAdmin() && (
+        <AddRosterPlayerModal
+          opened={addPlayerOpened}
+          onClose={() => setAddPlayerOpened(false)}
+          session={session}
+          defaultPosition={PositionPreference.TBD}
+          onSessionUpdate={onSessionUpdate}
+        />
+      )}
       <DragDropContext onDragEnd={handleDragEnd}>
         <Stack pos='relative'>
           <LoadingOverlay
@@ -564,9 +598,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
               <Droppable droppableId='1' isDropDisabled={!isDragEnabled}>
                 {(provided) => (
                   <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
-                    {session.CurrentRosters?.filter(
-                      (p) => p.TeamAssignment === TeamAssignment.Light,
-                    )
+                    {session.CurrentRosters?.filter((p) => isSkaterOn(p, TeamAssignment.Light))
                       .sort(sortRosterPlayers)
                       .map((player, index) => (
                         <Draggable
@@ -608,7 +640,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
               <Text size='sm' fw={700} mt='md'>
                 {
                   session.CurrentRosters?.filter(
-                    (p) => p.TeamAssignment === TeamAssignment.Light && p.IsPlaying,
+                    (p) => isSkaterOn(p, TeamAssignment.Light) && p.IsPlaying,
                   ).length
                 }
                 &nbsp; Players
@@ -617,7 +649,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 <Text size='sm' fw={500} component='div'>
                   {((): string => {
                     const team = session.CurrentRosters?.filter(
-                      (p) => p.TeamAssignment === TeamAssignment.Light && p.Rating && p.IsPlaying,
+                      (p) => isSkaterOn(p, TeamAssignment.Light) && p.Rating && p.IsPlaying,
                     );
                     const total = team?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
                     const avg = team?.length ? total / team.length : 0;
@@ -644,7 +676,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
               <Droppable droppableId='2' isDropDisabled={!isDragEnabled}>
                 {(provided) => (
                   <Stack ref={provided.innerRef} {...provided.droppableProps} mt='md' gap='xs'>
-                    {session.CurrentRosters?.filter((p) => p.TeamAssignment === TeamAssignment.Dark)
+                    {session.CurrentRosters?.filter((p) => isSkaterOn(p, TeamAssignment.Dark))
                       .sort(sortRosterPlayers)
                       .map((player, index) => (
                         <Draggable
@@ -686,7 +718,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
               <Text size='sm' fw={700} mt='md'>
                 {
                   session.CurrentRosters?.filter(
-                    (p) => p.TeamAssignment === TeamAssignment.Dark && p.IsPlaying,
+                    (p) => isSkaterOn(p, TeamAssignment.Dark) && p.IsPlaying,
                   ).length
                 }
                 &nbsp; Players
@@ -695,7 +727,7 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
                 <Text size='sm' fw={500} component='div'>
                   {((): string => {
                     const team = session.CurrentRosters?.filter(
-                      (p) => p.TeamAssignment === TeamAssignment.Dark && p.Rating && p.IsPlaying,
+                      (p) => isSkaterOn(p, TeamAssignment.Dark) && p.Rating && p.IsPlaying,
                     );
                     const total = team?.reduce((sum, p) => sum + (p.Rating ?? 0), 0) ?? 0;
                     const avg = team?.length ? total / team.length : 0;

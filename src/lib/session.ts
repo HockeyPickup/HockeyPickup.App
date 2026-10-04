@@ -1,4 +1,5 @@
 import {
+  AddRosterPlayerRequest,
   ApiDataResponseOfBoolean,
   ApiDataResponseOfSessionDetailedResponse,
   CreateSessionRequest,
@@ -37,6 +38,17 @@ export const sessionService = {
   ): Promise<ApiDataResponseOfSessionDetailedResponse> {
     const response = await api.put<ApiDataResponseOfSessionDetailedResponse>(
       '/Session/update-roster-playing-status',
+      request,
+    );
+    console.info(response);
+    return response.data;
+  },
+
+  async addRosterPlayer(
+    request: AddRosterPlayerRequest,
+  ): Promise<ApiDataResponseOfSessionDetailedResponse> {
+    const response = await api.post<ApiDataResponseOfSessionDetailedResponse>(
+      '/Session/add-roster-player',
       request,
     );
     console.info(response);
