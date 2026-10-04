@@ -90,7 +90,7 @@ export interface SessionRow {
   /** Existing skater rows turned into goalie rows (conflict override "convert"). */
   conversions: GoalieAssignment[];
   conflicts: Conflict[];
-  /** Null when nothing remains of the note. */
+  /** '' when nothing remains of the note (never NULL; see stripGoalieSegment). */
   proposedNote: string | null;
   /** True when any parsed name still needs a human decision. */
   hasReview: boolean;

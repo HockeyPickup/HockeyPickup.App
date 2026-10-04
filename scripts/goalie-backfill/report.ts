@@ -84,7 +84,7 @@ export const sessionsCsv = (analysis: Analysis): string =>
       `${resolvedIds(row)}${row.hasReview ? ' REVIEW-PENDING' : ''}`.trim(),
       row.assignments.length + row.conversions.length,
       row.conflicts.map(describeConflict).join(' | '),
-      row.proposedNote ?? 'NULL',
+      row.proposedNote,
     ]),
   );
 

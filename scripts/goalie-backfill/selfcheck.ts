@@ -36,7 +36,7 @@ const strips: [string | null, string | null][] = [
   ['8/10. Goalies: Ryan Novak, Ken Ornstein.', '8/10.'],
   ['8/10 - Goalies: Ryan Novak and Ken Ornstein', '8/10'],
   ["Goalies: Darin St. Ivany, Ryan Novak. Josh's last skate.", "Josh's last skate."],
-  ['Goalies: Ryan Novak, Ken Ornstein', null],
+  ['Goalies: Ryan Novak, Ken Ornstein', ''],
   ['8/10. Goalies: Ryan Novak, Ken Ornstein CANCELLED', '8/10. CANCELLED'],
   ['CANCELLED. Goalies: Ryan Novak, Ken Ornstein.', 'CANCELLED.'],
   ['8/10 no goalie listed yet', '8/10 no goalie listed yet'],
@@ -141,7 +141,7 @@ assert.match(inserted, /\(3, NULL, N'legacy\.goalie\.joe\.schmo@hockeypickup\.in
 assert.match(inserted, /\(1, N'kenneth', NULL, N'Kenneth Ornstein'\)/);
 const stripped = stripGoalieNotesSql(resolved);
 assert.match(stripped, /\(1, N'8\/10\. Goalies: Ryan Novak, Ken Ornstein', N'8\/10\.'\)/);
-assert.match(stripped, /\(3, N'Goalies: Ryan Novak, Ken Ornstein, Joe Schmo, Darin St\. Ivany', NULL\)/);
+assert.match(stripped, /\(3, N'Goalies: Ryan Novak, Ken Ornstein, Joe Schmo, Darin St\. Ivany', N''\)/);
 assert.doesNotMatch(stripped, /\(4, /);
 for (const script of [created, inserted, stripped]) {
   assert.match(script, /BEGIN TRAN;/);

@@ -21,7 +21,8 @@ const tidy = (text: string): string =>
 /**
  * The note with its goalie segment removed: from the label to the end of that sentence (as the
  * legacy parser defines it), including the terminating period, or to the end of the line when the
- * sentence never ends. Returns null when nothing is left.
+ * sentence never ends. Returns '' (never null) when nothing is left: no stored note is NULL today,
+ * and GetUserStats' `Note NOT LIKE '%cancelled%'` filter would silently drop a NULL-note session.
  *
  * Only a segment the legacy parser actually reads is removed: a label it cannot read (a bare
  * "Goalies:", or names followed by more lines) is left in place, because its names never reach the
@@ -50,5 +51,5 @@ export const stripGoalieSegment = (note: string | null): string | null => {
   if (isCancelledNote(note) && !isCancelledNote(proposed)) {
     throw new Error(`Stripping would change the cancelled state of note: ${note}`);
   }
-  return proposed.length > 0 ? proposed : null;
+  return proposed;
 };
