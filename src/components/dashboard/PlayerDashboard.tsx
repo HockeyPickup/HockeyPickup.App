@@ -1,7 +1,6 @@
 import { DashboardHero } from '@/components/dashboard/DashboardHero';
-import { useDashboardSessions } from '@/hooks/useDashboardSessions';
+import { useDashboard } from '@/hooks/useDashboard';
 import { useGoalieSchedule } from '@/hooks/useGoalieSchedule';
-import { useUpcomingSessions } from '@/hooks/useUpcomingSessions';
 import { useUserStats } from '@/hooks/useUserStats';
 import { PositionPreference, SessionBasicResponse, UserDetailedResponse } from '@/HockeyPickup.Api';
 import { getUserRosterEntry, isCancelled } from '@/lib/dashboard';
@@ -32,14 +31,6 @@ const BUY_PREVIEW_COUNT = 6;
 const NETS_PREVIEW_COUNT = 6;
 
 /**
- * Roster detail costs roughly 200ms per session server-side, because each alias runs the Api's
- * full GetSessionAsync. Fetching every upcoming session pushed the dashboard past four seconds,
- * so only the near horizon is fetched — comfortably more than the previews below render, and the
- * rest is one click away on /sessions.
- */
-const DETAIL_SESSION_LIMIT = 8;
-
-/**
  * How many of each kind of outstanding payment the zone renders before deferring to /account.
  * Kept small deliberately: these are alert cards at the top of the page, and a player years
  * behind would otherwise push the whole dashboard below the fold.
@@ -47,20 +38,12 @@ const DETAIL_SESSION_LIMIT = 8;
 const ACTION_REQUIRED_PREVIEW_COUNT = 3;
 
 /**
- * Hard ceiling on aliased sessions in one document.
- *
- * Each alias expands to roughly 35 fields and HotChocolate refuses a document over 2048 of them
- * (HC0011), so anything past ~58 sessions fails the whole request rather than degrading. A player
- * with years of unsettled payments reached that easily — one had 105 — which surfaced as
- * "We couldn't load your sessions". The zones below never render more than this many anyway.
- */
-const MAX_DETAIL_SESSIONS = 20;
-
-/**
  * The authenticated home page: a personal dashboard rather than a shared landing page.
  *
  * Zones are ordered by urgency — what needs doing, then what's next, then everything else — and
- * each owns its own loading and error state so one failed query cannot blank the page.
+ * each owns its own loading and error state so one failed query cannot blank the page. Sessions,
+ * payments and goalie history arrive together from one Dashboard query, running alongside the
+ * season stats query.
  *
  * Skater and goalie zones compose rather than switch: a player can be in net for one session and
  * skating in another, so a player who does both sees both. A session they are in net for shows
@@ -68,11 +51,14 @@ const MAX_DETAIL_SESSIONS = 20;
  */
 export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => {
   const {
-    sessions: upcomingSessions,
-    allSessions,
-    loading: listLoading,
-    error: listError,
-  } = useUpcomingSessions();
+    upcomingSessions,
+    sessions: detailedSessions,
+    pendingPayments,
+    goalieStartsByYear,
+    loading: sessionsLoading,
+    error: sessionsError,
+    refetch,
+  } = useDashboard();
   const { isAdmin } = useAuth();
   const pending = useMemo(() => getPendingPayments(user), [user]);
   const { stats, loading: statsLoading, error: statsError } = useUserStats(user.Id);
@@ -82,15 +68,13 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
     [upcomingSessions],
   );
 
-  // Every session carries its goalies, so the whole goalie schedule comes from the basic list at
-  // no extra request cost.
-  const goalie = useGoalieSchedule(allSessions, user.Id);
+  // Every session carries its goalies, so the goalie schedule comes from the basic list at no extra
+  // request cost.
+  const goalie = useGoalieSchedule(upcomingSessions, user.Id);
   const isGoalie = user.PositionPreference === PositionPreference.Goalie;
   const showGoalieZones = isGoalie || goalie.hasStarts;
 
-  // Newest first, and only as many as the zone shows: the counterparty lookup below fetches a
-  // session per rendered item, so rendering all of them would size the query by how far behind a
-  // player is on payments rather than by what the page needs.
+  // Newest first, and only as many as the zone shows — these are alert cards at the top of the page.
   const visiblePayments = useMemo(
     () => ({
       unpaidBuys: [...pending.unpaidBuys]
@@ -107,33 +91,11 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
   const pendingHidden =
     pendingTotal - visiblePayments.unpaidBuys.length - visiblePayments.unconfirmedSells.length;
 
-  // One request covers both jobs: rosters for the near-horizon sessions, and counterparty names
-  // for the payments actually on screen — including past sessions, which never appear above.
-  const sessionIds = useMemo<number[]>(() => {
-    const ids = new Set<number>();
-    liveUpcoming.slice(0, DETAIL_SESSION_LIMIT).forEach((session) => {
-      if (session.SessionId !== undefined) ids.add(session.SessionId);
-    });
-    visiblePayments.unpaidBuys.forEach((transaction) => ids.add(transaction.SessionId));
-    visiblePayments.unconfirmedSells.forEach((transaction) => ids.add(transaction.SessionId));
-    return [...ids].slice(0, MAX_DETAIL_SESSIONS);
-  }, [liveUpcoming, visiblePayments]);
-
-  const {
-    sessions: detailedSessions,
-    loading: detailLoading,
-    error: detailError,
-    refetch,
-  } = useDashboardSessions(sessionIds);
-
+  // Counterparty names for the payment alerts. The Dashboard query returns every unsettled
+  // transaction of the viewer's, past sessions included, so whatever is on screen is covered.
   const buySellsById = useMemo<Map<number, DashboardBuySell>>(
-    () =>
-      new Map(
-        detailedSessions
-          .flatMap((session) => session.BuySells ?? [])
-          .map((buySell) => [buySell.BuySellId, buySell]),
-      ),
-    [detailedSessions],
+    () => new Map(pendingPayments.map((buySell) => [buySell.BuySellId, buySell])),
+    [pendingPayments],
   );
 
   // A cancelled game must never become "Your Next Session" with a live countdown running on it.
@@ -171,7 +133,6 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
   const buyPreview = buyable.slice(0, BUY_PREVIEW_COUNT);
   const netsPreview = isAdmin() ? goalie.unfilledNets.slice(0, NETS_PREVIEW_COUNT) : [];
 
-  const sessionsLoading = listLoading || detailLoading;
   const nothingForViewer = !nextStart && !nextRostered && buyPreview.length === 0;
   const nothingToShow = nothingForViewer && netsPreview.length === 0;
 
@@ -188,11 +149,8 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
           buySellsById={buySellsById}
         />
 
-        {(listError ?? detailError) ? (
-          <ZoneError
-            message="We couldn't load your sessions right now."
-            onRetry={sessionIds.length > 0 ? refetch : undefined}
-          />
+        {sessionsError ? (
+          <ZoneError message="We couldn't load your sessions right now." onRetry={refetch} />
         ) : sessionsLoading ? (
           <DashboardSkeleton />
         ) : liveUpcoming.length === 0 ? (
@@ -293,7 +251,7 @@ export const PlayerDashboard = ({ user }: PlayerDashboardProps): JSX.Element => 
               userId={user.Id}
               isGoalie={isGoalie}
               startsBooked={goalie.starts.length}
-              startsByYear={goalie.startsByYear}
+              startsByYear={goalieStartsByYear}
             />
           )}
         </DashboardSection>
