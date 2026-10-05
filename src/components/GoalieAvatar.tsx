@@ -6,7 +6,7 @@ import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface GoalieAvatarProps {
-  goalie: SessionGoalie;
+  goalie: Pick<SessionGoalie, 'FirstName' | 'LastName' | 'PhotoUrl'>;
   size?: number;
 }
 
