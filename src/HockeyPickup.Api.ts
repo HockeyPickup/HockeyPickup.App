@@ -2040,3 +2040,165 @@ export interface UserStatsResponse {
   /** Indicates if user is a regular for upcoming Friday sessions */
   FridayRegular: boolean;
 }
+
+export interface DashboardResponse {
+  /** Every upcoming session, soonest first, cancelled ones included */
+  UpcomingSessions: SessionBasicResponse[];
+  /** Roster and buy/sell detail for the nearest upcoming sessions that are not cancelled, soonest first */
+  Sessions: DashboardSessionResponse[];
+  /** The signed-in user's completed transactions still awaiting payment or confirmation, with counterparty names */
+  PendingPayments: DashboardBuySell[];
+  /** Past sessions the signed-in user played in net, counted by calendar year */
+  GoalieStartsByYear: GoalieStartsYear[];
+}
+
+export type DashboardSessionResponse = SessionBasicResponse & {
+  /**
+   * Buy window for the session
+   * @format date-time
+   */
+  BuyWindow?: string;
+  /**
+   * Buy window for preferred users
+   * @format date-time
+   */
+  BuyWindowPreferred?: string;
+  /**
+   * Buy window for preferred plus users
+   * @format date-time
+   */
+  BuyWindowPreferredPlus?: string;
+  /** Current roster for the session, in the same order as the session page */
+  CurrentRosters: DashboardRosterPlayer[];
+  /** Buy/sell transactions for the session, by BuySellId */
+  BuySells: DashboardBuySell[];
+  /** Buying queue for the session, by BuySellId */
+  BuyingQueues: DashboardQueueEntry[];
+};
+
+export interface DashboardRosterPlayer {
+  /**
+   * User Id of the player
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+  /**
+   * First name of the player
+   * @minLength 1
+   * @maxLength 256
+   */
+  FirstName: string;
+  /**
+   * Last name of the player
+   * @minLength 1
+   * @maxLength 256
+   */
+  LastName: string;
+  /** Team assignment (1 for Light, 2 for Dark) */
+  TeamAssignment: TeamAssignment;
+  /** Position for the player */
+  Position: PositionPreference;
+  /**
+   * Position name for the player
+   * @minLength 1
+   * @maxLength 256
+   */
+  CurrentPosition: string;
+  /** Whether the player is currently playing */
+  IsPlaying: boolean;
+}
+
+export interface DashboardBuySell {
+  /**
+   * Unique identifier for the BuySell
+   * @format int32
+   */
+  BuySellId: number;
+  /**
+   * Unique identifier for the session
+   * @format int32
+   */
+  SessionId: number;
+  /**
+   * User Id of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User Id of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
+  /** Whether the buyer has sent payment */
+  PaymentSent: boolean;
+  /** Whether the seller has confirmed payment */
+  PaymentReceived: boolean;
+  /**
+   * Price for the BuySell (from session)
+   * @format decimal
+   * @min 0
+   * @max 999.99
+   */
+  Price: number;
+  /** Buyer's name */
+  Buyer?: DashboardCounterparty | null;
+  /** Seller's name */
+  Seller?: DashboardCounterparty | null;
+}
+
+export interface DashboardCounterparty {
+  /**
+   * Unique identifier for the user
+   * @minLength 1
+   * @maxLength 128
+   */
+  Id: string;
+  /**
+   * User's first name
+   * @maxLength 256
+   */
+  FirstName?: string | null;
+  /**
+   * User's last name
+   * @maxLength 256
+   */
+  LastName?: string | null;
+}
+
+export interface DashboardQueueEntry {
+  /**
+   * Unique identifier for the BuySell
+   * @format int32
+   */
+  BuySellId: number;
+  /**
+   * User Id of the buyer
+   * @maxLength 128
+   */
+  BuyerUserId?: string | null;
+  /**
+   * User Id of the seller
+   * @maxLength 128
+   */
+  SellerUserId?: string | null;
+  /**
+   * Position in the buying queue
+   * @minLength 1
+   * @maxLength 50
+   */
+  QueueStatus: string;
+}
+
+export interface GoalieStartsYear {
+  /**
+   * Calendar year of the sessions
+   * @format int32
+   */
+  Year: number;
+  /**
+   * Number of sessions played in net that year
+   * @format int32
+   */
+  Starts: number;
+}

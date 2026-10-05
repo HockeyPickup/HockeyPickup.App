@@ -1,9 +1,8 @@
 import {
-  BuyingQueueItem,
-  BuySellResponse,
+  DashboardResponse,
+  DashboardSessionResponse,
   LockerRoom13Response,
   RegularSetDetailedResponse,
-  RosterPlayer,
   SessionBasicResponse,
   SessionDetailedResponse,
   UserDetailedResponse,
@@ -37,55 +36,26 @@ export interface UserStatsQueryResult {
 }
 
 /**
- * Dashboard shapes.
+ * Dashboard shapes — the Api's lean `Dashboard` models, generated from its Swagger document.
  *
- * The Api's `Dashboard` query returns lean types (DashboardSession, DashboardBuySell, ...) that
- * carry a subset of the full session models' fields under the same names, so these are `Pick`ed
- * off the generated Api models to stay field-for-field with the server. They describe exactly what
- * GET_DASHBOARD selects — no ActivityLogs, RegularSet or LotteryEntrants, and BuyingQueues trimmed
- * to the scalars that place a buyer in the queue.
- */
-export type DashboardCounterparty = Pick<UserDetailedResponse, 'Id' | 'FirstName' | 'LastName'>;
-
-export type DashboardRosterPlayer = Pick<
-  RosterPlayer,
-  | 'UserId'
-  | 'FirstName'
-  | 'LastName'
-  | 'TeamAssignment'
-  | 'Position'
-  | 'CurrentPosition'
-  | 'IsPlaying'
->;
-
-export type DashboardBuySell = Pick<
-  BuySellResponse,
-  | 'BuySellId'
-  | 'SessionId'
-  | 'BuyerUserId'
-  | 'SellerUserId'
-  | 'PaymentSent'
-  | 'PaymentReceived'
-  | 'Price'
-> & {
-  Buyer?: DashboardCounterparty | null;
-  Seller?: DashboardCounterparty | null;
-};
-
-/**
- * One row of a session's buying queue.
+ * GET_DASHBOARD selects every field of these, so they are re-exported as-is. DashboardSession is
+ * the exception: the query skips the basic-session fields the zones never read, so it is `Pick`ed
+ * down to exactly what is selected.
  *
- * The queue position lives only here: `QueuePosition` on BuySellResponse is never populated by
- * the Api's mapper, so the view's `QueueStatus` string — "Next in Line", "In Queue (6)" — is the
- * only way to tell a waiting buyer where they stand.
+ * A note on DashboardQueueEntry: the queue position lives only here. `QueuePosition` on
+ * BuySellResponse is never populated by the Api's mapper, so the view's `QueueStatus` string —
+ * "Next in Line", "In Queue (6)" — is the only way to tell a waiting buyer where they stand.
  */
-export type DashboardQueueEntry = Pick<
-  BuyingQueueItem,
-  'BuySellId' | 'BuyerUserId' | 'SellerUserId' | 'QueueStatus'
->;
+export type {
+  DashboardBuySell,
+  DashboardCounterparty,
+  DashboardQueueEntry,
+  DashboardRosterPlayer,
+  GoalieStartsYear,
+} from '@/HockeyPickup.Api';
 
 export type DashboardSession = Pick<
-  SessionDetailedResponse,
+  DashboardSessionResponse,
   | 'SessionId'
   | 'SessionDate'
   | 'Note'
@@ -95,26 +65,11 @@ export type DashboardSession = Pick<
   | 'BuyWindowPreferred'
   | 'BuyWindowPreferredPlus'
   | 'Goalies'
-> & {
-  CurrentRosters?: DashboardRosterPlayer[] | null;
-  BuySells?: DashboardBuySell[] | null;
-  BuyingQueues?: DashboardQueueEntry[] | null;
-};
-
-/** Past sessions the viewer played in net, for one calendar year. */
-export interface GoalieStartsYear {
-  Year: number;
-  Starts: number;
-}
+  | 'CurrentRosters'
+  | 'BuySells'
+  | 'BuyingQueues'
+>;
 
 export interface DashboardQueryResult {
-  Dashboard: {
-    /** Every upcoming session, soonest first, cancelled ones included. */
-    UpcomingSessions: SessionBasicResponse[];
-    /** Detail for the nearest live (not cancelled) upcoming sessions, soonest first. */
-    Sessions: DashboardSession[];
-    /** The viewer's completed transactions still awaiting payment or confirmation. */
-    PendingPayments: DashboardBuySell[];
-    GoalieStartsByYear: GoalieStartsYear[];
-  };
+  Dashboard: Omit<DashboardResponse, 'Sessions'> & { Sessions: DashboardSession[] };
 }
