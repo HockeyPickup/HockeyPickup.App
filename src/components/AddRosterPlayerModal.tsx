@@ -27,7 +27,7 @@ interface AddRosterPlayerModalProps {
   opened: boolean;
   onClose: () => void;
   session: SessionDetailedResponse;
-  /** Position the modal opens on: Goalie from "Add Goalie", TBD from "Add Player". */
+  /** Position the modal opens on. */
   defaultPosition: PositionPreference;
   onSessionUpdate: (_session: SessionDetailedResponse) => void;
 }
@@ -66,7 +66,7 @@ const toOption = (user: UserDetailedResponse): PlayerOption => ({
 
 /**
  * Admin add-to-roster: a goalie, or a skater who walked up at the rink. Bypasses Buy/Sell — no
- * BuySell or payment record is created. Shared by "Add Goalie" and "Add Player".
+ * BuySell or payment record is created. Opened from the roster's "Add to Roster".
  */
 export const AddRosterPlayerModal = ({
   opened,
@@ -165,7 +165,7 @@ export const AddRosterPlayerModal = ({
     <Modal
       opened={opened}
       onClose={onClose}
-      title={isGoalie ? 'Add Goalie' : 'Add Player'}
+      title='Add to Roster'
       centered
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -208,7 +208,7 @@ export const AddRosterPlayerModal = ({
               Cancel
             </Button>
             <Button type='submit' loading={loading}>
-              {isGoalie ? 'Add Goalie' : 'Add Player'}
+              Add to Roster
             </Button>
           </Group>
         </Stack>

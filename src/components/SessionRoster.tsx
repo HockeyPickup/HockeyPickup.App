@@ -554,23 +554,23 @@ export const SessionRoster = ({ session, onSessionUpdate }: SessionRosterProps):
     <Paper shadow='sm' p='md'>
       <Group justify='space-between' mb='md' wrap='wrap'>
         <Title order={3}>Roster - {session.RegularSet?.Description}</Title>
-        {isAdmin() && (
+        {isDragEnabled && (
           <Button
             size='xs'
             variant='light'
             leftSection={<IconPlus size={14} />}
             onClick={() => setAddPlayerOpened(true)}
           >
-            Add Player
+            Add to Roster
           </Button>
         )}
       </Group>
-      {isAdmin() && (
+      {isDragEnabled && (
         <AddRosterPlayerModal
           opened={addPlayerOpened}
           onClose={() => setAddPlayerOpened(false)}
           session={session}
-          defaultPosition={PositionPreference.TBD}
+          defaultPosition={PositionPreference.Goalie}
           onSessionUpdate={onSessionUpdate}
         />
       )}

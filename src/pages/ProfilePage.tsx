@@ -205,8 +205,7 @@ const HeaderSection = ({
               </Text>
               <Text size='lg'>{ShootPreference[profileUser.Shoots ?? ShootPreference.TBD]}</Text>
             </Group>
-            {profileUser.PositionPreference != PositionPreference.Goalie &&
-              (stats?.WednesdayRegular ?? stats?.FridayRegular) && (
+            {(stats?.WednesdayRegular ?? stats?.FridayRegular) && (
                 <Group gap={5}>
                   <Text size='sm' fw={500} w={150} ta='right'>
                     Regular Player:
@@ -230,94 +229,89 @@ const HeaderSection = ({
         </Card>
       </Group>
 
-      {/* Stats Grid */}
-      {/* TODO(goalie normalization): GetUserStats counts every playing roster row as a game played,
-          so once goalie roster rows exist a goalie's starts show up here too. Revisit hiding this
-          grid for Goalie-preference users once Brett decides (Phase 0, GetUserStats question). */}
-      {profileUser.PositionPreference != PositionPreference.Goalie && (
-        <Grid grow gap='sm'>
-          <Grid.Col span={{ base: 5 }}>
-            <Stack gap='xs'>
-              <Title order={4} c='dimmed'>
-                Games Played
-              </Title>
-              <Group justify='space-between'>
-                <Text>{currentYear}:</Text>
-                <Text fw={700} size='xl'>
-                  {stats?.CurrentYearGamesPlayed ?? 0}
-                </Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text>{lastYear}:</Text>
-                <Text fw={700} size='xl'>
-                  {stats?.PriorYearGamesPlayed ?? 0}
-                </Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text>{twoYear}:</Text>
-                <Text fw={700} size='xl'>
-                  {stats?.TwoYearsAgoGamesPlayed ?? 0}
-                </Text>
-              </Group>
-            </Stack>
-          </Grid.Col>
+      {/* Stats Grid — the same for every player: a goalie's starts are roster rows, so they count as games */}
+      <Grid grow gap='sm'>
+        <Grid.Col span={{ base: 5 }}>
+          <Stack gap='xs'>
+            <Title order={4} c='dimmed'>
+              Games Played
+            </Title>
+            <Group justify='space-between'>
+              <Text>{currentYear}:</Text>
+              <Text fw={700} size='xl'>
+                {stats?.CurrentYearGamesPlayed ?? 0}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{lastYear}:</Text>
+              <Text fw={700} size='xl'>
+                {stats?.PriorYearGamesPlayed ?? 0}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{twoYear}:</Text>
+              <Text fw={700} size='xl'>
+                {stats?.TwoYearsAgoGamesPlayed ?? 0}
+              </Text>
+            </Group>
+          </Stack>
+        </Grid.Col>
 
-          <Grid.Col span={{ base: 7 }}>
-            <Stack gap='xs'>
-              <Title order={4} c='dimmed'>
-                Transactions
-              </Title>
-              <Group justify='space-between'>
-                <Text>{currentYear} Bought:</Text>
-                <Text fw={700}>{stats?.CurrentYearBoughtTotal ?? 0}</Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text>{currentYear} Sold:</Text>
-                <Text fw={700}>{stats?.CurrentYearSoldTotal ?? 0}</Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text>{lastYear} Bought:</Text>
-                <Text fw={700}>{stats?.PriorYearBoughtTotal ?? 0}</Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text>{lastYear} Sold:</Text>
-                <Text fw={700}>{stats?.PriorYearSoldTotal ?? 0}</Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text>{twoYear} Bought:</Text>
-                <Text fw={700}>{stats?.TwoYearsAgoBoughtTotal ?? 0}</Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text>{twoYear} Sold:</Text>
-                <Text fw={700}>{stats?.TwoYearsAgoSoldTotal ?? 0}</Text>
-              </Group>
-              <Divider size='md' />
-              <Group justify='space-between'>
-                <Text size='sm'>Open Buy Requests:</Text>
-                <Text size='sm' fw={700}>
-                  {stats?.CurrentBuyRequests ?? 0}
-                </Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text size='sm'>Last Bought:</Text>
-                <Text size='sm' fw={700}>
-                  {stats?.LastBoughtSessionDate
-                    ? moment.utc(stats.LastBoughtSessionDate).format('MM/DD/yyyy')
-                    : 'N/A'}
-                </Text>
-              </Group>
-              <Group justify='space-between'>
-                <Text size='sm'>Last Sold:</Text>
-                <Text size='sm' fw={700}>
-                  {stats?.LastSoldSessionDate
-                    ? moment.utc(stats.LastSoldSessionDate).format('MM/DD/yyyy')
-                    : 'N/A'}
-                </Text>
-              </Group>
-            </Stack>
-          </Grid.Col>
-        </Grid>
-      )}
+        <Grid.Col span={{ base: 7 }}>
+          <Stack gap='xs'>
+            <Title order={4} c='dimmed'>
+              Transactions
+            </Title>
+            <Group justify='space-between'>
+              <Text>{currentYear} Bought:</Text>
+              <Text fw={700}>{stats?.CurrentYearBoughtTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{currentYear} Sold:</Text>
+              <Text fw={700}>{stats?.CurrentYearSoldTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{lastYear} Bought:</Text>
+              <Text fw={700}>{stats?.PriorYearBoughtTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{lastYear} Sold:</Text>
+              <Text fw={700}>{stats?.PriorYearSoldTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{twoYear} Bought:</Text>
+              <Text fw={700}>{stats?.TwoYearsAgoBoughtTotal ?? 0}</Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text>{twoYear} Sold:</Text>
+              <Text fw={700}>{stats?.TwoYearsAgoSoldTotal ?? 0}</Text>
+            </Group>
+            <Divider size='md' />
+            <Group justify='space-between'>
+              <Text size='sm'>Open Buy Requests:</Text>
+              <Text size='sm' fw={700}>
+                {stats?.CurrentBuyRequests ?? 0}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text size='sm'>Last Bought:</Text>
+              <Text size='sm' fw={700}>
+                {stats?.LastBoughtSessionDate
+                  ? moment.utc(stats.LastBoughtSessionDate).format('MM/DD/yyyy')
+                  : 'N/A'}
+              </Text>
+            </Group>
+            <Group justify='space-between'>
+              <Text size='sm'>Last Sold:</Text>
+              <Text size='sm' fw={700}>
+                {stats?.LastSoldSessionDate
+                  ? moment.utc(stats.LastSoldSessionDate).format('MM/DD/yyyy')
+                  : 'N/A'}
+              </Text>
+            </Group>
+          </Stack>
+        </Grid.Col>
+      </Grid>
     </Card>
   );
 };

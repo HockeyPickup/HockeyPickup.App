@@ -1,15 +1,15 @@
-import { PositionPreference, SessionDetailedResponse, SessionGoalie } from '@/HockeyPickup.Api';
+import { SessionDetailedResponse, SessionGoalie } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
-import { GOALIES_PER_SESSION, getSessionGoalies, goalieName, openNets } from '@/lib/goalies';
+import { getSessionGoalies, goalieName, openNets } from '@/lib/goalies';
 import { sessionService } from '@/lib/session';
-import { ActionIcon, Badge, Button, Group, Paper, Stack, Text, Title, Tooltip } from '@mantine/core';
+import { ActionIcon, Badge, Group, Paper, Stack, Text, ThemeIcon, Title, Tooltip } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconPlus, IconTrash, IconUserQuestion } from '@tabler/icons-react';
-import { JSX, useState } from 'react';
+import { IconHandStop, IconTrash, IconUserQuestion } from '@tabler/icons-react';
+import { JSX } from 'react';
 import { Link } from 'react-router-dom';
-import { AddRosterPlayerModal } from './AddRosterPlayerModal';
 import { GoalieAvatar } from './GoalieAvatar';
+import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionGoaliesProps {
   session: SessionDetailedResponse;
@@ -17,12 +17,14 @@ interface SessionGoaliesProps {
 }
 
 /**
- * The session's goalies, from the roster. No ratings and no team: goalies swap ends midway, so
- * they belong to neither side.
+ * The session's goalies, from the roster — a sub-panel of the session header, under the note.
+ * No ratings and no team: goalies swap ends midway, so they belong to neither side. Goalies are
+ * added through the roster's "Add to Roster"; the remove control only shows in unlocked admin mode.
  */
 export const SessionGoalies = ({ session, onSessionUpdate }: SessionGoaliesProps): JSX.Element => {
   const { isAdmin } = useAuth();
-  const [addOpened, setAddOpened] = useState(false);
+  const { showRatings } = useRatingsVisibility();
+  const canEdit = isAdmin() && showRatings;
   const goalies = getSessionGoalies(session);
   const missing = openNets(session);
 
@@ -60,9 +62,7 @@ export const SessionGoalies = ({ session, onSessionUpdate }: SessionGoaliesProps
       title: 'Remove goalie',
       centered: true,
       children: (
-        <Text size='sm'>
-          Remove {goalieName(goalie)} from this session&apos;s roster?
-        </Text>
+        <Text size='sm'>Remove {goalieName(goalie)} from this session&apos;s roster?</Text>
       ),
       labels: { confirm: 'Remove', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
@@ -73,40 +73,30 @@ export const SessionGoalies = ({ session, onSessionUpdate }: SessionGoaliesProps
   };
 
   return (
-    <Paper shadow='sm' p='md'>
-      <Group justify='space-between' mb='md' wrap='wrap'>
-        <Group gap='sm'>
-          <Title order={3}>
-            Goalies ({goalies.length} of {GOALIES_PER_SESSION})
+    <Paper withBorder p='md' mt='md' bg='rgba(255, 255, 255, 0.05)'>
+      <Group justify='space-between' wrap='nowrap' gap='sm' mb={goalies.length > 0 ? 'md' : 0}>
+        <Group gap='sm' align='center' wrap='nowrap'>
+          <ThemeIcon color='teal' variant='light' radius='md' size='lg'>
+            <IconHandStop size={20} />
+          </ThemeIcon>
+          <Title order={5} style={{ lineHeight: 1.15 }}>
+            Goalies
           </Title>
-          {missing > 0 && (
-            <Badge
-              color='orange'
-              variant='light'
-              radius='sm'
-              leftSection={<IconUserQuestion size={12} />}
-            >
-              Needs a goalie
-            </Badge>
-          )}
         </Group>
-        {isAdmin() && (
-          <Button
-            size='xs'
+        {missing > 0 && (
+          <Badge
+            color='orange'
             variant='light'
-            leftSection={<IconPlus size={14} />}
-            onClick={() => setAddOpened(true)}
+            radius='sm'
+            leftSection={<IconUserQuestion size={12} />}
+            style={{ flexShrink: 0 }}
           >
-            Add Goalie
-          </Button>
+            Needs a goalie
+          </Badge>
         )}
       </Group>
 
-      {goalies.length === 0 ? (
-        <Text size='sm' c='dimmed'>
-          No goalies yet.
-        </Text>
-      ) : (
+      {goalies.length > 0 && (
         <Group gap='xl' wrap='wrap'>
           {goalies.map((goalie) => (
             <Group key={goalie.UserId} gap='xs' wrap='nowrap'>
@@ -115,7 +105,7 @@ export const SessionGoalies = ({ session, onSessionUpdate }: SessionGoaliesProps
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <Group gap='sm' wrap='nowrap'>
-                  <GoalieAvatar goalie={goalie} size={48} />
+                  <GoalieAvatar goalie={goalie} size={40} />
                   <Stack gap={0}>
                     <Text fw={600}>{goalieName(goalie)}</Text>
                     <Text size='xs' c='dimmed'>
@@ -124,7 +114,7 @@ export const SessionGoalies = ({ session, onSessionUpdate }: SessionGoaliesProps
                   </Stack>
                 </Group>
               </Link>
-              {isAdmin() && (
+              {canEdit && (
                 <Tooltip label='Remove from session'>
                   <ActionIcon
                     variant='subtle'
@@ -140,16 +130,6 @@ export const SessionGoalies = ({ session, onSessionUpdate }: SessionGoaliesProps
             </Group>
           ))}
         </Group>
-      )}
-
-      {isAdmin() && (
-        <AddRosterPlayerModal
-          opened={addOpened}
-          onClose={() => setAddOpened(false)}
-          session={session}
-          defaultPosition={PositionPreference.Goalie}
-          onSessionUpdate={onSessionUpdate}
-        />
       )}
     </Paper>
   );

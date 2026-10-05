@@ -35,12 +35,14 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import moment from 'moment';
-import { JSX, useState } from 'react';
+import { JSX, ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRatingsVisibility } from './RatingsToggle';
 
 interface SessionDetailsProps {
   session: SessionDetailedResponse;
+  /** Rendered under the note, above the lottery/buy windows (the session's goalies). */
+  goalies?: ReactNode;
 }
 
 // One status pill (Upcoming / Open / Drawn) shown per tier card.
@@ -84,7 +86,7 @@ const InfoRow = ({ icon, label, value, hint }: InfoRowProps): JSX.Element => (
   </Group>
 );
 
-export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element => {
+export const SessionDetails = ({ session, goalies }: SessionDetailsProps): JSX.Element => {
   const { isAdmin, user } = useAuth();
   const navigate = useNavigate();
   const { showRatings } = useRatingsVisibility();
@@ -243,6 +245,7 @@ export const SessionDetails = ({ session }: SessionDetailsProps): JSX.Element =>
           </>
         )}
       </Paper>
+      {goalies}
       {!isSessionPast && (
         <Paper withBorder p='md' mt='md' bg='rgba(255, 255, 255, 0.05)'>
           <Group justify='space-between' wrap='nowrap' gap='sm' mb={bodyShown ? 'md' : 0}>
