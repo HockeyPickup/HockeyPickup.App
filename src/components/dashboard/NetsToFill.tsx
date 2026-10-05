@@ -65,15 +65,10 @@ export const NetsToFill = ({ items }: NetsToFillProps): JSX.Element => (
             </Group>
 
             {goalies.length > 0 ? (
-              <Stack gap={4}>
-                <Text size='xs' c='dimmed'>
-                  Accepted:
-                </Text>
-                <GoalieNames goalies={goalies} />
-              </Stack>
+              <GoalieNames goalies={goalies} />
             ) : (
               <Text size='xs' c='dimmed'>
-                Nobody accepted yet
+                No goalies yet
               </Text>
             )}
           </Stack>
