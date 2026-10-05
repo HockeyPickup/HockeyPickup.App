@@ -1,10 +1,18 @@
+import { GoalieNames } from '@/components/GoalieAvatar';
 import { VenueLink } from '@/components/VenueLink';
 import { useCountdown } from '@/hooks/useCountdown';
 import { getPlayingCount } from '@/lib/dashboard';
+import { getSessionGoalies } from '@/lib/goalies';
 import { PositionPreference } from '@/HockeyPickup.Api';
 import { DashboardRosterPlayer, DashboardSession } from '@/types/graphql';
 import { Badge, Button, Card, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconCalendar, IconClock, IconHourglassHigh, IconUsers } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconClock,
+  IconHandStop,
+  IconHourglassHigh,
+  IconUsers,
+} from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
@@ -30,6 +38,7 @@ export const NextSessionSpotlight = ({
 }: NextSessionSpotlightProps): JSX.Element => {
   const countdown = useCountdown(session.SessionDate);
   const sessionDate = moment.utc(session.SessionDate);
+  const goalies = getSessionGoalies(session);
 
   return (
     <Card
@@ -80,6 +89,15 @@ export const NextSessionSpotlight = ({
               {getPlayingCount(session)} playing
             </Badge>
           </Group>
+
+          {goalies.length > 0 && (
+            <Group gap='sm' wrap='nowrap'>
+              <ThemeIcon color='teal' variant='light' radius='md' size='md'>
+                <IconHandStop size={16} />
+              </ThemeIcon>
+              <GoalieNames goalies={goalies} size='sm' avatarSize={28} />
+            </Group>
+          )}
 
           <Group gap='xs' wrap='nowrap'>
             <ThemeIcon color='purple' variant='light' radius='md' size='lg'>

@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
 import styles from '@/App.module.css';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { Session } from '@/HockeyPickup.Api';
+import { SessionBasicResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
+import { getSessionGoalies, goalieName } from '@/lib/goalies';
 import { GET_SESSIONS } from '@/lib/queries';
 import { SessionsQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client/react';
@@ -33,7 +34,7 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
   if (error) return <Text c='red'>Error: {error.message}</Text>;
 
   // Add filtering and sorting logic
-  const filteredSessions = data?.Sessions.filter((session: Session) => {
+  const filteredSessions = data?.Sessions.filter((session: SessionBasicResponse) => {
     if (!session.SessionDate) return false;
 
     // Remove the UTC indicator before parsing
@@ -49,7 +50,7 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
       default:
         return true;
     }
-  }).sort((a: Session, b: Session) => {
+  }).sort((a: SessionBasicResponse, b: SessionBasicResponse) => {
     const multiplier = display === SessionDisplay.Future ? 1 : -1;
 
     // Handle potential undefined dates
@@ -67,11 +68,12 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
           <Table.Tr>
             <Table.Th>Session Date</Table.Th>
             <Table.Th>Note</Table.Th>
+            <Table.Th>Goalies</Table.Th>
             <Table.Th>Buy Window</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {filteredSessions?.map((session: Session) => (
+          {filteredSessions?.map((session: SessionBasicResponse) => (
             <Table.Tr
               key={session.SessionId}
               onClick={() => navigate(`/session/${session.SessionId}`)}
@@ -83,6 +85,7 @@ export const SessionsTable = ({ display }: { display: SessionDisplay }): JSX.Ele
                 {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
               </Table.Td>
               <Table.Td>{session.Note ?? ''}</Table.Td>
+              <Table.Td>{getSessionGoalies(session).map(goalieName).join(', ')}</Table.Td>
               <Table.Td>
                 {moment
                   .utc(session.SessionDate)
