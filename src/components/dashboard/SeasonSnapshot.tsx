@@ -10,7 +10,7 @@ interface SeasonSnapshotProps {
   /** Goalies do not buy or sell spots, so those tiles are replaced with booked starts. */
   isGoalie?: boolean;
   startsBooked?: number;
-  /** Starts already played, by calendar year. Counted from session notes, not UserStats. */
+  /** Starts already played, by calendar year. Counted from the sessions' goalie rows, not UserStats. */
   startsByYear?: Record<number, number>;
 }
 
@@ -80,8 +80,8 @@ export const SeasonSnapshot = ({
     { label: 'Starts Booked', value: String(startsBooked), hint: 'Upcoming' },
   ];
 
-  // UserStats counts games from roster membership, so it reports zero for every goalie no
-  // matter how often they play. Their games tiles come from the counted notes instead.
+  // UserStats counts every playing roster row as a game, so it cannot tell a start from a skate.
+  // A goalie's games tiles count their goalie roster rows (Session.Goalies) instead.
   const gameTiles: StatTile[] = isGoalie
     ? [
         {

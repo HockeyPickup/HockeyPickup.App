@@ -30,3 +30,6 @@ version.json
 # .auth/state.json holds a live bearer token; screenshots are local artifacts
 .auth/
 screenshots/
+
+# Goalie backfill output — review artifacts and generated SQL, never commit
+scripts/goalie-backfill/out/

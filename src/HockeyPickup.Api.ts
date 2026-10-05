@@ -1575,6 +1575,41 @@ export interface SessionBasicResponse {
    * @format decimal
    */
   Cost?: number | null;
+  /** Goalies playing in the session (roster rows with Position = Goalie), ordered by when they joined */
+  Goalies: SessionGoalie[];
+}
+
+export interface SessionGoalie {
+  /**
+   * User Id of the goalie
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+  /**
+   * First name of the goalie
+   * @minLength 1
+   * @maxLength 256
+   */
+  FirstName: string;
+  /**
+   * Last name of the goalie
+   * @minLength 1
+   * @maxLength 256
+   */
+  LastName: string;
+  /**
+   * Profile photo url of the goalie
+   * @maxLength 256
+   */
+  PhotoUrl?: string | null;
+  /** Whether the goalie is currently playing in the session */
+  IsPlaying: boolean;
+  /**
+   * Date and time when the goalie joined the roster
+   * @format date-time
+   */
+  JoinedDateTime: string;
 }
 
 export interface CreateSessionRequest {
@@ -1637,7 +1672,7 @@ export interface UpdateRosterPositionRequest {
    * @minLength 1
    */
   UserId: string;
-  /** New position (0: TBD, 1: Forward, 2: Defense) */
+  /** New position (0: TBD, 1: Forward, 2: Defense, 3: Goalie) */
   NewPosition: PositionPreference;
 }
 
@@ -1674,6 +1709,26 @@ export interface UpdateRosterPlayingStatusRequest {
    * @maxLength 4000
    */
   Note?: string | null;
+}
+
+export interface AddRosterPlayerRequest {
+  /**
+   * Session identifier
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  SessionId: number;
+  /**
+   * User identifier
+   * @minLength 1
+   * @maxLength 128
+   */
+  UserId: string;
+  /** Position (0 for TBD, 1 for Forward, 2 for Defense, 3 for Goalie) */
+  Position: PositionPreference;
+  /** Team assignment (1 for Light, 2 for Dark); ignored and stored as TBD for a Goalie */
+  TeamAssignment: TeamAssignment;
 }
 
 /** Generic API response wrapper with typed data payload */

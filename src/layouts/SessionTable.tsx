@@ -7,6 +7,7 @@ import { SessionDetailsBottom } from '@/components/SessionDetailsBottom';
 import { LotteryDrawResults } from '@/components/LotteryDrawResults';
 import { LotteryDrawReveal } from '@/components/LotteryDrawReveal';
 import { SessionEmails } from '@/components/SessionEmails';
+import { SessionGoalies } from '@/components/SessionGoalies';
 import { SessionRoster } from '@/components/SessionRoster';
 import { SessionDetailedResponse } from '@/HockeyPickup.Api';
 import { useAuth } from '@/lib/auth';
@@ -75,6 +76,7 @@ export const SessionTable = ({ sessionId }: SessionTableProps): JSX.Element => {
       <SessionDetails session={session} />
       <LotteryDrawResults session={session} />
       {isSessionFuture && <SessionActions session={session} onSessionUpdate={setSession} />}
+      <SessionGoalies session={session} onSessionUpdate={setSession} />
       {session.RegularSetId && session.CurrentRosters && session.CurrentRosters.length > 0 && (
         <SessionRoster session={session} onSessionUpdate={setSession} />
       )}

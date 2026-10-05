@@ -231,6 +231,9 @@ const HeaderSection = ({
       </Group>
 
       {/* Stats Grid */}
+      {/* TODO(goalie normalization): GetUserStats counts every playing roster row as a game played,
+          so once goalie roster rows exist a goalie's starts show up here too. Revisit hiding this
+          grid for Goalie-preference users once Brett decides (Phase 0, GetUserStats question). */}
       {profileUser.PositionPreference != PositionPreference.Goalie && (
         <Grid grow gap='sm'>
           <Grid.Col span={{ base: 5 }}>
