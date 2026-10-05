@@ -4,6 +4,7 @@
   "ignore": [],
   "conflicts": {
     "2213": "accept",
-    "2245": "accept"
+    "2245": "accept",
+    "2853": "accept"
   }
 }
