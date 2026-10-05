@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import type { DocumentNode } from '@apollo/client';
 
 export const GET_USERS = gql`
   query UsersEx {
@@ -51,44 +50,83 @@ export const GET_SESSIONS = gql`
 `;
 
 /**
- * The dashboard's per-session selection.
+ * The signed-in player's whole home page in one request.
  *
- * The `Sessions` list query resolves SessionBasicResponse, which has no CurrentRosters and no
- * BuySells, so roster membership has to come from `Session(SessionId:)`. Requesting it once per
- * session would mean N round-trips, so buildDashboardSessionsQuery aliases them into a single
- * document instead. Only these fields are selected — ActivityLogs, RegularSet and LotteryEntrants
- * stay off the wire entirely, and BuyingQueues is trimmed to the scalars that say where a buyer
- * sits in the queue. That is what keeps this cheap enough for a landing page.
+ * The Api resolves this from the token: every upcoming session (goalies included), roster and
+ * buy/sell detail for the nearest few live ones, the viewer's unsettled transactions with
+ * counterparty names, and their past goalie starts by year. Before this existed the page needed
+ * the full session history and then a second round trip for detail, which is what made it slow.
  *
- * Keep in sync with DashboardSession in @/types/graphql.
+ * Keep the Sessions selection in sync with DashboardSession in @/types/graphql.
  */
-const DASHBOARD_SESSION_FIELDS = `
-  SessionId
-  SessionDate
-  Note
-  Cost
-  BuyDayMinimum
-  BuyWindow
-  BuyWindowPreferred
-  BuyWindowPreferredPlus
-  Goalies {
-    UserId
-    FirstName
-    LastName
-    PhotoUrl
-    IsPlaying
-    JoinedDateTime
+export const GET_DASHBOARD = gql`
+  query Dashboard {
+    Dashboard {
+      UpcomingSessions {
+        SessionId
+        CreateDateTime
+        UpdateDateTime
+        Note
+        SessionDate
+        RegularSetId
+        BuyDayMinimum
+        Cost
+        Goalies {
+          UserId
+          FirstName
+          LastName
+          PhotoUrl
+          IsPlaying
+          JoinedDateTime
+        }
+      }
+      Sessions {
+        SessionId
+        SessionDate
+        Note
+        Cost
+        BuyDayMinimum
+        BuyWindow
+        BuyWindowPreferred
+        BuyWindowPreferredPlus
+        Goalies {
+          UserId
+          FirstName
+          LastName
+          PhotoUrl
+          IsPlaying
+          JoinedDateTime
+        }
+        CurrentRosters {
+          UserId
+          FirstName
+          LastName
+          TeamAssignment
+          Position
+          CurrentPosition
+          IsPlaying
+        }
+        BuySells {
+          ...DashboardBuySellFields
+        }
+        BuyingQueues {
+          BuySellId
+          BuyerUserId
+          SellerUserId
+          QueueStatus
+        }
+      }
+      PendingPayments {
+        ...DashboardBuySellFields
+      }
+      GoalieStartsByYear {
+        Year
+        Starts
+      }
+    }
   }
-  CurrentRosters {
-    UserId
-    FirstName
-    LastName
-    TeamAssignment
-    Position
-    CurrentPosition
-    IsPlaying
-  }
-  BuySells {
+
+  fragment DashboardBuySellFields on DashboardBuySell {
     BuySellId
     SessionId
     BuyerUserId
@@ -107,43 +145,7 @@ const DASHBOARD_SESSION_FIELDS = `
       LastName
     }
   }
-  BuyingQueues {
-    BuySellId
-    BuyerUserId
-    SellerUserId
-    QueueStatus
-  }
 `;
-
-/** Alias for a session id. Deterministic, so results map straight back to their session. */
-export const dashboardSessionAlias = (sessionId: number): string => `s${sessionId}`;
-
-/**
- * A document with an empty selection set is invalid GraphQL, so callers with no session ids get
- * this placeholder and are expected to pass `skip: true` alongside it.
- */
-export const EMPTY_DASHBOARD_SESSIONS = gql`
-  query DashboardSessionsEmpty {
-    __typename
-  }
-`;
-
-export const buildDashboardSessionsQuery = (sessionIds: number[]): DocumentNode => {
-  if (sessionIds.length === 0) return EMPTY_DASHBOARD_SESSIONS;
-
-  const selections = sessionIds
-    .map(
-      (sessionId) =>
-        `  ${dashboardSessionAlias(sessionId)}: Session(SessionId: ${sessionId}) {${DASHBOARD_SESSION_FIELDS}  }`,
-    )
-    .join('\n');
-
-  return gql`
-    query DashboardSessions {
-${selections}
-    }
-  `;
-};
 
 export const GET_SESSION = gql`
   query Session($SessionId: Int!) {

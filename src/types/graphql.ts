@@ -39,11 +39,10 @@ export interface UserStatsQueryResult {
 /**
  * Dashboard shapes.
  *
- * The GraphQL `Sessions` list resolves SessionBasicResponse, which carries neither CurrentRosters
- * nor BuySells, so the dashboard reads rosters through aliased `Session(SessionId:)` selections
- * instead. These types are `Pick`ed off the generated Api models so they stay field-for-field with
- * the server, and they deliberately describe only what DASHBOARD_SESSION_FIELDS asks for —
- * ActivityLogs, RegularSet and LotteryEntrants are never requested, and BuyingQueues is trimmed
+ * The Api's `Dashboard` query returns lean types (DashboardSession, DashboardBuySell, ...) that
+ * carry a subset of the full session models' fields under the same names, so these are `Pick`ed
+ * off the generated Api models to stay field-for-field with the server. They describe exactly what
+ * GET_DASHBOARD selects — no ActivityLogs, RegularSet or LotteryEntrants, and BuyingQueues trimmed
  * to the scalars that place a buyer in the queue.
  */
 export type DashboardCounterparty = Pick<UserDetailedResponse, 'Id' | 'FirstName' | 'LastName'>;
@@ -102,5 +101,20 @@ export type DashboardSession = Pick<
   BuyingQueues?: DashboardQueueEntry[] | null;
 };
 
-/** Aliased result: one `s<SessionId>` key per session requested. */
-export type DashboardSessionsQueryResult = Record<string, DashboardSession | null>;
+/** Past sessions the viewer played in net, for one calendar year. */
+export interface GoalieStartsYear {
+  Year: number;
+  Starts: number;
+}
+
+export interface DashboardQueryResult {
+  Dashboard: {
+    /** Every upcoming session, soonest first, cancelled ones included. */
+    UpcomingSessions: SessionBasicResponse[];
+    /** Detail for the nearest live (not cancelled) upcoming sessions, soonest first. */
+    Sessions: DashboardSession[];
+    /** The viewer's completed transactions still awaiting payment or confirmation. */
+    PendingPayments: DashboardBuySell[];
+    GoalieStartsByYear: GoalieStartsYear[];
+  };
+}
