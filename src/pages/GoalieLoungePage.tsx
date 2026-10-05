@@ -1,127 +1,154 @@
+import { GoalieAvatar } from '@/components/GoalieAvatar';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { PositionPreference, SessionBasicResponse, UserDetailedResponse } from '@/HockeyPickup.Api';
-import { isUserInNet } from '@/lib/goalies';
+import {
+  PositionPreference,
+  SessionBasicResponse,
+  SessionGoalie,
+  UserDetailedResponse,
+} from '@/HockeyPickup.Api';
 import { useTitle } from '@/layouts/TitleContext';
+import { isCancelled } from '@/lib/dashboard';
+import { GOALIES_PER_SESSION, getSessionGoalies, goalieName, isUserInNet } from '@/lib/goalies';
+import { nowPacific, sessionMoment } from '@/lib/pacificTime';
 import { GET_SESSIONS, GET_USERS } from '@/lib/queries';
 import { SessionsQueryResult, UsersQueryResult } from '@/types/graphql';
 import { useQuery } from '@apollo/client/react';
-import { Avatar, Container, Paper, Table, Text } from '@mantine/core';
-import moment from 'moment';
-import { JSX, useEffect, useState } from 'react';
+import {
+  Badge,
+  Card,
+  Container,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
+import { IconCalendar, IconUserQuestion } from '@tabler/icons-react';
+import { JSX, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { AvatarService } from '../services/avatar';
 
-/** Upcoming sessions this user is in net for, soonest first. Matched on UserId, never by name. */
-const upcomingStartsFor = (
-  userId: string,
-  sessions: SessionBasicResponse[],
-): SessionBasicResponse[] =>
-  sessions
-    .filter(
-      (session) =>
-        session.SessionDate &&
-        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
-        isUserInNet(session, userId),
-    )
-    .sort(
-      (a, b) =>
-        moment(a.SessionDate.replace('Z', '')).valueOf() -
-        moment(b.SessionDate.replace('Z', '')).valueOf(),
-    );
+/** How far ahead the "Upcoming Nets" board looks. */
+const HORIZON_WEEKS = 6;
 
-const UpcomingGames = ({
-  goalie,
-  sessions,
-}: {
-  goalie: UserDetailedResponse;
-  sessions: SessionBasicResponse[];
-}): JSX.Element => {
-  const upcomingSessions = upcomingStartsFor(goalie.Id, sessions);
+interface GoalieCardData {
+  user: UserDetailedResponse;
+  upcoming: SessionBasicResponse[];
+  seasonStarts: number;
+}
 
-  return (
-    <>
-      <Text size='sm' fw={500} ta='center'>
-        {upcomingSessions.length} Upcoming {upcomingSessions.length === 1 ? 'Game' : 'Games'}
+const asPerson = (user: UserDetailedResponse): Pick<SessionGoalie, 'FirstName' | 'LastName' | 'PhotoUrl'> => ({
+  FirstName: user.FirstName ?? '',
+  LastName: user.LastName ?? '',
+  PhotoUrl: user.PhotoUrl,
+});
+
+const GoalieSlot = ({ goalie }: { goalie: SessionGoalie }): JSX.Element => (
+  <Link to={`/profile/${goalie.UserId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <Group gap='xs' wrap='nowrap'>
+      <GoalieAvatar goalie={goalie} size={32} />
+      <Text size='sm' fw={500}>
+        {goalieName(goalie)}
       </Text>
-      {upcomingSessions.length > 0 && (
-        <Table striped highlightOnHover>
-          <Table.Tbody>
-            {upcomingSessions.map((session) => (
-              <Table.Tr key={session.SessionId}>
-                <Table.Td style={{ textAlign: 'center' }}>
-                  <Link
-                    to={`/session/${session.SessionId}`}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {moment.utc(session.SessionDate).format('dddd, MM/DD/yyyy, HH:mm')}
-                  </Link>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      )}
-    </>
-  );
-};
+    </Group>
+  </Link>
+);
 
-const GoalieTableComponent = ({
-  goalies,
-  avatars,
-  sessions,
-}: {
-  goalies: UserDetailedResponse[];
-  avatars: Record<string, string>;
-  sessions: SessionBasicResponse[];
-}): JSX.Element => {
-  // Sort goalies by number of upcoming games
-  const sortedGoalies = [...goalies].sort(
-    (a, b) => upcomingStartsFor(b.Id, sessions).length - upcomingStartsFor(a.Id, sessions).length,
-  );
+const OpenNet = (): JSX.Element => (
+  <Badge color='orange' variant='light' radius='sm' leftSection={<IconUserQuestion size={12} />}>
+    Open net
+  </Badge>
+);
+
+/** One row per upcoming session: who is in net, or which net is still open. */
+const UpcomingNets = ({ sessions }: { sessions: SessionBasicResponse[] }): JSX.Element => (
+  <Paper shadow='sm' p='md'>
+    <Title order={3} mb='md'>
+      Upcoming Nets
+    </Title>
+    {sessions.length === 0 ? (
+      <Text c='dimmed'>No sessions scheduled in the next {HORIZON_WEEKS} weeks.</Text>
+    ) : (
+      <Stack gap='xs'>
+        {sessions.map((session) => {
+          const goalies = getSessionGoalies(session);
+          const open = Math.max(0, GOALIES_PER_SESSION - goalies.length);
+          const when = sessionMoment(session.SessionDate);
+
+          return (
+            <Card key={session.SessionId} radius='md' p='sm' withBorder bg='dark.6'>
+              <Group justify='space-between' wrap='wrap' gap='sm'>
+                <Link
+                  to={`/session/${session.SessionId}`}
+                  style={{ textDecoration: 'none', color: 'inherit', minWidth: 150 }}
+                >
+                  <Group gap='xs' wrap='nowrap'>
+                    <IconCalendar size={18} style={{ color: '#909296' }} />
+                    <Text size='sm' fw={600}>
+                      {when.format('ddd, MMM D')}
+                    </Text>
+                    <Text size='sm' c='dimmed'>
+                      {when.format('h:mmA')}
+                    </Text>
+                  </Group>
+                </Link>
+                <Group gap='lg' wrap='wrap'>
+                  {goalies.map((goalie) => (
+                    <GoalieSlot key={goalie.UserId} goalie={goalie} />
+                  ))}
+                  {Array.from({ length: open }, (_, index) => (
+                    <OpenNet key={`open-${index}`} />
+                  ))}
+                </Group>
+              </Group>
+            </Card>
+          );
+        })}
+      </Stack>
+    )}
+  </Paper>
+);
+
+const GoalieCard = ({ user, upcoming, seasonStarts }: GoalieCardData): JSX.Element => {
+  const next = upcoming[0];
+
   return (
-    <Table striped mb='xl'>
-      <Table.Tbody>
-        {Array.from({ length: Math.ceil(goalies.length / 2) }, (_, rowIndex) => (
-          <Table.Tr key={rowIndex}>
-            {sortedGoalies
-              .slice(rowIndex * 2, rowIndex * 2 + 2)
-              .map((goalie: UserDetailedResponse) => (
-                <Table.Td key={goalie.Id} style={{ width: '50%', verticalAlign: 'top' }}>
-                  <Link
-                    to={`/profile/${goalie.Id}`}
-                    style={{
-                      textDecoration: 'none',
-                      color: 'inherit',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                        alignItems: 'center', // This centers the children horizontally
-                      }}
-                    >
-                      <Avatar
-                        src={avatars[goalie.Id]}
-                        alt={`${goalie.FirstName} ${goalie.LastName}`}
-                        radius='xl'
-                        size={96}
-                      />
-                      <Text size='lg'>
-                        {`${goalie.FirstName} ${goalie.LastName}`}
-                        {goalie.JerseyNumber !== 0 && ` #${goalie.JerseyNumber}`}
-                      </Text>
-                    </div>
-                  </Link>
-                  <UpcomingGames goalie={goalie} sessions={sessions} />
-                </Table.Td>
-              ))}
-            {rowIndex * 2 + 1 >= goalies.length && <Table.Td style={{ width: '50%' }} />}
-          </Table.Tr>
-        ))}
-      </Table.Tbody>
-    </Table>
+    <Card
+      component={Link}
+      to={`/profile/${user.Id}`}
+      radius='md'
+      p='md'
+      withBorder
+      bg='dark.6'
+      style={{ textDecoration: 'none', color: 'inherit', height: '100%' }}
+    >
+      <Group gap='md' wrap='nowrap' align='flex-start'>
+        <GoalieAvatar goalie={asPerson(user)} size={64} />
+        <Stack gap={4} style={{ minWidth: 0 }}>
+          <Text fw={700} size='lg' style={{ lineHeight: 1.2 }}>
+            {user.FirstName} {user.LastName}
+            {user.JerseyNumber !== 0 && (
+              <Text component='span' c='dimmed' fw={500} ml={6}>
+                #{user.JerseyNumber}
+              </Text>
+            )}
+          </Text>
+          <Text size='sm' c='dimmed'>
+            {next
+              ? `Next start: ${sessionMoment(next.SessionDate).format('ddd, MMM D')}`
+              : 'No upcoming starts'}
+          </Text>
+          <Group gap='xs' mt={4}>
+            <Badge size='sm' radius='sm' variant='light' color='teal'>
+              {upcoming.length} upcoming
+            </Badge>
+            <Badge size='sm' radius='sm' variant='light' color='gray'>
+              {seasonStarts} {seasonStarts === 1 ? 'start' : 'starts'} in {nowPacific().year()}
+            </Badge>
+          </Group>
+        </Stack>
+      </Group>
+    </Card>
   );
 };
 
@@ -133,51 +160,71 @@ export const GoalieLoungePage = (): JSX.Element => {
     error: sessionsError,
     data: sessionsData,
   } = useQuery<SessionsQueryResult>(GET_SESSIONS);
-  const [avatars, setAvatars] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setPageInfo('Goalie Lounge');
   }, [setPageInfo]);
 
-  useEffect(() => {
-    const loadAvatars = async (): Promise<void> => {
-      const newAvatars: Record<string, string> = {};
-      for (const user of data?.UsersEx ?? []) {
-        const avatarUrl = await AvatarService.getAvatarUrl(user.PhotoUrl ?? '');
-        newAvatars[user.Id] = avatarUrl;
-      }
-      setAvatars(newAvatars);
+  const { board, cards } = useMemo(() => {
+    const now = nowPacific();
+    const horizon = now.clone().add(HORIZON_WEEKS, 'weeks');
+    const sessions = (sessionsData?.Sessions ?? []).filter(
+      (session) => Boolean(session.SessionDate) && !isCancelled(session),
+    );
+    const bySoonest = (a: SessionBasicResponse, b: SessionBasicResponse): number =>
+      sessionMoment(a.SessionDate).valueOf() - sessionMoment(b.SessionDate).valueOf();
+
+    const upcoming = sessions
+      .filter((session) => sessionMoment(session.SessionDate).isAfter(now))
+      .sort(bySoonest);
+    const thisSeasonPlayed = sessions.filter((session) => {
+      const when = sessionMoment(session.SessionDate);
+      return !when.isAfter(now) && when.year() === now.year();
+    });
+
+    // Goalie-preference users, plus anyone else booked in net: any player can be a goalie.
+    const cardData: GoalieCardData[] = (data?.UsersEx ?? [])
+      .map((user) => ({
+        user,
+        upcoming: upcoming.filter((session) => isUserInNet(session, user.Id)),
+        seasonStarts: thisSeasonPlayed.filter((session) => isUserInNet(session, user.Id)).length,
+      }))
+      .filter(
+        ({ user, upcoming: starts }) =>
+          user.Active && (user.PositionPreference === PositionPreference.Goalie || starts.length > 0),
+      )
+      .sort(
+        (a, b) =>
+          b.upcoming.length - a.upcoming.length ||
+          b.seasonStarts - a.seasonStarts ||
+          (a.user.LastName ?? '').localeCompare(b.user.LastName ?? ''),
+      );
+
+    return {
+      board: upcoming.filter((session) => sessionMoment(session.SessionDate).isBefore(horizon)),
+      cards: cardData,
     };
-    if (data?.UsersEx) {
-      loadAvatars();
-    }
-  }, [data]);
+  }, [data, sessionsData]);
 
   if (loading || sessionsLoading) return <LoadingSpinner />;
   if (error) return <Text c='red'>Error: {error.message}</Text>;
   if (sessionsError) return <Text c='red'>Error: {sessionsError.message}</Text>;
 
-  const sessions = sessionsData?.Sessions ?? [];
-  // Goalie-preference users, plus anyone else currently booked in net: any player can be a goalie.
-  const goalies =
-    data?.UsersEx.filter(
-      (user: UserDetailedResponse) =>
-        user.Active &&
-        (user.PositionPreference === PositionPreference.Goalie ||
-          upcomingStartsFor(user.Id, sessions).length > 0),
-    ) ?? [];
   return (
     <Container size='xl' mb='lg'>
-      <Paper shadow='sm' p='md'>
-        <Text size='xl' fw={500} mb='md'>
-          Active Goalies ({goalies.length})
-        </Text>
-        <GoalieTableComponent
-          goalies={goalies}
-          avatars={avatars}
-          sessions={sessions}
-        />
-      </Paper>
+      <Stack gap='lg'>
+        <UpcomingNets sessions={board} />
+        <Paper shadow='sm' p='md'>
+          <Title order={3} mb='md'>
+            Goalies ({cards.length})
+          </Title>
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
+            {cards.map((card) => (
+              <GoalieCard key={card.user.Id} {...card} />
+            ))}
+          </SimpleGrid>
+        </Paper>
+      </Stack>
     </Container>
   );
 };
