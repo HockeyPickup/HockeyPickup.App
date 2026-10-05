@@ -2,5 +2,8 @@
   "link": {},
   "create": {},
   "ignore": [],
-  "conflicts": {}
+  "conflicts": {
+    "2213": "accept",
+    "2245": "accept"
+  }
 }
