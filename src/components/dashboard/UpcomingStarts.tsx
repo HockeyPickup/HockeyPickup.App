@@ -1,4 +1,5 @@
-import { GoalieSession } from '@/lib/goalies';
+import { GoalieAvatar } from '@/components/GoalieAvatar';
+import { GoalieSession, goalieName } from '@/lib/goalies';
 import { Anchor, Badge, Card, Group, Stack, Text } from '@mantine/core';
 import moment from 'moment';
 import { JSX } from 'react';
@@ -12,7 +13,7 @@ interface UpcomingStartsProps {
 /** The goalie's remaining booked starts. Density over decoration, as with the skater list. */
 export const UpcomingStarts = ({ items }: UpcomingStartsProps): JSX.Element => (
   <Stack gap='xs'>
-    {items.map(({ session, otherGoalieNames, openNets, skaters }) => (
+    {items.map(({ session, otherGoalies, openNets, skaters }) => (
       <Card key={session.SessionId} radius='md' p='sm' withBorder bg='dark.6'>
         <Group justify='space-between' wrap='wrap' gap='sm'>
           <Stack gap={2} style={{ minWidth: 0 }}>
@@ -22,11 +23,20 @@ export const UpcomingStarts = ({ items }: UpcomingStartsProps): JSX.Element => (
                 {moment.utc(session.SessionDate).format('h:mmA')}
               </Text>
             </Text>
-            <Text size='xs' c='dimmed'>
-              {otherGoalieNames.length > 0
-                ? `Other goalie: ${otherGoalieNames.join(', ')}`
-                : 'Other net unfilled'}
-            </Text>
+            {otherGoalies.length > 0 ? (
+              <Group gap={6} wrap='nowrap'>
+                {otherGoalies.map((goalie) => (
+                  <GoalieAvatar key={goalie.UserId} goalie={goalie} size={18} />
+                ))}
+                <Text size='xs' c='dimmed'>
+                  Other goalie: {otherGoalies.map(goalieName).join(', ')}
+                </Text>
+              </Group>
+            ) : (
+              <Text size='xs' c='dimmed'>
+                Other net unfilled
+              </Text>
+            )}
           </Stack>
           <Group gap='sm' wrap='nowrap'>
             {skaters && (

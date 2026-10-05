@@ -1,6 +1,7 @@
 import { VenueLink } from '@/components/VenueLink';
 import { useCountdown } from '@/hooks/useCountdown';
-import { GoalieSession } from '@/lib/goalies';
+import { GoalieAvatar } from '@/components/GoalieAvatar';
+import { GoalieSession, goalieName } from '@/lib/goalies';
 import { Alert, Badge, Button, Card, Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
   IconAlertTriangle,
@@ -26,7 +27,7 @@ interface NextStartSpotlightProps {
  * goalie actually has — am I confirmed, is the other net covered, how full is the skate.
  */
 export const NextStartSpotlight = ({ start, image }: NextStartSpotlightProps): JSX.Element => {
-  const { session, otherGoalieNames, openNets, skaters } = start;
+  const { session, otherGoalies, openNets, skaters } = start;
   const countdown = useCountdown(session.SessionDate);
   const sessionDate = moment.utc(session.SessionDate);
 
@@ -73,9 +74,15 @@ export const NextStartSpotlight = ({ start, image }: NextStartSpotlightProps): J
                 {skaters.filled}/{skaters.total} skaters
               </Badge>
             )}
-            {otherGoalieNames.length > 0 && (
-              <Badge size='lg' radius='sm' variant='light' color='teal'>
-                Other goalie: {otherGoalieNames.join(', ')}
+            {otherGoalies.length > 0 && (
+              <Badge
+                size='lg'
+                radius='sm'
+                variant='light'
+                color='teal'
+                leftSection={<GoalieAvatar goalie={otherGoalies[0]} size={18} />}
+              >
+                Other goalie: {otherGoalies.map(goalieName).join(', ')}
               </Badge>
             )}
           </Group>

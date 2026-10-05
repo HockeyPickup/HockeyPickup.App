@@ -38,6 +38,9 @@ interface SessionFormValues extends Omit<CreateSessionRequest, 'SessionDate' | '
   RegularSetId: string;
 }
 
+/** A goalie list typed into the note — warned about, since goalies live on the roster now. */
+const GOALIE_LABEL = /goalies?\s*:/i;
+
 const getDefaultDateTime = (): Date => {
   // Create a date string in PST
   const pstDate = new Date().toLocaleString('en-US', {
@@ -312,6 +315,7 @@ export const SessionFormPage = (): JSX.Element => {
             )}
             <Textarea
               label='Notes'
+              description='Goalies are managed on the session roster, not in notes.'
               placeholder='Enter notes'
               leftSection={<IconNotes size={16} />}
               minRows={3}
@@ -319,6 +323,12 @@ export const SessionFormPage = (): JSX.Element => {
               maxRows={6}
               {...form.getInputProps('Note')}
             />
+            {GOALIE_LABEL.test(form.values.Note ?? '') && (
+              <Text c='orange' size='sm'>
+                Goalies listed in the notes won&apos;t appear on the roster. Add them from the
+                session page with &quot;Add Goalie&quot; instead.
+              </Text>
+            )}
             {apiErrors.length > 0 && (
               <Stack gap='xs'>
                 {apiErrors.map((error, index) => (

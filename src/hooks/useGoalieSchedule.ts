@@ -1,11 +1,11 @@
-import { Session, UserDetailedResponse } from '@/HockeyPickup.Api';
+import { SessionBasicResponse } from '@/HockeyPickup.Api';
 import { isCancelled } from '@/lib/dashboard';
 import { describeGoalieSession, GoalieSession } from '@/lib/goalies';
 import { nowPacific, sessionMoment } from '@/lib/pacificTime';
 import { useMemo } from 'react';
 
 export interface GoalieSchedule {
-  /** Upcoming sessions whose note names this user, soonest first. */
+  /** Upcoming sessions with this user in net, soonest first. */
   starts: GoalieSession[];
   /**
    * Upcoming sessions still short of a goalie, regardless of who is viewing.
@@ -14,33 +14,27 @@ export interface GoalieSchedule {
    * not claim a net — so this is for the admin view, not the goalie's.
    */
   unfilledNets: GoalieSession[];
-  /** True when this user is named in at least one upcoming note. */
+  /** True when this user is in net for at least one upcoming session. */
   hasStarts: boolean;
   /** Starts already played, by calendar year — see the note below on why these are counted here. */
   startsByYear: Record<number, number>;
 }
 
 /**
- * Reads goalie assignments out of the session notes.
+ * The viewer's goalie schedule, matched on UserId against each session's `Goalies`.
  *
- * Runs off the basic session list — goalies live in `Note`, not `CurrentRosters`, so none of the
- * detailed roster payload is needed to work any of this out.
+ * Runs off the basic session list — `Goalies` rides on it — so none of the detailed roster
+ * payload is needed to work any of this out.
  *
- * Past starts are counted here rather than read from UserStats deliberately: UserStats derives
- * games played from roster membership, and since a goalie is never on a roster it reports zero
- * for even the busiest goalie in the club. Counting the notes is the only honest number available
- * until goalie assignments are normalised.
+ * Past starts are counted here rather than read from UserStats, which counts every playing roster
+ * row as a game and so cannot tell a start from a skate.
  */
 export const useGoalieSchedule = (
-  allSessions: Session[],
-  user: Pick<UserDetailedResponse, 'FirstName' | 'LastName'>,
-): GoalieSchedule => {
-  const firstName = user.FirstName ?? '';
-  const lastName = user.LastName ?? '';
-
-  return useMemo<GoalieSchedule>(() => {
+  allSessions: SessionBasicResponse[],
+  userId: string | undefined,
+): GoalieSchedule =>
+  useMemo<GoalieSchedule>(() => {
     const now = nowPacific();
-    const viewer = { FirstName: firstName, LastName: lastName };
 
     const starts: GoalieSession[] = [];
     const unfilledNets: GoalieSession[] = [];
@@ -50,7 +44,7 @@ export const useGoalieSchedule = (
       if (!session.SessionDate || isCancelled(session)) continue;
 
       const when = sessionMoment(session.SessionDate);
-      const described = describeGoalieSession(session, viewer);
+      const described = describeGoalieSession(session, userId);
 
       if (when.isAfter(now)) {
         if (described.isViewerInNet) starts.push(described);
@@ -69,5 +63,4 @@ export const useGoalieSchedule = (
     unfilledNets.sort(bySoonest);
 
     return { starts, unfilledNets, hasStarts: starts.length > 0, startsByYear };
-  }, [allSessions, firstName, lastName]);
-};
+  }, [allSessions, userId]);

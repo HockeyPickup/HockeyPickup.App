@@ -13,6 +13,9 @@
     "refresh-api:prod": "npx swagger-typescript-api generate --no-client --path https://api.HockeyPickup.org/swagger/v1/swagger.json --output ./src --name HockeyPickup.Api.ts",
     "auth": "tsx capture-auth.ts",
     "verify:visual": "tsx verify-visual.ts",
+    "goalie-backfill:preview": "tsx scripts/goalie-backfill/preview.ts",
+    "goalie-backfill:generate": "tsx scripts/goalie-backfill/generate.ts",
+    "goalie-backfill:check": "tsx scripts/goalie-backfill/selfcheck.ts",
     "build-version": "bash ./scripts/build-version.sh",
     "update-packages": "ncu -u",
     "check-deps": "npx depcheck"
@@ -45,6 +48,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/mssql": "^12.3.0",
     "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
@@ -61,6 +65,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.5",
     "globals": "^17.11.0",
+    "mssql": "^12.7.2",
     "npm-check-updates": "^23.1.0",
     "playwright": "^1.62.1",
     "prettier": "^3.9.6",

@@ -1,3 +1,4 @@
+import { GoalieNames } from '@/components/GoalieAvatar';
 import { GoalieSession } from '@/lib/goalies';
 import { Badge, Button, Card, Group, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconCalendar, IconUserQuestion, IconUsers } from '@tabler/icons-react';
@@ -19,7 +20,7 @@ interface NetsToFillProps {
  */
 export const NetsToFill = ({ items }: NetsToFillProps): JSX.Element => (
   <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
-    {items.map(({ session, goalieNames, openNets, skaters }) => (
+    {items.map(({ session, goalies, openNets, skaters }) => (
       <Card
         key={session.SessionId}
         radius='md'
@@ -63,11 +64,18 @@ export const NetsToFill = ({ items }: NetsToFillProps): JSX.Element => (
               )}
             </Group>
 
-            <Text size='xs' c='dimmed'>
-              {goalieNames.length > 0
-                ? `Accepted: ${goalieNames.join(', ')}`
-                : 'Nobody accepted yet'}
-            </Text>
+            {goalies.length > 0 ? (
+              <Stack gap={4}>
+                <Text size='xs' c='dimmed'>
+                  Accepted:
+                </Text>
+                <GoalieNames goalies={goalies} />
+              </Stack>
+            ) : (
+              <Text size='xs' c='dimmed'>
+                Nobody accepted yet
+              </Text>
+            )}
           </Stack>
 
           <Button

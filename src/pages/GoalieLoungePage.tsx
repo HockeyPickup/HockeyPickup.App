@@ -1,5 +1,6 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { PositionPreference, Session, UserDetailedResponse } from '@/HockeyPickup.Api';
+import { PositionPreference, SessionBasicResponse, UserDetailedResponse } from '@/HockeyPickup.Api';
+import { isUserInNet } from '@/lib/goalies';
 import { useTitle } from '@/layouts/TitleContext';
 import { GET_SESSIONS, GET_USERS } from '@/lib/queries';
 import { SessionsQueryResult, UsersQueryResult } from '@/types/graphql';
@@ -10,29 +11,32 @@ import { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AvatarService } from '../services/avatar';
 
+/** Upcoming sessions this user is in net for, soonest first. Matched on UserId, never by name. */
+const upcomingStartsFor = (
+  userId: string,
+  sessions: SessionBasicResponse[],
+): SessionBasicResponse[] =>
+  sessions
+    .filter(
+      (session) =>
+        session.SessionDate &&
+        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
+        isUserInNet(session, userId),
+    )
+    .sort(
+      (a, b) =>
+        moment(a.SessionDate.replace('Z', '')).valueOf() -
+        moment(b.SessionDate.replace('Z', '')).valueOf(),
+    );
+
 const UpcomingGames = ({
   goalie,
   sessions,
 }: {
   goalie: UserDetailedResponse;
-  sessions: Session[];
+  sessions: SessionBasicResponse[];
 }): JSX.Element => {
-  const goalieFirstThree = (goalie.FirstName ?? '').slice(0, 3).toLowerCase();
-  const goalieLastThree = (goalie.LastName ?? '').slice(0, 3).toLowerCase();
-  const upcomingSessions = sessions
-    .filter(
-      (session) =>
-        session.SessionDate &&
-        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
-        session.Note?.toLowerCase().includes(goalieFirstThree) &&
-        session.Note?.toLowerCase().includes(goalieLastThree),
-    )
-    .sort((a: Session, b: Session) => {
-      if (!a.SessionDate || !b.SessionDate) return 0;
-      const dateA = moment(a.SessionDate.replace('Z', ''));
-      const dateB = moment(b.SessionDate.replace('Z', ''));
-      return dateA.valueOf() - dateB.valueOf();
-    });
+  const upcomingSessions = upcomingStartsFor(goalie.Id, sessions);
 
   return (
     <>
@@ -68,33 +72,12 @@ const GoalieTableComponent = ({
 }: {
   goalies: UserDetailedResponse[];
   avatars: Record<string, string>;
-  sessions: Session[];
+  sessions: SessionBasicResponse[];
 }): JSX.Element => {
   // Sort goalies by number of upcoming games
-  const sortedGoalies = [...goalies].sort((a, b) => {
-    const aFirstThree = (a.FirstName ?? '').slice(0, 3).toLowerCase();
-    const aLastThree = (a.LastName ?? '').slice(0, 3).toLowerCase();
-    const bFirstThree = (b.FirstName ?? '').slice(0, 3).toLowerCase();
-    const bLastThree = (b.LastName ?? '').slice(0, 3).toLowerCase();
-
-    const aGames = sessions.filter(
-      (session) =>
-        session.SessionDate &&
-        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
-        session.Note?.toLowerCase().includes(aFirstThree) &&
-        session.Note?.toLowerCase().includes(aLastThree),
-    ).length;
-
-    const bGames = sessions.filter(
-      (session) =>
-        session.SessionDate &&
-        moment(session.SessionDate.replace('Z', '')).isAfter(moment()) &&
-        session.Note?.toLowerCase().includes(bFirstThree) &&
-        session.Note?.toLowerCase().includes(bLastThree),
-    ).length;
-
-    return bGames - aGames; // Sort descending
-  });
+  const sortedGoalies = [...goalies].sort(
+    (a, b) => upcomingStartsFor(b.Id, sessions).length - upcomingStartsFor(a.Id, sessions).length,
+  );
   return (
     <Table striped mb='xl'>
       <Table.Tbody>
@@ -174,10 +157,14 @@ export const GoalieLoungePage = (): JSX.Element => {
   if (error) return <Text c='red'>Error: {error.message}</Text>;
   if (sessionsError) return <Text c='red'>Error: {sessionsError.message}</Text>;
 
+  const sessions = sessionsData?.Sessions ?? [];
+  // Goalie-preference users, plus anyone else currently booked in net: any player can be a goalie.
   const goalies =
     data?.UsersEx.filter(
       (user: UserDetailedResponse) =>
-        user.Active && user.PositionPreference == PositionPreference.Goalie,
+        user.Active &&
+        (user.PositionPreference === PositionPreference.Goalie ||
+          upcomingStartsFor(user.Id, sessions).length > 0),
     ) ?? [];
   return (
     <Container size='xl' mb='lg'>
@@ -188,7 +175,7 @@ export const GoalieLoungePage = (): JSX.Element => {
         <GoalieTableComponent
           goalies={goalies}
           avatars={avatars}
-          sessions={sessionsData?.Sessions ?? []}
+          sessions={sessions}
         />
       </Paper>
     </Container>

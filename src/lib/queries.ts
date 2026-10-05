@@ -38,6 +38,14 @@ export const GET_SESSIONS = gql`
       RegularSetId
       BuyDayMinimum
       Cost
+      Goalies {
+        UserId
+        FirstName
+        LastName
+        PhotoUrl
+        IsPlaying
+        JoinedDateTime
+      }
     }
   }
 `;
@@ -63,6 +71,14 @@ const DASHBOARD_SESSION_FIELDS = `
   BuyWindow
   BuyWindowPreferred
   BuyWindowPreferredPlus
+  Goalies {
+    UserId
+    FirstName
+    LastName
+    PhotoUrl
+    IsPlaying
+    JoinedDateTime
+  }
   CurrentRosters {
     UserId
     FirstName
@@ -151,6 +167,14 @@ export const GET_SESSION = gql`
       LotteryDrawPreferred
       LotteryDrawPreferredPlus
       Cost
+      Goalies {
+        UserId
+        FirstName
+        LastName
+        PhotoUrl
+        IsPlaying
+        JoinedDateTime
+      }
       BuySells {
         BuySellId
         BuyerUserId
@@ -446,6 +470,14 @@ export const SESSION_UPDATED = gql`
       LotteryDrawPreferred
       LotteryDrawPreferredPlus
       Cost
+      Goalies {
+        UserId
+        FirstName
+        LastName
+        PhotoUrl
+        IsPlaying
+        JoinedDateTime
+      }
       BuySells {
         BuySellId
         BuyerUserId

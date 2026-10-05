@@ -4,7 +4,7 @@ import {
   LockerRoom13Response,
   RegularSetDetailedResponse,
   RosterPlayer,
-  Session,
+  SessionBasicResponse,
   SessionDetailedResponse,
   UserDetailedResponse,
   UserStatsResponse,
@@ -15,8 +15,9 @@ export interface UsersQueryResult {
   UsersEx: UserDetailedResponse[];
 }
 
+/** The `Sessions` list resolves SessionBasicResponse — goalies included, no roster. */
 export interface SessionsQueryResult {
-  Sessions: Session[];
+  Sessions: SessionBasicResponse[];
 }
 
 export interface SessionQueryResult {
@@ -94,6 +95,7 @@ export type DashboardSession = Pick<
   | 'BuyWindow'
   | 'BuyWindowPreferred'
   | 'BuyWindowPreferredPlus'
+  | 'Goalies'
 > & {
   CurrentRosters?: DashboardRosterPlayer[] | null;
   BuySells?: DashboardBuySell[] | null;
