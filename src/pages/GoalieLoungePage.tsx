@@ -28,9 +28,6 @@ import { IconCalendar, IconUserQuestion } from '@tabler/icons-react';
 import { JSX, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-/** How far ahead the "Upcoming Nets" board looks. */
-const HORIZON_WEEKS = 6;
-
 interface GoalieCardData {
   user: UserDetailedResponse;
   upcoming: SessionBasicResponse[];
@@ -60,14 +57,14 @@ const OpenNet = (): JSX.Element => (
   </Badge>
 );
 
-/** One row per upcoming session: who is in net, or which net is still open. */
+/** One row per upcoming session — all of them: who is in net, or which net is still open. */
 const UpcomingNets = ({ sessions }: { sessions: SessionBasicResponse[] }): JSX.Element => (
   <Paper shadow='sm' p='md'>
     <Title order={3} mb='md'>
       Upcoming Nets
     </Title>
     {sessions.length === 0 ? (
-      <Text c='dimmed'>No sessions scheduled in the next {HORIZON_WEEKS} weeks.</Text>
+      <Text c='dimmed'>No upcoming sessions.</Text>
     ) : (
       <Stack gap='xs'>
         {sessions.map((session) => {
@@ -167,7 +164,6 @@ export const GoalieLoungePage = (): JSX.Element => {
 
   const { board, cards } = useMemo(() => {
     const now = nowPacific();
-    const horizon = now.clone().add(HORIZON_WEEKS, 'weeks');
     const sessions = (sessionsData?.Sessions ?? []).filter(
       (session) => Boolean(session.SessionDate) && !isCancelled(session),
     );
@@ -201,7 +197,7 @@ export const GoalieLoungePage = (): JSX.Element => {
       );
 
     return {
-      board: upcoming.filter((session) => sessionMoment(session.SessionDate).isBefore(horizon)),
+      board: upcoming,
       cards: cardData,
     };
   }, [data, sessionsData]);
