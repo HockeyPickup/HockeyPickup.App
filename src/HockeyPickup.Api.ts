@@ -922,6 +922,8 @@ export interface BuySellStatusResponse {
    * @format duration
    */
   TimeUntilDraw?: string | null;
+  /** The player's own lottery action (EnterLottery/InLottery) offered alongside an impersonating Admin's buy override */
+  LotteryActionState?: BuyActionState | null;
 }
 
 export interface LotteryEnterRequest {
