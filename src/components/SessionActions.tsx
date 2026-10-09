@@ -93,6 +93,12 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
   }, [checkPermissions]);
 
   const buyActionState = buyStatus?.BuyActionState;
+  // An impersonating Admin gets the buy override in BuyActionState, with the player's own lottery action
+  // alongside it in LotteryActionState, so either can surface the Enter/Leave Lottery controls.
+  const isLotteryAction = (state: BuyActionState): boolean =>
+    buyActionState === state || buyStatus?.LotteryActionState === state;
+  const canEnterLottery = isLotteryAction(BuyActionState.EnterLottery);
+  const isInLottery = isLotteryAction(BuyActionState.InLottery);
 
   const getBuyWindowDate = (): string | undefined => {
     if (user?.PreferredPlus) {
@@ -330,7 +336,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
             </Text>
           </Alert>
         )}
-        {buyActionState === BuyActionState.InLottery && (
+        {isInLottery && (
           <Alert
             mt='md'
             color='blue'
@@ -355,7 +361,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
               {isAdminBuying ? 'Buy Spot (Admin)' : 'Buy Spot'}
             </Button>
           )}
-          {buyActionState === BuyActionState.EnterLottery && (
+          {canEnterLottery && (
             <Button
               onClick={handleEnterLottery}
               color='blue'
@@ -365,7 +371,7 @@ export const SessionActions = ({ session, onSessionUpdate }: SessionActionsProps
               Enter Lottery
             </Button>
           )}
-          {buyActionState === BuyActionState.InLottery && (
+          {isInLottery && (
             <Button
               onClick={handleLeaveLottery}
               variant='outline'
