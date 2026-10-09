@@ -94,3 +94,17 @@ jobs:
           ###### End of Repository/Build Configurations ######
         env:
           API_ROOT: https://api.hockeypickup.com
+
+  # Each PR deploy creates a staging environment; without this they are never
+  # removed and new PR deploys fail once the plan's environment limit is hit.
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: 'close'
