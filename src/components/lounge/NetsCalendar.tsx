@@ -14,6 +14,7 @@ import {
   Group,
   Paper,
   Stack,
+  Switch,
   Text,
   Title,
   Tooltip,
@@ -241,6 +242,8 @@ export const NetsCalendar = ({ sessions, goalies, viewerId }: NetsCalendarProps)
   const totalNets = monthSessions.length * GOALIES_PER_SESSION;
   const coveredNets = totalNets - monthSessions.reduce((sum, session) => sum + openNets(session), 0);
 
+  const viewerIsGoalie = viewerId !== undefined && goalies.some(({ user }) => user.Id === viewerId);
+
   const toggle = (value: string): void => setSpotlight((current) => (current === value ? null : value));
 
   return (
@@ -287,6 +290,18 @@ export const NetsCalendar = ({ sessions, goalies, viewerId }: NetsCalendarProps)
           <Button size='compact-xs' variant='subtle' onClick={() => setMonth(thisMonth)}>
             Today
           </Button>
+        )}
+        {viewerIsGoalie && (
+          // Shorthand for spotlighting yourself, so it stays in step with the Spotlight strip.
+          <Switch
+            ml='auto'
+            size='xs'
+            color='teal'
+            label='My starts'
+            checked={spotlight === viewerId}
+            onChange={() => toggle(viewerId)}
+            styles={{ label: { color: 'var(--mantine-color-dimmed)' } }}
+          />
         )}
       </Group>
 

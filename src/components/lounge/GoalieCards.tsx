@@ -14,7 +14,7 @@ const asPerson = (user: UserDetailedResponse): { FirstName: string; LastName: st
   PhotoUrl: user.PhotoUrl,
 });
 
-/** Avatar with a ring: teal for the viewer, the card colour otherwise so it lifts off the band. */
+/** Avatar with a ring: teal for the viewer, the card colour otherwise. */
 const RingedFace = ({ user, size, isViewer }: { user: UserDetailedResponse; size: number; isViewer: boolean }): JSX.Element => (
   <Box
     style={{
@@ -51,7 +51,6 @@ const TradingCard = ({ goalie, isViewer }: { goalie: LoungeGoalie; isViewer: boo
       component={Link}
       to={`/profile/${user.Id}`}
       radius='md'
-      p={0}
       withBorder
       bg='dark.6'
       style={{
@@ -61,35 +60,23 @@ const TradingCard = ({ goalie, isViewer }: { goalie: LoungeGoalie; isViewer: boo
         borderColor: isViewer ? 'var(--mantine-color-teal-7)' : undefined,
       }}
     >
-      <Box
-        h={48}
-        pos='relative'
-        style={{ background: 'linear-gradient(120deg, var(--mantine-color-teal-9), var(--mantine-color-purple-7))' }}
-      >
-        {user.JerseyNumber !== 0 && (
-          <Text
-            pos='absolute'
-            top={4}
-            right={10}
-            fw={900}
-            size='28px'
-            c='white'
-            style={{ opacity: 0.35, lineHeight: 1 }}
-          >
-            #{user.JerseyNumber}
-          </Text>
-        )}
-        {isViewer && (
-          <Badge pos='absolute' top={8} left={8} size='xs' color='teal' variant='filled' radius='sm'>
-            You
-          </Badge>
-        )}
-      </Box>
-      <Stack gap='sm' align='center' px='sm' pb='md' mt={-40}>
+      <Stack gap='sm' align='center' px='sm' py='md'>
         <RingedFace user={user} size={80} isViewer={isViewer} />
-        <Text fw={700} size='md' ta='center' lh={1.2}>
-          {user.FirstName} {user.LastName}
-        </Text>
+        <Stack gap={4} align='center'>
+          <Text fw={700} size='md' ta='center' lh={1.2}>
+            {user.FirstName} {user.LastName}
+            {user.JerseyNumber !== 0 && (
+              <Text component='span' c='dimmed' fw={500} ml={6}>
+                #{user.JerseyNumber}
+              </Text>
+            )}
+          </Text>
+          {isViewer && (
+            <Badge size='xs' color='teal' variant='light' radius='sm'>
+              You
+            </Badge>
+          )}
+        </Stack>
         <Group gap='md' justify='center' wrap='nowrap'>
           <Stat value={upcoming.length} label='Booked' />
           <Divider orientation='vertical' color='dark.4' />
@@ -107,7 +94,7 @@ const TradingCard = ({ goalie, isViewer }: { goalie: LoungeGoalie; isViewer: boo
   );
 };
 
-const BenchItem = ({ goalie, isViewer }: { goalie: LoungeGoalie; isViewer: boolean }): JSX.Element => (
+const FreeAgentItem = ({ goalie, isViewer }: { goalie: LoungeGoalie; isViewer: boolean }): JSX.Element => (
   <Card
     component={Link}
     to={`/profile/${goalie.user.Id}`}
@@ -141,10 +128,13 @@ interface GoalieCardsProps {
   viewerId: string | undefined;
 }
 
-/** Goalies with starts booked get a full card; everyone else waits on the bench, still face-first. */
+/**
+ * Goalies with starts booked get a full card; free agents (nothing booked yet) get a compact row,
+ * still face-first.
+ */
 export const GoalieCards = ({ goalies, viewerId }: GoalieCardsProps): JSX.Element => {
   const rotation = goalies.filter((goalie) => goalie.upcoming.length > 0);
-  const bench = goalies.filter((goalie) => goalie.upcoming.length === 0);
+  const freeAgents = goalies.filter((goalie) => goalie.upcoming.length === 0);
 
   return (
     <Paper shadow='sm' p='md'>
@@ -163,7 +153,7 @@ export const GoalieCards = ({ goalies, viewerId }: GoalieCardsProps): JSX.Elemen
           ))}
         </SimpleGrid>
       )}
-      {bench.length > 0 && (
+      {freeAgents.length > 0 && (
         <>
           <Divider
             my='md'
@@ -171,13 +161,13 @@ export const GoalieCards = ({ goalies, viewerId }: GoalieCardsProps): JSX.Elemen
             labelPosition='left'
             label={
               <Text size='xs' fw={700} c='dimmed' tt='uppercase' style={{ letterSpacing: '0.12em' }}>
-                On the bench
+                Free agents
               </Text>
             }
           />
           <SimpleGrid cols={{ base: 1, xs: 2, md: 3, lg: 4 }} spacing='sm'>
-            {bench.map((goalie) => (
-              <BenchItem key={goalie.user.Id} goalie={goalie} isViewer={goalie.user.Id === viewerId} />
+            {freeAgents.map((goalie) => (
+              <FreeAgentItem key={goalie.user.Id} goalie={goalie} isViewer={goalie.user.Id === viewerId} />
             ))}
           </SimpleGrid>
         </>
