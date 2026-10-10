@@ -1,5 +1,4 @@
 import type { SessionBasicResponse, SessionGoalie } from '@/HockeyPickup.Api';
-import { parsePackSession } from '@/lib/dashboard';
 
 /**
  * Goalies are session roster rows with Position = Goalie, delivered on every session as
@@ -39,8 +38,6 @@ export interface GoalieSession {
   isViewerInNet: boolean;
   /** Nets still unassigned, never negative. */
   openNets: number;
-  /** Which session of the pre-paid pack this is, from the note — not a skater count. */
-  pack: { session: number; size: number } | null;
 }
 
 export const describeGoalieSession = (
@@ -55,6 +52,5 @@ export const describeGoalieSession = (
     otherGoalies: goalies.filter((goalie) => goalie.UserId !== userId),
     isViewerInNet: isUserInNet(session, userId),
     openNets: openNets(session),
-    pack: parsePackSession(session.Note),
   };
 };
