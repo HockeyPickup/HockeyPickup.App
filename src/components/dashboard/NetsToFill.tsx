@@ -1,7 +1,7 @@
 import { GoalieNames } from '@/components/GoalieAvatar';
 import { GoalieSession } from '@/lib/goalies';
 import { Badge, Button, Card, Group, SimpleGrid, Stack, Text } from '@mantine/core';
-import { IconCalendar, IconUserQuestion, IconUsers } from '@tabler/icons-react';
+import { IconCalendar, IconTicket, IconUserQuestion } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
@@ -20,7 +20,7 @@ interface NetsToFillProps {
  */
 export const NetsToFill = ({ items }: NetsToFillProps): JSX.Element => (
   <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
-    {items.map(({ session, goalies, openNets, skaters }) => (
+    {items.map(({ session, goalies, openNets, pack }) => (
       <Card
         key={session.SessionId}
         radius='md'
@@ -51,15 +51,15 @@ export const NetsToFill = ({ items }: NetsToFillProps): JSX.Element => (
               >
                 {openNets === 1 ? 'Needs 1 goalie' : `Needs ${openNets} goalies`}
               </Badge>
-              {skaters && (
+              {pack && (
                 <Badge
                   size='sm'
                   radius='sm'
                   variant='light'
                   color='gray'
-                  leftSection={<IconUsers size={12} />}
+                  leftSection={<IconTicket size={12} />}
                 >
-                  {skaters.filled}/{skaters.total} skaters
+                  {pack.size}-pack: {pack.session}/{pack.size}
                 </Badge>
               )}
             </Group>

@@ -38,32 +38,33 @@ export const CTA_PRESENTATION: Record<SessionCtaState, CtaPresentation> = {
 export const isCancelled = (session: { Note?: string | null }): boolean =>
   session.Note?.toLowerCase().includes('cancelled') ?? false;
 
-// TODO: normalize skater capacity — the "8/10" still lives in the free-text note.
+// TODO: normalize the pre-paid pack — the "8/10" still lives in the free-text note.
 const GOALIE_LABEL = /goalies?\s*:/i;
-const SKATER_COUNT = /(\d+)\s*\/\s*(\d+)/g;
+const PACK_SESSION = /(\d+)\s*\/\s*(\d+)/g;
 
-/** No roster runs to these numbers, so a larger denominator is a date or a year, not a count. */
-const MAX_ROSTER_SIZE = 40;
+/** Packs are 10 sessions, so a much larger denominator is a date or a year, not a pack. */
+const MAX_PACK_SIZE = 40;
 
 /**
- * "8/10" — how full the skater roster is.
+ * "8/10" — which session of a pre-paid 10-pack this is (the 8th of 10). It is NOT a skater count;
+ * the real one comes from the roster (see getPlayingCount).
  *
  * Only the text before the goalie list is considered, since anything after it is prose that may
  * hold a date. Implausible denominators are skipped too: notes like "New pricing effective
- * 10/2022 ... 2/10." would otherwise report a roster of 2022.
+ * 10/2022 ... 2/10." would otherwise report a pack of 2022.
  */
-export const parseSkaterCount = (
+export const parsePackSession = (
   note: string | null | undefined,
-): { filled: number; total: number } | null => {
+): { session: number; size: number } | null => {
   if (!note) return null;
 
   const labelIndex = note.search(GOALIE_LABEL);
   const beforeGoalies = labelIndex === -1 ? note : note.slice(0, labelIndex);
 
-  for (const match of beforeGoalies.matchAll(SKATER_COUNT)) {
-    const filled = Number(match[1]);
-    const total = Number(match[2]);
-    if (total >= 2 && total <= MAX_ROSTER_SIZE && filled <= total) return { filled, total };
+  for (const match of beforeGoalies.matchAll(PACK_SESSION)) {
+    const session = Number(match[1]);
+    const size = Number(match[2]);
+    if (size >= 2 && size <= MAX_PACK_SIZE && session <= size) return { session, size };
   }
   return null;
 };
