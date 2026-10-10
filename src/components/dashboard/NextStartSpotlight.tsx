@@ -8,7 +8,6 @@ import {
   IconCalendar,
   IconClock,
   IconHourglassHigh,
-  IconUsers,
 } from '@tabler/icons-react';
 import moment from 'moment';
 import { JSX } from 'react';
@@ -24,10 +23,10 @@ interface NextStartSpotlightProps {
  * The goalie's hero card: their next start.
  *
  * Mirrors the skater spotlight so the dashboard reads as one product, but answers the questions a
- * goalie actually has — am I confirmed, is the other net covered, how full is the skate.
+ * goalie actually has — am I confirmed, and is the other net covered.
  */
 export const NextStartSpotlight = ({ start, image }: NextStartSpotlightProps): JSX.Element => {
-  const { session, otherGoalies, openNets, skaters } = start;
+  const { session, otherGoalies, openNets } = start;
   const countdown = useCountdown(session.SessionDate);
   const sessionDate = moment.utc(session.SessionDate);
 
@@ -63,17 +62,6 @@ export const NextStartSpotlight = ({ start, image }: NextStartSpotlightProps): J
           <GoalieNetChip />
 
           <Group gap='sm' wrap='wrap'>
-            {skaters && (
-              <Badge
-                size='lg'
-                radius='sm'
-                variant='light'
-                color='gray'
-                leftSection={<IconUsers size={14} />}
-              >
-                {skaters.filled}/{skaters.total} skaters
-              </Badge>
-            )}
             {otherGoalies.length > 0 && (
               <Badge
                 size='lg'

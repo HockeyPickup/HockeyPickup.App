@@ -38,36 +38,6 @@ export const CTA_PRESENTATION: Record<SessionCtaState, CtaPresentation> = {
 export const isCancelled = (session: { Note?: string | null }): boolean =>
   session.Note?.toLowerCase().includes('cancelled') ?? false;
 
-// TODO: normalize skater capacity — the "8/10" still lives in the free-text note.
-const GOALIE_LABEL = /goalies?\s*:/i;
-const SKATER_COUNT = /(\d+)\s*\/\s*(\d+)/g;
-
-/** No roster runs to these numbers, so a larger denominator is a date or a year, not a count. */
-const MAX_ROSTER_SIZE = 40;
-
-/**
- * "8/10" — how full the skater roster is.
- *
- * Only the text before the goalie list is considered, since anything after it is prose that may
- * hold a date. Implausible denominators are skipped too: notes like "New pricing effective
- * 10/2022 ... 2/10." would otherwise report a roster of 2022.
- */
-export const parseSkaterCount = (
-  note: string | null | undefined,
-): { filled: number; total: number } | null => {
-  if (!note) return null;
-
-  const labelIndex = note.search(GOALIE_LABEL);
-  const beforeGoalies = labelIndex === -1 ? note : note.slice(0, labelIndex);
-
-  for (const match of beforeGoalies.matchAll(SKATER_COUNT)) {
-    const filled = Number(match[1]);
-    const total = Number(match[2]);
-    if (total >= 2 && total <= MAX_ROSTER_SIZE && filled <= total) return { filled, total };
-  }
-  return null;
-};
-
 export const getUserRosterEntry = (
   session: DashboardSession,
   userId: string | undefined,
