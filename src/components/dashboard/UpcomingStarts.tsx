@@ -13,7 +13,7 @@ interface UpcomingStartsProps {
 /** The goalie's remaining booked starts. Density over decoration, as with the skater list. */
 export const UpcomingStarts = ({ items }: UpcomingStartsProps): JSX.Element => (
   <Stack gap='xs'>
-    {items.map(({ session, otherGoalies, openNets, skaters }) => (
+    {items.map(({ session, otherGoalies, openNets }) => (
       <Card key={session.SessionId} radius='md' p='sm' withBorder bg='dark.6'>
         <Group justify='space-between' wrap='wrap' gap='sm'>
           <Stack gap={2} style={{ minWidth: 0 }}>
@@ -39,11 +39,6 @@ export const UpcomingStarts = ({ items }: UpcomingStartsProps): JSX.Element => (
             )}
           </Stack>
           <Group gap='sm' wrap='nowrap'>
-            {skaters && (
-              <Text size='xs' c='dimmed'>
-                {skaters.filled}/{skaters.total}
-              </Text>
-            )}
             {openNets > 0 && (
               <Badge size='sm' radius='sm' variant='light' color='yellow'>
                 Net open
