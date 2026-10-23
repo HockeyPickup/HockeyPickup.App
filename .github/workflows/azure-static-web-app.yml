@@ -17,7 +17,10 @@ permissions:
   contents: read
 
 jobs:
+  # Tag only on push to master. On PR events it races the merge's push run
+  # for the same tag and fails with "Tag was not created properly".
   tag_version:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
