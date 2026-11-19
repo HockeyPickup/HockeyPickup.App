@@ -1,36 +1,64 @@
-/* eslint-disable react/no-unescaped-entities */
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/lib/auth';
 import { getCalendarUrl, rebuildCalendar } from '@/lib/calendar';
 import {
-  Anchor,
+  ActionIcon,
+  Alert,
   Button,
   Container,
-  Group,
-  List,
+  CopyButton,
   Paper,
+  SimpleGrid,
   Stack,
   Text,
   TextInput,
   Title,
+  Tooltip,
 } from '@mantine/core';
-import { IconCopy } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import {
+  IconAlertCircle,
+  IconBrandApple,
+  IconBrandGoogle,
+  IconCalendarPlus,
+  IconCheck,
+  IconCopy,
+  IconRefresh,
+} from '@tabler/icons-react';
 import { JSX, useEffect, useState } from 'react';
 import { useTitle } from '../layouts/TitleContext';
 
+const CALENDAR_NAME = 'Hockey Pickup';
+
+interface SubscribeLink {
+  label: string;
+  href: string;
+  icon: JSX.Element;
+}
+
+const buildSubscribeLinks = (url: string): SubscribeLink[] => {
+  const webcalUrl = url.replace(/^https?:\/\//, 'webcal://');
+  return [
+    { label: 'Apple Calendar', href: webcalUrl, icon: <IconBrandApple size={18} /> },
+    {
+      label: 'Google Calendar',
+      href: `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcalUrl)}`,
+      icon: <IconBrandGoogle size={18} />,
+    },
+    {
+      label: 'Outlook',
+      href: `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(url)}&name=${encodeURIComponent(CALENDAR_NAME)}`,
+      icon: <IconCalendarPlus size={18} />,
+    },
+  ];
+};
+
 export const CalendarPage = (): JSX.Element => {
   const { setPageInfo } = useTitle();
+  const { isAdmin } = useAuth();
   const [calendarUrl, setCalendarUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [rebuildMessage, setRebuildMessage] = useState<string>('');
-  const { isAdmin } = useAuth();
-
-  const copyToClipboard = (elementId: string): void => {
-    const element = document.getElementById(elementId) as HTMLInputElement;
-    if (element) {
-      element.select();
-      navigator.clipboard.writeText(element.value);
-    }
-  };
+  const [isRebuilding, setIsRebuilding] = useState(false);
 
   useEffect(() => {
     setPageInfo('Calendar', 'Hockey Pickup Calendar');
@@ -38,7 +66,7 @@ export const CalendarPage = (): JSX.Element => {
     const fetchCalendarUrl = async (): Promise<void> => {
       try {
         const response = await getCalendarUrl();
-        setCalendarUrl(response.Data as string);
+        setCalendarUrl(response.Data ?? '');
       } catch (err) {
         console.error('Failed to fetch calendar URL:', err);
       } finally {
@@ -49,144 +77,118 @@ export const CalendarPage = (): JSX.Element => {
     fetchCalendarUrl();
   }, [setPageInfo]);
 
-  if (isLoading) {
-    return (
-      <Container size='md' py='xs'>
-        <Text>Loading calendar information...</Text>
-      </Container>
-    );
-  }
-
   const handleRebuildCalendar = async (): Promise<void> => {
+    setIsRebuilding(true);
     try {
-      const response = await rebuildCalendar();
-      console.info('Calendar rebuilt successfully:', response);
-      setRebuildMessage('Calendar rebuilt successfully!');
+      await rebuildCalendar();
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Calendar Rebuilt',
+        message: 'The calendar feed has been regenerated.',
+        color: 'green',
+      });
     } catch (err) {
       console.error('Failed to rebuild calendar:', err);
-      setRebuildMessage('Failed to rebuild calendar. Please try again.');
+      notifications.show({
+        position: 'top-center',
+        autoClose: 5000,
+        style: { marginTop: '60px' },
+        title: 'Error',
+        message: 'Failed to rebuild the calendar. Please try again.',
+        color: 'red',
+      });
+    } finally {
+      setIsRebuilding(false);
     }
   };
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <Container size='md' py='xs'>
-      <Group justify='space-between' align='center' mb='md'>
-        <Title order={1}>Calendar</Title>
-        <img src='/static/calendar.png' alt='Calendar' width={48} height={48} />
-      </Group>
+    <Container size='sm' py='md'>
+      <Stack gap='lg'>
+        {calendarUrl ? (
+          <Paper withBorder p='lg' radius='md'>
+            <Stack gap='lg'>
+              <div>
+                <Title order={3}>Subscribe to Sessions</Title>
+                <Text c='dimmed' size='sm' mt={4}>
+                  Add the pickup schedule to your calendar once — new and changed sessions show up
+                  automatically.
+                </Text>
+              </div>
 
-      <Paper p='md' withBorder>
-        <Stack>
-          <Title order={2}>Syncing Pickup Sessions to your Calendar</Title>
-          <Text size='lg'>
-            Sessions will be synced with your calendar on mobile and desktop, and will automatically
-            be added / updated when you subscribe.
-          </Text>
-          <Title order={3} mt='md'>
-            Google Calendar:
-          </Title>
-          <List>
-            <List.Item>Open your Gmail account and go to Google Calendar.</List.Item>
-            <List.Item>
-              On the left side of the screen, find "Other calendars" and click the plus (+) icon
-              next to it.
-            </List.Item>
-            <List.Item>Select "From URL" from the drop-down menu.</List.Item>
-            <List.Item>In the "URL of calendar" field, paste the following URL:</List.Item>
-          </List>
-          <Group>
-            <TextInput
-              id='gmailLink'
-              value={calendarUrl}
-              readOnly
-              style={{ flex: 1 }}
-              rightSection={
-                <Button
-                  variant='subtle'
-                  size='compact-sm'
-                  onClick={() => copyToClipboard('gmailLink')}
-                  title='Copy URL'
-                >
-                  <IconCopy size={16} />
-                </Button>
-              }
-            />
-          </Group>
-          <Text>Click / Tap "Add Calendar" to add the subscription.</Text>
-          <Title order={3} mt='md'>
-            Apple Calendar:
-          </Title>
-          <Title order={4}>Automatic</Title>
-          <Anchor href={calendarUrl.replace(/^(http|https):\/\//, 'webcal://')}>Tap Here</Anchor>
-          <Title order={4}>Manual</Title>
-          <List>
-            <List.Item>Open Apple Calendar on your device.</List.Item>
-            <List.Item>Go to "File" &gt; "Add Calendar / New Calendar Subscription."</List.Item>
-            <List.Item>In the "Calendar URL" field, paste the following URL:</List.Item>
-          </List>
-          <Group>
-            <TextInput
-              id='appleLink'
-              value={calendarUrl}
-              readOnly
-              style={{ flex: 1 }}
-              rightSection={
-                <Button
-                  variant='subtle'
-                  size='compact-sm'
-                  onClick={() => copyToClipboard('appleLink')}
-                  title='Copy URL'
-                >
-                  <IconCopy size={16} />
-                </Button>
-              }
-            />
-          </Group>
-          <Text>Click / Tap "Subscribe" to add the subscription.</Text>
-          <Title order={3} mt='md'>
-            Outlook Calendar:
-          </Title>
-          <List>
-            <List.Item>Open Outlook and go to the Calendar view.</List.Item>
-            <List.Item>
-              In the ribbon at the top, click "Add Calendar" &gt; "From Internet."
-            </List.Item>
-            <List.Item>In the "Calendar URL" field, paste the following URL:</List.Item>
-          </List>
-          <Group>
-            <TextInput
-              id='outlookLink'
-              value={calendarUrl}
-              readOnly
-              style={{ flex: 1 }}
-              rightSection={
-                <Button
-                  variant='subtle'
-                  size='compact-sm'
-                  onClick={() => copyToClipboard('outlookLink')}
-                  title='Copy URL'
-                >
-                  <IconCopy size={16} />
-                </Button>
-              }
-            />
-          </Group>
-          <Text>Click / Tap "OK" to add the subscription.</Text>
-        </Stack>
-      </Paper>
+              <SimpleGrid cols={{ base: 1, xs: 3 }} spacing='sm'>
+                {buildSubscribeLinks(calendarUrl).map((link) => (
+                  <Button
+                    key={link.label}
+                    component='a'
+                    href={link.href}
+                    target={link.href.startsWith('webcal:') ? undefined : '_blank'}
+                    rel='noopener noreferrer'
+                    variant='light'
+                    leftSection={link.icon}
+                  >
+                    {link.label}
+                  </Button>
+                ))}
+              </SimpleGrid>
 
-      {isAdmin() && (
-        <Paper withBorder p='md' mt='xl'>
-          <Group>
-            <Button onClick={handleRebuildCalendar} color='blue'>
-              Regenerate Calendar
-            </Button>
-            {rebuildMessage && (
-              <Text c={rebuildMessage.includes('success') ? 'green' : 'red'}>{rebuildMessage}</Text>
-            )}
-          </Group>
-        </Paper>
-      )}
+              <TextInput
+                label='Other apps'
+                description='Copy this URL and add it as a calendar subscription.'
+                value={calendarUrl}
+                readOnly
+                onFocus={(e) => e.currentTarget.select()}
+                rightSection={
+                  <CopyButton value={calendarUrl}>
+                    {({ copied, copy }) => (
+                      <Tooltip label={copied ? 'Copied' : 'Copy URL'} withArrow>
+                        <ActionIcon
+                          variant='subtle'
+                          color={copied ? 'teal' : 'gray'}
+                          onClick={copy}
+                          aria-label='Copy calendar URL'
+                        >
+                          {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </CopyButton>
+                }
+              />
+            </Stack>
+          </Paper>
+        ) : (
+          <Alert color='red' icon={<IconAlertCircle size={18} />} title='Calendar unavailable'>
+            We couldn&apos;t load the calendar link. Please refresh the page or try again later.
+          </Alert>
+        )}
+
+        {isAdmin() && (
+          <Paper withBorder p='md' radius='md'>
+            <Stack gap='xs'>
+              <Text fw={500}>Admin</Text>
+              <Text c='dimmed' size='sm'>
+                Regenerate the calendar feed from the current sessions.
+              </Text>
+              <Button
+                variant='default'
+                leftSection={<IconRefresh size={16} />}
+                onClick={handleRebuildCalendar}
+                loading={isRebuilding}
+                w='fit-content'
+              >
+                Rebuild Calendar
+              </Button>
+            </Stack>
+          </Paper>
+        )}
+      </Stack>
     </Container>
   );
 };
